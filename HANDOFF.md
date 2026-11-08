@@ -4,8 +4,10 @@ Brought over 2026-11-07. Fitness Tracker (called "Deck Log" in the chat; renamed
 stretch, rest, bodyweight) with a Claude "coach". It was built in a claude.ai chat and lives
 as a private claude.ai artifact, which is how it gets used on the phone at the pool and gym.
 The owner's words for what it's for: tracking "general athletic endeavors through life". It is
-not mainly a swim app; the swim comeback plan is one part of it. Its home-screen icon is the
-artifact icon word `dumbbell` (claude.ai draws it; the page itself can't set one).
+not mainly a swim app; the swim comeback plan is one part of it. As an artifact, its icon is
+the artifact icon word `dumbbell`, but iOS shows claude.ai's own icon on the Home Screen. That
+is why it is moving to its own Cloudflare site (`CLOUDFLARE.md`), where the dumbbell in
+`public/icons/` and the name "Fitness" are its own.
 
 ## Where things are
 
@@ -239,9 +241,10 @@ What's built, beyond the findings above:
   `window.__mock` peeks at it and switches failures on and off.
 - `/tools/tests.html` runs every check, with the pane in front (background tabs slow timers):
   the Worker's 12 (`tools/worker-tests.js` against `worker/index.js`, with an in-memory
-  database and made-up sign-in tokens), then the app's 13 (`tools/app-tests.js`: no signal,
+  database and made-up sign-in tokens), then the app's 16 (`tools/app-tests.js`: no signal,
   signed out, server problem, a kept copy, a copy from another database, deletes, the swim in
-  progress, and the 135 swim checks). Add `?only=<words>` to run some. All 25 pass.
+  progress, the 135 swim checks, and the Home Screen icon, manifest and status bar). Add
+  `?only=<words>` to run some. All 28 pass.
 
 ## Open questions for the owner
 

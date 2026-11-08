@@ -233,5 +233,108 @@
     truly("it doesn't mention claude.ai", !/claude/i.test(a.text("#signinNote")));
   });
 
+  /* ---------- the Home Screen and full screen (step 3) ---------- */
+  // dev_server.py serves public/'s manifest and icons at the same addresses Cloudflare will
+  function loadImage(url) {
+    return new Promise((ok, bad) => {
+      const img = new Image();
+      img.onload = () => ok(img);
+      img.onerror = () => bad(new Error("no image at " + url));
+      img.src = url;
+    });
+  }
+  function cornerColour(img) {
+    const c = document.createElement("canvas");
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const g = c.getContext("2d");
+    g.drawImage(img, 0, 0);
+    const d = g.getImageData(2, 2, 1, 1).data;
+    return "#" + [d[0], d[1], d[2]].map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase();
+  }
+  const metaOf = (a, name) => { const m = a.$(`meta[name="${name}"]`); return m ? m.getAttribute("content") : null; };
+  const INK = "#131D24"; // the icon's background
+
+  check("added to the Home Screen, it shows the dumbbell and the name Fitness", async () => {
+    const a = await openApp("clear=1");
+    const link = a.$('head link[rel="apple-touch-icon"]');
+    truly("the page's head names a Home Screen icon", link);
+    const img = await loadImage(new URL(link.getAttribute("href"), a.doc.baseURI).href);
+    same("icon size", [img.naturalWidth, img.naturalHeight], [180, 180]);
+    same("icon background (ink)", cornerColour(img), INK);
+    same("name under the icon", metaOf(a, "apple-mobile-web-app-title"), "Fitness");
+    truly("the name is in the head", a.$('head meta[name="apple-mobile-web-app-title"]'));
+    const tab = a.$('head link[rel="icon"]');
+    truly("the browser tab shows the dumbbell too", tab);
+    await loadImage(new URL(tab.getAttribute("href"), a.doc.baseURI).href);
+    same("the tab's title", a.doc.title, "Fitness Tracker");
+  });
+
+  check("opened from the Home Screen, it runs full screen like an app", async () => {
+    const a = await openApp("clear=1");
+    same("full screen on an iPhone", metaOf(a, "apple-mobile-web-app-capable"), "yes");
+    same("full screen on other phones", metaOf(a, "mobile-web-app-capable"), "yes");
+    truly("the page reaches under the notch and the home bar", /viewport-fit=cover/.test(metaOf(a, "viewport") || ""));
+    const link = a.$('head link[rel="manifest"]');
+    truly("the page names a web-app manifest", link);
+    // Cloudflare's sign-in turns away a manifest fetched without the sign-in cookie
+    same("the manifest is fetched signed in", link.getAttribute("crossorigin"), "use-credentials");
+    const at = new URL(link.getAttribute("href"), a.doc.baseURI);
+    const res = await fetch(at.href, { credentials: "include" });
+    truly("the manifest is served", res.ok);
+    const m = await res.json();
+    same("display", m.display, "standalone");
+    same("name", m.name, "Fitness Tracker");
+    same("short name", m.short_name, "Fitness");
+    const home = new URL("./", at).href;
+    same("opens on the app's own page", new URL(m.start_url, at).href, home);
+    same("stays inside the app", new URL(m.scope, at).href, home);
+    same("splash colour (the light background)", String(m.background_color).toUpperCase(), "#E7EDEA");
+    const sizes = [];
+    for (const i of m.icons || []) {
+      const img = await loadImage(new URL(i.src, at).href);
+      same(i.src + " size", img.naturalWidth + "x" + img.naturalHeight, i.sizes);
+      same(i.src + " background (ink)", cornerColour(img), INK);
+      sizes.push(i.sizes);
+    }
+    same("icon sizes in the manifest", sizes.sort(), ["192x192", "512x512"]);
+    // with the page under the notch, the page and the tab bar pad themselves clear of it
+    const rules = [...a.doc.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch (e) { return []; } });
+    const css = (sel) => rules.filter((x) => x.selectorText === sel).map((r) => r.style.cssText).join(" ");
+    truly("the page clears the notch", /safe-area-inset-top/.test(css(":root")));
+    truly("the tab bar clears the home bar", /safe-area-inset-bottom/.test(css("nav.bottom")));
+  });
+
+  check("the phone's status bar takes the background of the theme in use", async () => {
+    const bar = (a) => metaOf(a, "theme-color");
+    const page = (a) => a.win.getComputedStyle(a.doc.body).backgroundColor;
+    const rgb = (a, colour) => {
+      const s = a.doc.createElement("i");
+      s.style.color = colour;
+      a.doc.body.appendChild(s);
+      const c = a.win.getComputedStyle(s).color;
+      s.remove();
+      return c;
+    };
+    const light = "rgb(231, 237, 234)", dark = "rgb(13, 19, 23)";
+    // iOS draws its own bar, tinted with this colour, so the clock stays readable in both themes
+    let a = await openApp("clear=1");
+    try { a.win.localStorage.removeItem("dl-theme"); } catch (e) { /* no storage */ }
+    a = await openApp("clear=1");                // Auto: the phone's own setting decides
+    same("status bar style", metaOf(a, "apple-mobile-web-app-status-bar-style"), "default");
+    same("status bar matches the page on Auto", rgb(a, bar(a)), page(a));
+    a.click("#themeToggle");                     // Auto → Light
+    same("page on Light", page(a), light);
+    same("status bar on Light", rgb(a, bar(a)), light);
+    a.click("#themeToggle");                     // Light → Dark
+    same("page on Dark", page(a), dark);
+    same("status bar on Dark", rgb(a, bar(a)), dark);
+    a = await openApp("");                       // the choice is kept on this phone
+    same("page on reopening", page(a), dark);
+    same("status bar on reopening, before the app's script runs too", rgb(a, bar(a)), dark);
+    a.click("#themeToggle");                     // Dark → Auto, as the phone had it
+    same("status bar back on Auto", rgb(a, bar(a)), page(a));
+  });
+
   window.appChecks = checks;
 })();

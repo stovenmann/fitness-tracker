@@ -1,7 +1,7 @@
 # Moving Fitness Tracker to Cloudflare
 
-**Status: approved by Steve on 2026-11-08. Steps 1 and 2 are done; step 3 is next. Nothing
-is deployed, and the live artifact is unchanged.**
+**Status: approved by Steve on 2026-11-08. Steps 1 to 3 are done; step 4 is next. Nothing is
+deployed, and the live artifact is unchanged.**
 - **Step 1, the data check (2026-11-08):** Claude read the artifact's data read-only, counts
   only, and threw that copy away. The sessions, weigh-ins, lifting and swim documents can all
   be read, so the move's export works as planned.
@@ -13,6 +13,11 @@ is deployed, and the live artifact is unchanged.**
   server-problem notices. `tools/mock-api.js` replaces the old claude.ai stand-in, and
   `tools/app-tests.js` adds 13 checks; all 25 pass, the 135 swim checks among them. The
   offline check was broken on purpose (failed saves dropped) and failed, as it should.
+- **Step 3, the Home Screen:** the page has a real `<head>` with the manifest
+  (`public/manifest.webmanifest`: "Fitness Tracker", short name "Fitness", full screen), the
+  dumbbell in `public/icons/` (180, 192 and 512, drawn by `tools/app-icon.ps1`), and a status
+  bar that follows the theme in use. 3 more checks, 28 in all, passing; the name check was
+  broken on purpose and failed. Only the iPhone can show the real thing, at step 5.
 - **Not known yet:** without a service worker, iOS may not open the page at all with no signal
   (the kept copy helps when the page loads but the API doesn't answer, as on a weak signal).
   Disc golf is the same. Step 5's iPhone checks now include trying it in Airplane Mode.

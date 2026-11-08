@@ -1,7 +1,19 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <title>Fitness Tracker</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<!-- Added to the Home Screen: the dumbbell icon, the name "Fitness", and full screen. The manifest
+     is fetched with the sign-in cookie, or Cloudflare's sign-in would turn it away. -->
+<link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Fitness">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- iOS draws its own status bar, tinted with theme-color: the page's background in the theme in use -->
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E7EDEA">
+<script>try { var t = localStorage.getItem("dl-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); var dark = t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches); document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#0D1317" : "#E7EDEA"); /* --bg in each theme */ } catch (e) { /* storage blocked: the theme toggle and paintStatusBar() still work */ }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900&family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&display=swap">
+</head><body>
 <style>
 /* Editorial Sport — the week as a race program. Light-first; "ink edition" dark variant. */
 :root{
@@ -1500,15 +1512,21 @@ function applyTheme(){
   const r=document.documentElement;
   if (themeMode==="light"||themeMode==="dark") r.setAttribute("data-theme",themeMode);
   else r.removeAttribute("data-theme");
-  paintThemeBtn();
+  paintThemeBtn(); paintStatusBar();
 }
+// iOS tints its status bar with theme-color: keep it the page's background in the theme in use
+function paintStatusBar(){
+  const m=document.querySelector('meta[name="theme-color"]');
+  if (m) m.setAttribute("content", getComputedStyle(document.documentElement).getPropertyValue("--bg").trim());
+}
+try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paintStatusBar); } catch(e){}
 $("#themeToggle").addEventListener("click",()=>{
   themeMode=THEME_ORDER[(THEME_ORDER.indexOf(themeMode)+1)%THEME_ORDER.length];
   try{ localStorage.setItem("dl-theme",themeMode); }catch(e){}
   applyTheme();
 });
-// at load: honor a saved choice; on "auto", leave the viewer's own attribute alone
-if (themeMode!=="auto") applyTheme(); else paintThemeBtn();
+// at load: honor a saved choice; on "auto", the phone's own setting decides
+if (themeMode!=="auto") applyTheme(); else { paintThemeBtn(); paintStatusBar(); }
 
 
 // ---------- quick log ----------
