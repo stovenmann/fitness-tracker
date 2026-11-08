@@ -6,6 +6,8 @@ Open http://localhost:8765/ . Add ?seed=1 for synthetic sample data, ?clear=1 to
 The page is artifact/fitness-tracker.html with two scripts injected before the app's own:
 tools/mock-claude.js (the fake runtime) and tools/swim-tests.js (logic tests, run from the
 console with runSwimTests()). The published artifact never contains either.
+Every other path is served from the repo as it is: http://localhost:8765/tools/tests.html runs
+the Cloudflare Worker's checks (tools/worker-tests.js against worker/index.js; see CLOUDFLARE.md).
 """
 import http.server
 import pathlib

@@ -1,6 +1,13 @@
 # Moving Fitness Tracker to Cloudflare
 
-**Status: approved by Steve on 2026-11-08. Step 1 is next.**
+**Status: approved by Steve on 2026-11-08. Step 1 is done; step 2 is next. Nothing is
+deployed, and the live artifact is unchanged.**
+- **Step 1, the data check (2026-11-08):** Claude read the artifact's data read-only, counts
+  only, and threw that copy away. The sessions, weigh-ins, lifting and swim documents can all
+  be read, so the move's export works as planned.
+- **Step 1, the Worker:** `worker/index.js`, its settings (`wrangler.jsonc`, with the database
+  id still to come from Part 1 of the setup) and 12 checks in `tools/worker-tests.js`, run from
+  `/tools/tests.html`. One check was broken on purpose to be sure it fails; it did.
 
 This copies the disc golf scorecard's move (`disc-golf-scorecard/CLOUDFLARE.md`, live since
 2026-11-08, its basket icon confirmed on Steve's iPhone). The method is the same. **The setup is

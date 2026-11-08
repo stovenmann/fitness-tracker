@@ -1,0 +1,228 @@
+/* Fitness Tracker's Worker on Cloudflare (see CLOUDFLARE.md). Copied from the disc golf
+   scorecard's Worker and changed for this app: its own collections, and no map images.
+
+   It serves the app's own files (public/), and a small API for the page:
+     GET    /api/docs/<collection>        every document in sessions, weights or state
+                                          (sends an ETag; answers 304 when nothing changed)
+     PUT    /api/docs/<collection>/<id>   save one document; the JSON body is its data
+     DELETE /api/docs/<collection>/<id>   delete one document
+   `state` holds the app's single documents: goals, lifting, swim and live.
+
+   Cloudflare Access signs Steve in before anything reaches this Worker. The Worker checks that
+   sign-in again on every API call, so the API stays closed even if Access were ever turned off.
+   Settings, kept in the Cloudflare dashboard rather than in this public repo:
+     ACCESS_TEAM_DOMAIN  e.g. "yourteam.cloudflareaccess.com"
+     ACCESS_AUD          this app's own Access audience tag (not disc golf's)
+     ALLOWED_EMAILS      who may use the API (comma separated)
+   Without all three the API refuses everything.
+
+   Plain JavaScript with no add-ons: Cloudflare runs this file as it is, and the browser checks
+   (tools/worker-tests.js) run the same file against an in-memory database. */
+
+export const COLLECTIONS = ["sessions", "weights", "state"];
+export const LIMITS = { doc: 256 * 1024 };
+const DOC_ID = /^[A-Za-z0-9_-]{1,80}$/;
+
+/* Every statement the Worker sends to D1. The test double recognises exactly these. */
+export const SQL = {
+  init: [
+    "CREATE TABLE IF NOT EXISTS docs (collection TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, updated_at INTEGER NOT NULL, PRIMARY KEY (collection, id))",
+    "CREATE TABLE IF NOT EXISTS meta (collection TEXT PRIMARY KEY, version INTEGER NOT NULL)",
+  ],
+  // a random number made once per database, part of every ETag, so a phone's kept copy from one
+  // database can never pass for current on another (a recreated database restarts its versions)
+  epoch: "INSERT OR IGNORE INTO meta (collection, version) VALUES ('#epoch', ?1)",
+  version: "SELECT version FROM meta WHERE collection = ?1",
+  list: "SELECT id, data FROM docs WHERE collection = ?1 ORDER BY id",
+  save: "INSERT INTO docs (collection, id, data, updated_at) VALUES (?1, ?2, ?3, ?4) ON CONFLICT (collection, id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at",
+  remove: "DELETE FROM docs WHERE collection = ?1 AND id = ?2",
+  bump: "INSERT INTO meta (collection, version) VALUES (?1, 1) ON CONFLICT (collection) DO UPDATE SET version = version + 1",
+};
+
+export default {
+  fetch(request, env) {
+    return handle(request, env);
+  },
+};
+
+/* deps lets the checks supply the clock and the network; Cloudflare uses the defaults. */
+export async function handle(request, env, deps) {
+  const d = Object.assign({ now: () => Date.now(), fetch: (u) => fetch(u) }, deps || {});
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith("/api/")) {
+    return env.ASSETS ? env.ASSETS.fetch(request) : fail(404, "not_found", "No such page.");
+  }
+  try {
+    if (request.headers.get("sec-fetch-site") === "cross-site") {
+      return fail(403, "cross_site", "Requests from other sites are refused.");
+    }
+    const who = await signedIn(request, env, d);
+    if (!who.ok) return fail(who.status, who.code, who.message);
+    return await api(request, env, url, d);
+  } catch (e) {
+    return fail(500, "server_error", "Something went wrong on the server. Try again.");
+  }
+}
+
+/* ---------------- sign-in ---------------- */
+
+const certCache = new Map(); // team domain -> { at, keys: Map(kid -> CryptoKey) }
+
+async function signedIn(request, env, d) {
+  const team = String(env.ACCESS_TEAM_DOMAIN || "").trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  const aud = String(env.ACCESS_AUD || "").trim();
+  const allowed = String(env.ALLOWED_EMAILS || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
+  if (!team || !aud || !allowed.length) return no(503, "not_configured", "Sign-in isn't set up on the server yet.");
+  const out = no(401, "signed_out", "Sign in again to save.");
+  const token = request.headers.get("cf-access-jwt-assertion") || cookie(request, "CF_Authorization");
+  if (!token) return out;
+  const parts = token.split(".");
+  if (parts.length !== 3) return out;
+  let header, claims;
+  try {
+    header = JSON.parse(text64(parts[0]));
+    claims = JSON.parse(text64(parts[1]));
+  } catch (e) {
+    return out;
+  }
+  if (!header || header.alg !== "RS256" || !header.kid || !claims || typeof claims !== "object") return out;
+  const key = await accessKey(team, header.kid, d);
+  if (!key) return out;
+  let good = false;
+  try {
+    good = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, bytes64(parts[2]), new TextEncoder().encode(parts[0] + "." + parts[1]));
+  } catch (e) {
+    good = false;
+  }
+  if (!good) return out;
+  const now = Math.floor(d.now() / 1000);
+  const auds = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
+  if (auds.indexOf(aud) < 0 || claims.iss !== "https://" + team) return out;
+  if (typeof claims.exp !== "number" || claims.exp < now - 30) return no(401, "signed_out", "Your sign-in has run out. Sign in again to save.");
+  if (typeof claims.nbf === "number" && claims.nbf > now + 30) return out;
+  const email = String(claims.email || "").toLowerCase();
+  if (allowed.indexOf(email) < 0) return no(403, "not_granted", "This account can't use Fitness Tracker.");
+  return { ok: true, email };
+}
+
+/* Cloudflare publishes the keys that sign Access tokens and replaces them every few weeks.
+   Keys are kept for an hour; a token signed with an unknown key fetches them again. */
+async function accessKey(team, kid, d) {
+  const now = d.now();
+  let entry = certCache.get(team);
+  const stale = !entry || now - entry.at > 3600 * 1000 || (!entry.keys.has(kid) && now - entry.at > 10 * 1000);
+  if (stale) {
+    const res = await d.fetch("https://" + team + "/cdn-cgi/access/certs");
+    if (!res.ok) throw new Error("certs " + res.status);
+    const body = await res.json();
+    const keys = new Map();
+    for (const jwk of (body && body.keys) || []) {
+      if (jwk && jwk.kty === "RSA" && jwk.kid && jwk.n && jwk.e) {
+        const k = await crypto.subtle.importKey("jwk", { kty: "RSA", n: jwk.n, e: jwk.e, ext: true },
+          { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+        keys.set(jwk.kid, k);
+      }
+    }
+    entry = { at: now, keys };
+    certCache.set(team, entry);
+  }
+  return entry.keys.get(kid) || null;
+}
+
+/* ---------------- the API ---------------- */
+
+async function api(request, env, url, d) {
+  const parts = url.pathname.split("/").filter(Boolean); // ["api", "docs", coll, id]
+  const method = request.method;
+  if (parts[1] !== "docs") return fail(404, "not_found", "No such address.");
+  const coll = parts[2];
+  if (COLLECTIONS.indexOf(coll) < 0 || parts.length > 4) return fail(404, "not_found", "No such collection.");
+  await ready(env.DB);
+  if (parts.length === 3) {
+    return method === "GET" ? listDocs(request, env, coll) : fail(405, "bad_method", "Not allowed here.");
+  }
+  let id;
+  try { id = decodeURIComponent(parts[3]); } catch (e) { id = ""; }
+  if (!DOC_ID.test(id)) return fail(400, "bad_id", "That id isn't valid.");
+  if (method === "PUT") return saveDoc(request, env, coll, id, d);
+  if (method === "DELETE") return deleteDoc(env, coll, id);
+  return fail(405, "bad_method", "Not allowed here.");
+}
+
+const ready_ = new WeakSet();
+async function ready(db) {
+  if (ready_.has(db)) return;
+  const epoch = Math.floor(Math.random() * 2 ** 48) + 1;
+  await db.batch(SQL.init.map((s) => db.prepare(s)).concat([db.prepare(SQL.epoch).bind(epoch)]));
+  ready_.add(db);
+}
+const first = (res) => (res && res.results && res.results[0] ? res.results[0].version : 0);
+const etagOf = (epoch, v) => '"' + epoch + "-v" + v + '"';
+
+async function listDocs(request, env, coll) {
+  const stamp = () => [env.DB.prepare(SQL.version).bind("#epoch"), env.DB.prepare(SQL.version).bind(coll)];
+  const [e0, v0] = await env.DB.batch(stamp());
+  const known = etagOf(first(e0), first(v0));
+  if (request.headers.get("if-none-match") === known) {
+    return new Response(null, { status: 304, headers: { etag: known, "cache-control": "no-store" } });
+  }
+  // the version and the documents are read together, so the ETag matches what is sent
+  const [e, v, list] = await env.DB.batch(stamp().concat([env.DB.prepare(SQL.list).bind(coll)]));
+  const docs = (list.results || []).map((r) => ({ id: r.id, data: JSON.parse(r.data) }));
+  return json(200, { docs, version: first(v) }, { etag: etagOf(first(e), first(v)) });
+}
+
+async function saveDoc(request, env, coll, id, d) {
+  if (Number(request.headers.get("content-length") || 0) > LIMITS.doc) return fail(413, "too_large", "That's too much to save at once.");
+  const body = await request.text();
+  if (new TextEncoder().encode(body).length > LIMITS.doc) return fail(413, "too_large", "That's too much to save at once.");
+  let data;
+  try { data = JSON.parse(body); } catch (e) { return fail(400, "bad_json", "That wasn't valid data."); }
+  if (!data || typeof data !== "object" || Array.isArray(data)) return fail(400, "bad_json", "That wasn't valid data.");
+  await env.DB.batch([
+    env.DB.prepare(SQL.save).bind(coll, id, JSON.stringify(data), d.now()),
+    env.DB.prepare(SQL.bump).bind(coll),
+  ]);
+  return json(200, { ok: true });
+}
+
+async function deleteDoc(env, coll, id) {
+  await env.DB.batch([env.DB.prepare(SQL.remove).bind(coll, id), env.DB.prepare(SQL.bump).bind(coll)]);
+  return json(200, { ok: true });
+}
+
+/* ---------------- small helpers ---------------- */
+
+function json(status, body, headers) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: Object.assign({ "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }, headers || {}),
+  });
+}
+function fail(status, code, message) {
+  return json(status, { code, message });
+}
+function no(status, code, message) {
+  return { ok: false, status, code, message };
+}
+function cookie(request, name) {
+  const all = request.headers.get("cookie") || "";
+  for (const part of all.split(/;\s*/)) {
+    const i = part.indexOf("=");
+    if (i > 0 && part.slice(0, i) === name) {
+      try { return decodeURIComponent(part.slice(i + 1)); } catch (e) { return ""; }
+    }
+  }
+  return "";
+}
+function bytes64(s) {
+  let b = String(s).replace(/-/g, "+").replace(/_/g, "/");
+  while (b.length % 4) b += "=";
+  const bin = atob(b);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function text64(s) {
+  return new TextDecoder().decode(bytes64(s));
+}

@@ -222,6 +222,9 @@ What's built, beyond the findings above:
   and the runner step by step.
 - The mock store lives in the test browser's localStorage (`fitness-tracker-mock-db`);
   `window.__mock.lastPrompt()` shows the last coach prompt.
+- `/tools/tests.html` runs the Cloudflare Worker's 12 checks (`tools/worker-tests.js` against
+  `worker/index.js`, with an in-memory database and made-up sign-in tokens). Add
+  `?only=<words>` to run some. See `CLOUDFLARE.md` for the move.
 
 ## Open questions for the owner
 
@@ -230,9 +233,9 @@ What's built, beyond the findings above:
   where? Nothing in the paste reports how v3 felt in use.
 - Fix finding 1 by redesigning the swim/cardio data model (rounds, alternating and per-repeat
   effort, send-offs, repeat times), then seed the plan's three phases as templates?
-- Keep it as a claude.ai artifact (phone access, data stays put, edit here and republish to
-  the same URL), or make the move the chat itself proposed: a real codebase with its own host
-  and data store (needs a data export from the artifact database)?
+- ~~Keep it as a claude.ai artifact, or move to its own host?~~ Decided 2026-11-08: it moves
+  to its own Cloudflare site, with every part set up fresh and the data brought over.
+  `CLOUDFLARE.md` has the approved plan and where it stands.
 
 ## Working on it from Claude Code
 

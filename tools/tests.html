@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fitness Tracker checks</title>
+<style>
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 16px; background: #fff; color: #131d24; }
+  h1 { font-size: 18px; margin: 0 0 6px; }
+  #out { padding-left: 22px; max-width: 640px; }
+  #out li { margin: 5px 0; }
+  .pass { color: #1e6b43; }
+  .fail { color: #c9252d; }
+  #stage { position: fixed; right: 12px; top: 12px; border: 1px solid #ccc; }
+  #stage iframe { display: block; border: 0; }
+</style>
+</head>
+<body>
+<!-- Served by tools/dev_server.py at /tools/tests.html. Add ?only=<words> to run some checks.
+     Results are in the list and in window.__results; window.__done is true when finished. -->
+<h1>Fitness Tracker checks</h1>
+<p id="sum">running…</p>
+<ol id="out"></ol>
+<div id="stage"></div>
+<script>
+  // load the checks fresh every time, so edited checks are never served from cache
+  const v = Date.now();
+  const load = (src) => new Promise((ok, bad) => {
+    const s = document.createElement("script");
+    s.src = src + "?v=" + v;
+    s.onload = ok;
+    s.onerror = () => bad(new Error("could not load " + src));
+    document.body.appendChild(s);
+  });
+  const results = [];
+  window.__results = results;
+  load("worker-tests.js").then(async () => {
+    const only = new URLSearchParams(location.search).get("only");
+    for (const c of window.workerChecks || []) {
+      if (only && !c.name.toLowerCase().includes(only.toLowerCase())) continue;
+      let ok = true, msg = "";
+      try { await c.fn(); } catch (e) { ok = false; msg = (e && e.message) || String(e); }
+      results.push({ name: c.name, ok, msg });
+      const li = document.createElement("li");
+      li.className = ok ? "pass" : "fail";
+      li.textContent = (ok ? "PASS  " : "FAIL  ") + c.name + (msg ? " — " + msg : "");
+      document.getElementById("out").appendChild(li);
+    }
+    const failed = results.filter((r) => !r.ok).length;
+    document.getElementById("sum").textContent = failed ? `${failed} of ${results.length} failing` : `all ${results.length} passing`;
+    window.__done = true;
+  }).catch((e) => { document.getElementById("sum").textContent = e.message; window.__done = true; });
+</script>
+</body>
+</html>

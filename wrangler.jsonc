@@ -1,0 +1,24 @@
+// Cloudflare's settings for Fitness Tracker (see CLOUDFLARE.md). Cloudflare reads this file when
+// it deploys from the `live` branch; nothing on Steve's PC uses it. Every name here is this app's
+// own: none of it is shared with the disc golf scorecard.
+// The sign-in settings (ACCESS_TEAM_DOMAIN, ACCESS_AUD, ALLOWED_EMAILS) are set in the Cloudflare
+// dashboard, not here, so the email address stays out of this public repo. keep_vars stops a
+// deploy from wiping them.
+{
+  "name": "fitness-tracker",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "keep_vars": true,
+  "workers_dev": true,
+  // no preview copies at their own addresses: the one at workers.dev, deployed from `live`, is all
+  "preview_urls": false,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    // a new database Steve creates at Part 1 of the setup in CLOUDFLARE.md; its id goes here then
+    { "binding": "DB", "database_name": "fitness-tracker", "database_id": "set-at-setup-part-1" }
+  ]
+}
