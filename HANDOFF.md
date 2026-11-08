@@ -8,7 +8,7 @@ as a private claude.ai artifact, which is how it gets used on the phone at the p
 
 | Path | What |
 |---|---|
-| `artifact/fitness-tracker.html` | The app, one file (about 3,300 lines). It started as a snapshot of live artifact version `1793842210-54bf` (v3 + theme toggle). The swim build (2026-11-07) is in the Swim Preview artifact and **not yet on the live URL**. Line numbers in the findings below refer to the v3 snapshot (commit `6caba12`). |
+| `artifact/fitness-tracker.html` | The app, one file (about 3,300 lines). It started as a snapshot of live artifact version `1793842210-54bf` (v3 + theme toggle). The swim build went live on 2026-11-07 as version `1794106215-c864`, which is what this file holds; merge against that version before the next publish. Line numbers in the findings below refer to the v3 snapshot (commit `6caba12`). |
 | `design/proto-*.html` | The three static design prototypes (Dispatch, Editorial Sport, Mission Control). Sample data only, no script. Editorial Sport is the one v3 was rebuilt around. |
 | `docs/activity-model.md` | **The proposed new session model** for swim, run, row, aggressive inline, disc golf, dog walks and stretch, plus counting rules. The owner's answers are recorded in it; not built yet. |
 | `docs/swim-plan-templates.json` | The swim plan's three phases (five workouts) in that model, with `stage` and `main` flags. Embedded in the app as the default swim templates. `tools/check-swim-templates.py` totals them. |
@@ -17,7 +17,7 @@ as a private claude.ai artifact, which is how it gets used on the phone at the p
 
 Artifact links:
 
-- Live app: https://claude.ai/artifact/PksoZZKoZCzwCRq54zUDtZ (still v3)
+- Live app: https://claude.ai/artifact/PksoZZKoZCzwCRq54zUDtZ (swim build, version `1794106215-c864`)
 - Swim Preview: https://claude.ai/artifact/E4zuonHixMjjVvD1KVDLkr (the swim build on its own empty database, for trying on the phone)
 - Prototypes: Dispatch https://claude.ai/artifact/8edtMzsXW72wMXq2zgQb8t ·
   Editorial Sport https://claude.ai/artifact/SdSMmGjh1QvQLFw2gNUQer ·
@@ -98,8 +98,8 @@ those claims don't hold.
 ## First-pass findings (from reading the code, not yet run)
 
 Ranked by how much they would hurt in real use. Line numbers are in the v3 snapshot (commit `6caba12`).
-Findings 1, 3, 4, 6, 7 and 9 are **fixed** by the swim build (2026-11-07), in the preview until the
-live app is republished. Finding 2 is fixed for swims; lifting is a later slice.
+Findings 1, 3, 4, 6, 7 and 9 are **fixed** by the swim build (live 2026-11-07). Finding 2 is fixed
+for swims; lifting is a later slice.
 
 1. **v3 can't track the recommended swim program, which was the last thing the owner asked
    for.** Only Base 1,700 (the weeks 1–2 workout) is seeded (:803). The plan's Build and
