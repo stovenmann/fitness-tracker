@@ -1,11 +1,12 @@
 {
-  "about": "The swim plan from docs/chat-history.md, written in the block model from docs/activity-model.md. Draft: not seeded into the app. Ranges are [min, max]. Distances in pool units (25 yd pool). 'yards' is the template's real total. 'planSaid' is the total the chat's plan gave, kept for the record: on 2026-11-07 the owner chose to keep the sets and correct the labels.",
+  "about": "The swim plan from docs/chat-history.md, written in the block model from docs/activity-model.md. Embedded in artifact/fitness-tracker.html as the default swim templates (keep the two in step; tools/swim-tests.js checks it). stage: 1 = weeks 1-2, 2 = weeks 3-4, 3 = weeks 5+. main: true marks the main set, whose rep times give main-set pace. Ranges are [min, max]. Distances in pool units (25 yd pool). 'yards' is the template's real total. 'planSaid' is the total the chat's plan gave, kept for the record: on 2026-11-07 the owner chose to keep the sets and correct the labels.",
   "pool": "25yd",
   "templates": [
     {
       "id": "p1-reacclimation",
       "name": "Reacclimation",
       "phase": "Weeks 1-2",
+      "stage": 1,
       "yards": [1300, 1700],
       "planSaid": [1500, 1800],
       "blocks": [
@@ -22,7 +23,7 @@
               { "dist": 25, "what": "swim", "stroke": "free" } ] },
             "interval": { "rest": 20 } }
         ]},
-        { "name": "Main set", "rounds": 1, "items": [
+        { "name": "Main set", "rounds": 1, "main": true, "items": [
           { "reps": [8, 10], "dist": 100, "what": "swim", "stroke": "free", "effort": "moderate",
             "ramp": { "swims": 4, "reps": [6, 8] },
             "interval": { "rest": [20, 30] },
@@ -37,6 +38,7 @@
       "id": "p2-build",
       "name": "Build",
       "phase": "Weeks 3-4",
+      "stage": 2,
       "yards": [1800, 1800],
       "planSaid": [2000, 2200],
       "blocks": [
@@ -50,7 +52,7 @@
             "pattern": { "odds": { "what": "drill" }, "evens": { "what": "swim", "stroke": "free", "effort": "build", "note": "build to fast" } },
             "interval": { "rest": 15 } }
         ]},
-        { "name": "Main set", "rounds": 3, "items": [
+        { "name": "Main set", "rounds": 3, "main": true, "items": [
           { "reps": 1, "dist": 200, "what": "swim", "stroke": "free", "effort": "steady", "interval": { "rest": [20, 30] } },
           { "reps": 2, "dist": 50, "what": "swim", "stroke": "free", "effort": "strong", "interval": { "rest": [20, 30] } }
         ]},
@@ -63,6 +65,7 @@
       "id": "p3-threshold",
       "name": "Threshold",
       "phase": "Weeks 5+",
+      "stage": 3,
       "yards": [1800, 1900],
       "planSaid": [2400, 2800],
       "blocks": [
@@ -74,7 +77,7 @@
             "pattern": { "odds": { "what": "drill" }, "evens": { "what": "swim", "stroke": "free", "effort": "fast" } },
             "interval": { "rest": 15 } }
         ]},
-        { "name": "Main set", "rounds": 1, "items": [
+        { "name": "Main set", "rounds": 1, "main": true, "items": [
           { "reps": 5, "dist": 200, "what": "swim", "stroke": "free", "effort": "threshold",
             "interval": { "rest": 30 }, "note": "A pace you could hold for all five." }
         ]},
@@ -87,6 +90,7 @@
       "id": "p3-speed",
       "name": "Speed",
       "phase": "Weeks 5+",
+      "stage": 3,
       "yards": [1400, 1700],
       "planSaid": [2400, 2800],
       "blocks": [
@@ -98,7 +102,7 @@
             "pattern": { "odds": { "what": "drill" }, "evens": { "what": "swim", "stroke": "free", "effort": "fast" } },
             "interval": { "rest": 15 } }
         ]},
-        { "name": "Main set", "rounds": 1, "items": [
+        { "name": "Main set", "rounds": 1, "main": true, "items": [
           { "reps": [12, 16], "dist": 50, "what": "swim", "stroke": "free",
             "pattern": { "groups": ["easy", "build", "fast", "easy"] },
             "interval": { "rest": 20 } }
@@ -112,6 +116,7 @@
       "id": "p3-im",
       "name": "IM",
       "phase": "Weeks 5+",
+      "stage": 3,
       "yards": [1800, 1900],
       "planSaid": [2400, 2800],
       "blocks": [
@@ -123,7 +128,7 @@
             "pattern": { "odds": { "what": "drill" }, "evens": { "what": "swim", "stroke": "free", "effort": "fast" } },
             "interval": { "rest": 15 } }
         ]},
-        { "name": "Main set", "rounds": 1, "items": [
+        { "name": "Main set", "rounds": 1, "main": true, "items": [
           { "reps": 4, "dist": 100, "what": "swim", "stroke": "IM", "effort": "easy", "note": "IM or stroke work" },
           { "reps": 6, "dist": 100, "what": "swim", "stroke": "free",
             "pattern": { "descend": 3 }, "note": "The plan gives no rest for this day." }

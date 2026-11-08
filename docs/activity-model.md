@@ -1,7 +1,10 @@
 # Activity model: proposal
 
-Status: **draft, 2026-11-07.** The owner has answered every open question (below). Nothing
-here is built.
+Status: **agreed 2026-11-07.** The owner has answered every open question (below).
+**Swim is built** (2026-11-07; see HANDOFF "Swim build"): the block model, the five plan
+templates, the pool-side runner, saving a swim in progress, main-set pace and the Home
+suggestion. Run, row, aggressive inline, disc golf, dog walks, effort and load for the other
+types, and saving a lift in progress are not built yet.
 
 The problem it solves: the fitness tracker stores swim and cardio as one time plus one distance, with a
 swim set allowed to be only "N yards" or "reps × each". That can't hold the swim plan
@@ -121,8 +124,9 @@ yardage and pace stay honest (fixes finding 6).
 - **Session pace**: total time over total yards, rest included. This is today's only figure.
   It's kept, but labelled as what it is.
 
-**Pool** (25 yd, 25 m or 50 m) is set once in Settings and can be changed per swim. Yardage
-converts when the pool changes.
+**Pool** (25 yd, 25 m or 50 m) is set in Settings, and each swim records the pool it was swum
+in. Distances are in the pool's own unit and are **never converted**: changing the pool changes
+the unit label, not the numbers.
 
 **Run** detail adds `where` (treadmill / outdoor / track), `kind` (easy / tempo / intervals /
 long), and treadmill `incline` and `speed` if wanted. **Row** keeps `kind` and stroke rate, and
@@ -205,8 +209,9 @@ Nothing is rewritten in place. Old sessions are read through these rules:
 - `type: "skate"` reads as aggressive inline.
 - `yards`, `miles`, `meters`, `kind`, `spm` and `swimSets` read as one block with one item.
   They have no rep times, so they show session pace only.
-- Old swim templates (`{n, d, y}` or `{n, d, reps, each}`) convert to blocks the first time
-  they're opened in the editor, and are saved in the new form.
+- Old swim templates (`{n, d, y}` or `{n, d, reps, each}`) are read as blocks (one block and one
+  item per set, the repeat set marked main) and saved in the new form the next time the owner
+  saves the swim templates.
 - No effort on a session means the type's default effort.
 
 ## 7. Not covered

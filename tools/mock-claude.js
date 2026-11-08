@@ -7,7 +7,8 @@
   "use strict";
   const KEY = "fitness-tracker-mock-db";
   const qs = new URLSearchParams(location.search);
-  if (qs.has("clear")) { try { localStorage.removeItem(KEY); } catch (e) {} }
+  // ?clear=1 also drops the app's own copy of a swim in progress (localStorage "dl-live").
+  if (qs.has("clear")) { try { localStorage.removeItem(KEY); localStorage.removeItem("dl-live"); } catch (e) {} }
   let store = {};
   try { store = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { store = {}; }
   const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} };

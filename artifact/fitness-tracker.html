@@ -270,7 +270,7 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
 .wo{border:2px solid var(--ink)}
 .wohead{display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid var(--ink); padding-bottom:7px}
 .wohead .sess2{font-family:var(--d); font-stretch:75%; font-weight:800; font-size:14px; letter-spacing:.08em; text-transform:uppercase}
-#liftWo .sess2{color:var(--red-deep)} #swimWo .sess2{color:var(--blue-deep)}
+#liftWo .sess2{color:var(--red-deep)}
 .wohead .tmr{font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:22px; background:none; border:0; cursor:pointer; padding:0}
 #lwTimer{color:var(--red-deep)} #lwTimer.done{color:var(--good)}
 .exname2{font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:clamp(38px,12vw,52px); line-height:.9;
@@ -326,6 +326,167 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
 #coachNote{font-size:13px; color:var(--muted)}
 .formrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px}
 
+/* ---------- SWIM: plan cards and editor ---------- */
+.phasebar{display:flex; gap:14px; align-items:center; background:var(--blue-wash); border-radius:12px; padding:11px 14px; margin-bottom:10px}
+.phasebar .pday{flex:none; min-width:46px; text-align:center; font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:36px; line-height:.9; color:var(--blue-deep)}
+.phasebar .pday small{display:block; font-family:var(--t); font-size:9.5px; font-weight:700; letter-spacing:.16em; color:var(--ink2); margin-top:3px}
+.phasebar .ptxt{font-size:13.5px; color:var(--ink2); min-width:0}
+.phasebar .ptxt b{color:var(--ink)}
+.tchips{display:flex; gap:5px; flex-wrap:wrap; margin-top:7px}
+.tchips:empty{display:none}
+.chip{font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; border-radius:5px; padding:2px 6px 1.5px;
+  border:1.5px solid var(--line); color:var(--ink2); background:var(--paper)}
+.chip.now{background:var(--blue-deep); border-color:var(--blue-deep); color:var(--paper)}
+.chip.warn{border-color:var(--red); color:var(--red-deep); background:var(--red-wash)}
+.swimtpl .tmeta{flex-basis:auto; margin-top:6px}
+dl.blk{display:grid; grid-template-columns:minmax(74px,auto) 1fr; gap:4px 12px; margin:9px 0 0; font-size:13px}
+dl.blk dt{font-family:var(--d); font-stretch:72%; font-weight:800; font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink2); padding-top:1px}
+dl.blk dd{margin:0; color:var(--ink2); overflow-wrap:anywhere; min-width:0}
+dl.blk dd.main{color:var(--ink); font-weight:700}
+.rampnote{display:block; font-weight:500; font-size:12px; color:var(--blue-deep)}
+.sed{margin-top:12px; border-top:1.5px solid var(--line); padding-top:12px; display:flex; flex-direction:column; gap:10px}
+.sed select,.sed input[type=text],.sed input[type=number]{font:inherit; font-size:14px; color:var(--ink); background:var(--paper2);
+  border:1.5px solid var(--line); border-radius:9px; padding:7px 8px; min-width:0; box-sizing:border-box}
+.sed .sblock input[type=text],.sed .sblock input[type=number],.sed .sblock select{background:var(--paper)}
+.srow{display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap}
+.srow>.grow{flex:1 1 140px; width:100%}
+.f>input,.f>select{width:100%}
+.f{display:flex; flex-direction:column; gap:3px; min-width:0}
+.f.wide{flex:1 1 100%}
+.srow>.f.wide{flex:1 1 160px}
+.fl{font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink2)}
+.rngin{display:flex; align-items:center; gap:4px}
+.rngin input{width:62px; text-align:center}
+.chk{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--ink2); padding:8px 0; cursor:pointer}
+.chk input{width:18px; height:18px; accent-color:var(--blue-deep)}
+.stools{display:flex; gap:5px; margin-left:auto}
+.sblock{border:1.5px solid var(--line); border-radius:12px; padding:10px 11px; background:var(--paper2); display:flex; flex-direction:column; gap:4px}
+.sblock.main{border-color:var(--blue); box-shadow:inset 3px 0 0 var(--blue)}
+.sitem{border-top:1px solid var(--line); padding-top:4px}
+.sitem .sum{display:flex; gap:5px; align-items:center}
+.sitem .open{flex:1; min-width:0; text-align:left; background:none; border:0; font:inherit; font-size:13.5px; color:var(--ink);
+  cursor:pointer; padding:8px 2px; overflow-wrap:anywhere}
+.sitem .open::before{content:"▸ "; color:var(--muted)}
+.sitem.open .open::before{content:"▾ "}
+.sitem.open .open{font-weight:700}
+.sed .mini{border:1.5px solid var(--line); background:var(--paper); color:var(--ink2); border-radius:8px; font:inherit;
+  font-size:13px; font-weight:600; cursor:pointer; padding:6px 10px; min-width:34px; min-height:34px}
+.sed>.srow>.mini{background:var(--paper2)}
+.sed .mini.x{color:var(--bad)}
+.mini.add{align-self:flex-start; margin-top:6px}
+.mini[disabled]{opacity:.35; cursor:default}
+.ifields{display:grid; grid-template-columns:1fr 1fr; gap:9px 10px; padding:6px 0 10px}
+.ifields .wide{grid-column:1/-1}
+.ifields select,.ifields input[type=text]{width:100%}
+.ifields .num{width:70px}
+.gearchips{display:flex; gap:5px; flex-wrap:wrap}
+.gearchips button{border:1.5px solid var(--line); background:var(--paper); color:var(--ink2); border-radius:999px; padding:6px 11px;
+  font:inherit; font-size:13px; font-weight:600; cursor:pointer}
+.gearchips button[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--paper)}
+.sidegrid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-top:2px}
+.sidegrid .wide{grid-column:1/-1}
+.sidebox{border-left:3px solid var(--line); padding-left:9px}
+.partsbox{gap:6px}
+.partwarn{margin:0; color:var(--red-deep)}
+.rampbox .srow{align-items:center}
+.resumebtns{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap}
+#homeLive{margin-top:14px}
+
+/* ---------- SWIM: pool-side runner (sized for wet hands) ---------- */
+body.running header.app, body.running nav.top, body.running nav.bottom{display:none}
+body.running{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.run{background:var(--paper); border:2px solid var(--ink); border-radius:18px; padding:14px 14px 12px; margin-top:14px;
+  display:flex; flex-direction:column; gap:10px}
+.runtop{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+.runtop .rn{font-family:var(--d); font-stretch:75%; font-weight:800; font-size:13px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--blue-deep); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.runtop .el{font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:26px; line-height:1; flex:none}
+.runtop .el small{font-family:var(--t); font-size:10px; font-weight:700; letter-spacing:.12em; color:var(--ink2); margin-right:5px}
+.strip{display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:4px; align-items:center}
+.strip i{height:7px; border-radius:4px; background:var(--line)}
+.strip i.done{background:var(--blue)}
+.strip i.cut{background:linear-gradient(90deg,var(--blue) 50%,var(--line) 50%)}
+.strip i.skipped{height:3px; background:var(--muted); opacity:.5}
+.strip i.cur{background:var(--ink); height:9px}
+.rkick{font-size:12px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink2); margin:2px 0 0}
+.ritem{font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:clamp(32px,10.5vw,46px); line-height:.92;
+  text-transform:uppercase; text-wrap:balance; overflow-wrap:anywhere; margin:0}
+.riv{font-size:13px; color:var(--ink2); margin:-2px 0 0}
+.rrep{display:grid; grid-template-columns:64px 1fr 64px; gap:10px; align-items:center}
+.rrep .stepb{width:64px; height:64px; font-size:32px; border-radius:15px; border-width:2px}
+.rrep .stepb[disabled]{opacity:.3; cursor:default}
+.rno{text-align:center; min-width:0}
+.rno b{display:block; font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:34px; line-height:1}
+.rno span{font-size:12.5px; font-weight:600; color:var(--ink2)}
+.rope{display:flex; flex-wrap:wrap; gap:6px; justify-content:center}
+.rope i{width:14px; height:14px; border-radius:50%; border:2px solid var(--blue); box-sizing:border-box}
+.rope i.d{background:var(--blue)}
+.rope i.c{background:var(--red); border-color:var(--red)}
+.rope i.n{border-color:var(--red)}
+.rspec{text-align:center; margin:0}
+.rspec b{display:block; font-family:var(--d); font-stretch:72%; font-weight:800; font-size:22px; letter-spacing:.02em; line-height:1.1}
+.rspec small{display:block; font-size:13px; color:var(--ink2); margin-top:3px}
+.rdist{display:flex; gap:7px; justify-content:center; flex-wrap:wrap}
+.rdist button{min-width:64px; min-height:46px; border:2px solid var(--line); border-radius:12px; background:var(--paper); color:var(--ink2);
+  font-family:var(--d); font-stretch:70%; font-weight:800; font-size:17px; cursor:pointer}
+.rdist button[aria-pressed="true"]{border-color:var(--ink); background:var(--ink); color:var(--paper)}
+.rwarn{margin:0; font-size:13px; font-weight:600; color:var(--red-deep); background:var(--red-wash); border-radius:10px; padding:8px 10px}
+.rclock{text-align:center; padding:4px 0 0}
+.rclock .n{display:block; font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:clamp(78px,27vw,124px); line-height:.84; letter-spacing:-.01em}
+.rclock .l{display:block; font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink2); margin-top:6px}
+.run[data-phase="swim"] .rclock .n{color:var(--blue-deep)}
+.run[data-phase="rest"] .rclock .n{color:var(--red-deep)}
+.rbar{height:8px; border-radius:4px; background:var(--red-wash); overflow:hidden}
+.rbar i{display:block; height:100%; width:0; background:var(--red)}
+.rtimes{font-size:13px; color:var(--ink2); text-align:center; margin:0; overflow-wrap:anywhere}
+.rtimes b{color:var(--ink); font-weight:700}
+.rnext{font-size:13.5px; color:var(--ink2); border-top:1.5px solid var(--line); padding-top:8px; margin:0}
+.rbig{min-height:96px; font-size:30px; border-radius:18px; letter-spacing:.06em; text-transform:uppercase; touch-action:manipulation}
+.run[data-phase="swim"] .rbig{background:var(--blue-deep); color:var(--paper)}
+.run[data-phase="rest"] .rbig{background:var(--red-deep); color:var(--paper)}
+.rctl{display:grid; grid-template-columns:repeat(4,1fr); gap:7px}
+.rctl button{min-height:60px; border:2px solid var(--ink); border-radius:14px; background:var(--paper); color:var(--ink);
+  font-family:var(--d); font-stretch:70%; font-weight:800; font-size:14.5px; letter-spacing:.03em; text-transform:uppercase;
+  cursor:pointer; padding:4px; line-height:1.05; touch-action:manipulation}
+.rctl button[disabled]{opacity:.3; cursor:default}
+.rfoot{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.rfoot button{min-height:44px; font-size:14px}
+.rfoot #rnExit{color:var(--bad)}
+.rsave{font-size:11.5px; color:var(--muted); text-align:center; margin:0}
+.rsave.err{color:var(--bad); font-weight:600}
+@media (max-height:740px){
+  .run{gap:7px; padding-top:11px; margin-top:10px}
+  .ritem{font-size:clamp(26px,8.5vw,36px)}
+  .rrep{grid-template-columns:56px 1fr 56px}
+  .rrep .stepb{width:56px; height:56px}
+  .rno b{font-size:28px}
+  .rclock .n{font-size:clamp(60px,20vw,86px)}
+  .rbig{min-height:84px}
+  .rctl button{min-height:54px}
+}
+
+/* ---------- SWIM: finish ---------- */
+table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:4px}
+.sfblocks td{padding:8px 4px; border-bottom:1px solid var(--line); vertical-align:baseline}
+.sfblocks td.n{font-family:var(--d); font-stretch:72%; font-weight:800; font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; width:28%}
+.sfblocks td.v{font-weight:700; overflow-wrap:anywhere}
+.sfblocks td.t{color:var(--ink2); text-align:right; white-space:nowrap; font-size:12.5px}
+.sfblocks tr.skipped td{color:var(--muted); font-weight:500}
+.rthead{font-size:13px; font-weight:700; margin-top:10px}
+.reptimes{display:grid; grid-template-columns:repeat(auto-fill,minmax(68px,1fr)); gap:7px; margin-top:6px}
+.reptimes label{display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--muted); letter-spacing:.06em}
+.reptimes input{width:100%; text-align:center; padding:9px 4px; font-size:16px}
+.reptimes input.bad{border-color:var(--red); background:var(--red-wash)}
+.effseg{display:grid; grid-template-columns:repeat(5,1fr); gap:6px}
+.effseg button{height:46px; border:1.5px solid var(--line); border-radius:11px; background:var(--paper); cursor:pointer; color:var(--ink2);
+  font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:20px}
+.effseg button[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--paper)}
+#sfEffWord{text-transform:none; letter-spacing:0; color:var(--ink); font-weight:700; margin-left:6px}
+.sess .blkline{font-size:12.5px; color:var(--ink2); margin-top:4px; overflow-wrap:anywhere}
+.sess .blkline b{color:var(--ink); font-weight:700}
+.sess .blkline.skipped{color:var(--muted)}
+.altrow{display:flex; justify-content:center; gap:6px 14px; flex-wrap:wrap}
+
 @media (prefers-reduced-motion: no-preference){
   .seg button,.presets button,.feelseg button,.btn,nav a,.sorechips button{transition:background .12s,border-color .12s,color .12s}
 }
@@ -370,7 +531,8 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
       <div class="lastline" id="leadLast"></div>
     </div>
     <div class="home-cta"><button class="btn" id="homeStart" type="button">Open the log</button></div>
-    <p class="alt"><a class="linklike" href="#log" style="color:var(--ink2)">Quick-log something else</a></p>
+    <p class="alt altrow"><button class="linklike" id="homeAlt" type="button" hidden></button><a class="linklike" href="#log" style="color:var(--ink2)">Quick-log something else</a></p>
+    <div class="banner" id="homeLive" hidden></div>
 
     <div class="weekhead"><b>THE WEEK</b><small id="weekCount"></small></div>
     <div id="ledger"></div>
@@ -411,12 +573,12 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
           </div>
         </div>
         <div id="yardsField">
-          <div class="flabel">Yards</div>
-          <div class="presets" id="ydPresets" role="group" aria-label="Yards">
+          <div class="flabel" id="ydLabel">Distance · yd</div>
+          <div class="presets" id="ydPresets" role="group" aria-label="Swim distance">
             <button type="button" data-v="1300">1,300</button>
             <button type="button" data-v="1500">1,500</button>
             <button type="button" data-v="1700">1,700</button>
-            <input type="number" id="sessYards" min="0" max="20000" step="25" placeholder="yd" aria-label="Yards, custom">
+            <input type="number" id="sessYards" min="0" max="20000" step="25" placeholder="yd" aria-label="Swim distance, custom">
           </div>
         </div>
         <div id="milesField" hidden>
@@ -510,7 +672,9 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
         <span class="statusmsg" id="tplMsg" role="status"></span>
       </div>
 
-      <h2 class="sec">Swim <small>set-by-set, 25 yd pool</small></h2>
+      <h2 class="sec">Swim <small id="swimSecNote">25 yd pool · rep by rep</small></h2>
+      <div class="banner" id="swimResume" hidden></div>
+      <div class="phasebar" id="swimPhase"></div>
       <div id="swimTplList"></div>
       <div class="formrow">
         <button class="btn ghost" id="swimTplAdd" type="button">+ New swim workout</button>
@@ -536,35 +700,70 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
 
       <h2 class="sec">Settings</h2>
       <div class="card">
+        <div class="flabel">Lifting</div>
         <div class="settingrow">
           <label for="setBar">Bar</label>
           <input type="number" id="setBar" min="15" max="70" step="5">
           <label for="setRest">Rest s</label>
           <input type="number" id="setRest" min="30" max="600" step="15">
-          <button class="linklike" id="beepToggle" type="button">sound: on</button>
         </div>
+        <div class="flabel" style="margin-top:16px">Swimming</div>
+        <div class="settingrow">
+          <span class="flabel" style="margin:0">Pool</span>
+          <div class="presets" id="poolChips" role="group" aria-label="Pool length">
+            <button type="button" data-pool="25yd" aria-pressed="true">25 yd</button>
+            <button type="button" data-pool="25m" aria-pressed="false">25 m</button>
+            <button type="button" data-pool="50m" aria-pressed="false">50 m</button>
+          </div>
+        </div>
+        <p class="hint" style="margin:6px 0 0">Distances are in the pool's own unit. Changing the pool doesn't convert anything.</p>
+        <div class="settingrow" style="margin-top:12px">
+          <label for="setStart">Comeback start</label>
+          <input type="date" id="setStart" style="width:auto">
+          <button class="linklike" id="startClear" type="button">clear</button>
+        </div>
+        <p class="hint" id="startHint" style="margin:6px 0 0"></p>
+        <div class="settingrow" style="margin-top:14px">
+          <span class="flabel" style="margin:0">Timers</span>
+          <button class="linklike" id="beepToggle" type="button">sound: on</button>
+          <span class="hint">beeps when a rest ends, lifting and swimming</span>
+        </div>
+        <span class="statusmsg" id="setMsg" role="status"></span>
       </div>
 
       <details class="notes2">
         <summary>Swim plan notes & lingo</summary>
         <div class="card" style="margin-top:8px">
+          <div class="flabel">The plan: three phases, counted from the comeback start</div>
           <ul class="rules">
-            <li><b>Ramp:</b> first 3–4 sessions, cap the main set at 6–8×100 even if you feel great.</li>
-            <li><b>Shoulders:</b> no paddles for at least a month; pull buoy sparingly early on.</li>
-            <li><b>Scheduling:</b> day after skating is ideal; avoid the morning after heavy upper-body lifting.</li>
-            <li><b>Intervals:</b> rest-based for now; switch to fixed send-offs (100s on 1:40/1:45) once fitness settles.</li>
-            <li><b>Second swim in a week?</b> Same workout again — frequency beats variety at this volume.</li>
+            <li><b>Weeks 1–2 · Reacclimation</b> (days 1–14): 300 warm-up (swim / kick / swim), 4×50 drill/swim by 25, 100s free at moderate effort, 200 easy. 1,300–1,700 yd, about 30 min.</li>
+            <li><b>Weeks 3–4 · Build</b> (days 15–28): 400 warm-up with the pull buoy's first 100, 6×50 odds drill / evens build, 3 rounds of [200 steady + 2×50 strong], 200 easy. 1,800 yd.</li>
+            <li><b>Weeks 5+ · Structured work</b>: the same 400–500 warm-up and 8×25 pre-set, then rotate the main set: <b>Threshold</b> 5×200, <b>Speed</b> 12–16×50 easy / build / fast / easy, <b>IM</b> 4×100 IM easy then 6×100 descend. 1,400–1,900 yd. Home suggests the one you swam longest ago.</li>
+            <li>The phase starts with your <b>first saved swim</b>; change the date in Settings if it was another day. The yardages are the sets added up; the chat's plan rounded them up.</li>
+          </ul>
+          <div class="flabel" style="margin-top:12px">The rules</div>
+          <ul class="rules">
+            <li><b>Ramp:</b> the first 4 swims cap the main set at 6–8×100, even if you feel great. Then 8–10.</li>
+            <li><b>Shoulders first:</b> no paddles for the first 30 days (a workout with paddles is flagged until then). The pull buoy starts in weeks 3–4.</li>
+            <li><b>Frequency:</b> 2–3 mornings a week. Three progresses, two maintains; daily will bite in month one. A second swim in a week can be the same workout again.</li>
+            <li><b>Intervals:</b> rest-based for now. Once your main-set times settle (Trends charts them), switch to fixed send-offs, like 100s on 1:40 or 1:45.</li>
+            <li><b>Breathing:</b> every 3 on easy and drill work to even out the stroke; every 2 on hard efforts.</li>
+            <li><b>Scheduling:</b> the day after skating is ideal; avoid the morning after heavy upper-body lifting.</li>
+            <li><b>The runner:</b> tap Start as you push off and Rep done at the wall. A rest range counts down its long end (:30 for :20–:30); Go now leaves early, +10 s waits longer. When the rest ends it beeps and the next rep's clock starts.</li>
           </ul>
           <dl class="gloss">
-            <dt>8×100 @ :20 rest</dt><dd>Swim 100 yd (4 lengths), rest 20 s, repeat 8×.</dd>
-            <dt>on 1:40</dt><dd>Fixed interval — leave every 1:40; faster swim = more rest.</dd>
-            <dt>kick / pull</dt><dd>Legs only with a kickboard / arms only with a pull buoy.</dd>
+            <dt>8×100 @ :20 rest</dt><dd>Swim 100 (4 lengths of a 25), rest 20 s, repeat 8×.</dd>
+            <dt>on 1:40 (send-off)</dt><dd>Leave every 1:40; a faster swim means more rest.</dd>
+            <dt>kick / pull</dt><dd>Legs only with a kickboard / arms only with a pull buoy between the thighs.</dd>
             <dt>catch-up</dt><dd>One arm waits out front until the other finishes its stroke. Long strokes.</dd>
             <dt>fingertip drag</dt><dd>Drag fingertips along the surface on recovery. High elbow.</dd>
             <dt>6-kick switch</dt><dd>On your side, 6 kicks, one stroke, switch. Teaches rotation.</dd>
             <dt>drill/swim by 25</dt><dd>One length drill, one length swimming what it taught.</dd>
-            <dt>build / descend</dt><dd>Build: finish the length fast. Descend: each repeat faster.</dd>
-            <dt>IM</dt><dd>Fly, back, breast, free — 25 yd of each in a 100 IM.</dd>
+            <dt>odds drill, evens build</dt><dd>Reps 1, 3, 5 are drill; reps 2, 4, 6 build to fast by the wall.</dd>
+            <dt>4 easy, 4 build, 4 fast, 4 easy</dt><dd>Groups: the reps split evenly, so 12 reps go 3 / 3 / 3 / 3.</dd>
+            <dt>descend 1–3, 4–6</dt><dd>Each rep faster than the last, starting over after 3.</dd>
+            <dt>threshold</dt><dd>The pace you could hold for all five 200s, and no faster.</dd>
+            <dt>IM</dt><dd>Fly, back, breast, free: 25 of each in a 100 IM.</dd>
           </dl>
         </div>
       </details>
@@ -631,40 +830,55 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
       </div>
     </div>
 
-    <!-- swim workout -->
-    <div class="card wo" id="swimWo" hidden>
-      <div class="wohead">
-        <span class="sess2" id="swSess">Base 1,700</span>
-        <span class="tmr" id="swElapsed" style="color:var(--blue-deep)">0:00</span>
+    <!-- swim runner: one screen at the pool, every control sized for wet hands -->
+    <div class="run" id="swimRun" hidden data-phase="ready">
+      <div class="runtop"><span class="rn" id="rnName">Swim</span><span class="el"><small>TOTAL</small><span id="rnElapsed">0:00</span></span></div>
+      <div class="strip" id="rnStrip" aria-hidden="true"></div>
+      <p class="rkick" id="rnKick"></p>
+      <h2 class="ritem" id="rnItem"></h2>
+      <p class="riv" id="rnIv"></p>
+      <p class="rwarn" id="rnWarn" hidden></p>
+      <div class="rrep">
+        <button type="button" class="stepb" id="rnRepDown" aria-label="One rep fewer">−</button>
+        <div class="rno"><b id="rnRepNo">Rep 1</b><span id="rnRepOf">of 1</span></div>
+        <button type="button" class="stepb" id="rnRepUp" aria-label="One rep more">+</button>
       </div>
-      <p class="pos" id="swStep">Set 1 of 4</p>
-      <h2 class="exname2" id="swName">Warm-up</h2>
-      <p class="woDetail" id="swDetail"></p>
-      <div class="ctrls" id="swRepsWrap" hidden>
-        <div class="ctrl" style="grid-column:1/-1">
-          <div class="clbl">Repeats × <span id="swEach">100</span> yd</div>
-          <div class="crow">
-            <button type="button" class="stepb" id="swRepsDown">−</button>
-            <input type="number" id="swReps" min="1" max="20" step="1" inputmode="numeric" aria-label="Repeats completed">
-            <button type="button" class="stepb" id="swRepsUp">+</button>
-          </div>
-          <div class="cunit" id="swRepsYd"></div>
-        </div>
+      <div class="rope" id="rnRope" aria-hidden="true"></div>
+      <div class="rdist" id="rnDist" role="group" aria-label="Distance for this swim" hidden></div>
+      <p class="rspec" id="rnSpec" aria-live="polite"></p>
+      <div class="rclock"><span class="n" id="rnClock">0:00</span><span class="l" id="rnClockLbl"></span></div>
+      <div class="rbar" id="rnRestBar" hidden><i></i></div>
+      <button class="btn rbig" id="rnGo" type="button">Start</button>
+      <div class="rctl">
+        <button type="button" id="rnUndo">Undo</button>
+        <button type="button" id="rnPlus10">+10 s</button>
+        <button type="button" id="rnFinishBlk">Finish block</button>
+        <button type="button" id="rnSkipBlk">Skip block</button>
       </div>
-      <p class="tally" id="swTally"></p>
-      <div class="wonav2">
-        <button class="btn ghost" id="swPrev" type="button">Back</button>
-        <button class="btn blue" id="swNext" type="button">Next set</button>
+      <p class="rtimes" id="rnTimes"></p>
+      <p class="rnext" id="rnNext"></p>
+      <div class="rfoot">
+        <button class="linklike" id="rnEnd" type="button">End swim now</button>
+        <button class="linklike" id="rnExit" type="button">Exit without saving</button>
       </div>
-      <div class="woexit"><button class="linklike" id="swExit" type="button">Exit without saving</button></div>
+      <p class="rsave" id="rnSaveNote"></p>
     </div>
 
     <div class="card wo" id="swimFinish" hidden>
       <h2 class="sec" style="margin-top:0;border:0;padding:0">Swim done <small id="sfSummary"></small></h2>
-      <div class="flabel">Total time — mm:ss</div>
-      <input type="text" id="sfTime" inputmode="numeric" placeholder="32:10" aria-label="Total time" style="width:140px">
+      <div class="flabel">Target and done, block by block</div>
+      <table class="sfblocks"><tbody id="sfBlocks"></tbody></table>
+      <div id="sfTimesWrap">
+        <div class="flabel" style="margin-top:16px">Main-set rep times · m:ss</div>
+        <p class="hint" style="margin:0">From your taps. Fix any you mis-tapped; leave one blank if you don't know it.</p>
+        <div id="sfTimes"></div>
+      </div>
+      <div class="flabel" style="margin-top:16px">Total time · mm:ss</div>
+      <input type="text" id="sfTime" inputmode="numeric" placeholder="42:10" aria-label="Total time" style="width:140px">
       <p class="hint" id="sfPace" style="margin-top:6px"></p>
-      <div class="flabel" style="margin-top:12px">How it felt</div>
+      <div class="flabel" style="margin-top:14px">Effort<span id="sfEffWord"></span></div>
+      <div class="effseg" id="sfEffort" role="group" aria-label="Effort, 1 easy to 10 all out"></div>
+      <div class="flabel" style="margin-top:14px">How it felt</div>
       <div class="feelseg" id="sfFeel" role="group" aria-label="How it felt">
         <button type="button" data-f="1" aria-pressed="false"><span class="n">1</span><span class="t">rough</span></button>
         <button type="button" data-f="2" aria-pressed="false"><span class="n">2</span><span class="t">&nbsp;</span></button>
@@ -674,12 +888,13 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
       </div>
       <div class="flabel" style="margin-top:12px">Soreness — tap to cycle</div>
       <div class="sorechips" id="soreSwim" role="group" aria-label="Soreness by body area"></div>
-      <div style="margin-top:10px"><textarea id="sfNotes" placeholder="Notes — how the shoulders held up, pace feel"></textarea></div>
+      <div style="margin-top:10px"><textarea id="sfNotes" placeholder="Notes — how the shoulders held up, how the pace felt"></textarea></div>
       <div class="formrow">
         <button class="btn blue sm" id="sfSave" type="button">Save swim</button>
-        <button class="linklike" id="sfBack" type="button">back to sets</button>
+        <button class="linklike" id="sfBack" type="button">back to the swim</button>
         <span class="statusmsg" id="sfMsg" role="status"></span>
       </div>
+      <div class="woexit"><button class="linklike" id="sfDiscard" type="button" style="color:var(--bad)">Discard this swim</button></div>
     </div>
 
     <datalist id="exLib"></datalist>
@@ -711,7 +926,7 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
     </div>
 
     <div class="fig">
-      <div class="fighead"><h3>Swim pace</h3><span class="figkey">per 100 yd</span></div>
+      <div class="fighead"><h3>Swim pace</h3><span class="figkey" id="swimPaceKey">main set, per 100 yd</span></div>
       <div id="swimPaceChart"></div>
       <p class="figsub" id="swimPaceNote"></p>
     </div>
@@ -778,7 +993,7 @@ const ORDER = ["lift","swim","skate","run","row","yoga","other"]; // validated s
 // ---------- state ----------
 const S = { db:null, uid:null, sample:null, sessions:[], weights:[], goals:"",
             sessReady:false, wtReady:false, pickedType:"swim", pickedFeel:3, pickedKind:null,
-            lift:null, swim:null, liftSaving:false, swimSaving:false };
+            lift:null, swim:null, swimRaw:null, swimLastWrite:"", swimSeen:undefined, staleLive:null, liftSaving:false };
 
 const DEFAULT_LIFT = {
   barLbs:45, restSec:90,
@@ -800,16 +1015,39 @@ const DEFAULT_LIFT = {
       {name:"Pallof Press",s:3,r:12},{name:"Plank (secs)",s:3,r:60}]},
   ],
 };
-const DEFAULT_SWIM = {
-  templates:[
-    { id:"base", name:"Base 1,700", sets:[
-      {n:"Warm-up", d:"300 easy — 100 swim / 100 kick / 100 swim", y:300},
-      {n:"Drills", d:"4×50 drill/swim by 25 @ :20 — catch-up, fingertip drag, 6-kick switch", y:200},
-      {n:"Main set", d:"100s free @ :20–:30 rest — steady but honest. First month: cap at 6–8.", reps:10, each:100},
-      {n:"Cool-down", d:"200 easy, mixed strokes", y:200},
-    ]},
-  ],
-};
+// The swim plan's five workouts, kept in step with docs/swim-plan-templates.json (tools/swim-tests.js checks).
+const PLAN_SWIM = [
+  { id:"p1-reacclimation", name:"Reacclimation", stage:1, blocks:[
+    {"name":"Warm-up","rounds":1,"items":[{"reps":1,"dist":100,"what":"swim","stroke":"free","effort":"easy"},{"reps":1,"dist":100,"what":"kick","gear":["board"],"effort":"easy"},{"reps":1,"dist":100,"what":"swim","stroke":"free","effort":"easy","note":"Swim, not pull: the pull buoy first appears in weeks 3-4."}]},
+    {"name":"Drills","rounds":1,"items":[{"reps":4,"dist":50,"pattern":{"parts":[{"dist":25,"what":"drill","drill":"pick two: catch-up, fingertip drag, 6-kick switch"},{"dist":25,"what":"swim","stroke":"free"}]},"interval":{"rest":20}}]},
+    {"name":"Main set","rounds":1,"main":true,"items":[{"reps":[8,10],"dist":100,"what":"swim","stroke":"free","effort":"moderate","ramp":{"swims":4,"reps":[6,8]},"interval":{"rest":[20,30]},"note":"Don't chase times. Long strokes, breathing pattern."}]},
+    {"name":"Cool-down","rounds":1,"items":[{"reps":1,"dist":200,"what":"swim","stroke":"choice","effort":"easy","note":"mixed strokes"}]},
+  ]},
+  { id:"p2-build", name:"Build", stage:2, blocks:[
+    {"name":"Warm-up","rounds":1,"items":[{"reps":1,"dist":200,"what":"swim","stroke":"free","effort":"easy"},{"reps":1,"dist":100,"what":"kick","gear":["board"],"effort":"easy"},{"reps":1,"dist":100,"what":"pull","gear":["buoy"],"effort":"easy"}]},
+    {"name":"Drill / build","rounds":1,"items":[{"reps":6,"dist":50,"pattern":{"odds":{"what":"drill"},"evens":{"what":"swim","stroke":"free","effort":"build","note":"build to fast"}},"interval":{"rest":15}}]},
+    {"name":"Main set","rounds":3,"main":true,"items":[{"reps":1,"dist":200,"what":"swim","stroke":"free","effort":"steady","interval":{"rest":[20,30]}},{"reps":2,"dist":50,"what":"swim","stroke":"free","effort":"strong","interval":{"rest":[20,30]}}]},
+    {"name":"Cool-down","rounds":1,"items":[{"reps":1,"dist":200,"what":"swim","stroke":"choice","effort":"easy"}]},
+  ]},
+  { id:"p3-threshold", name:"Threshold", stage:3, blocks:[
+    {"name":"Warm-up","rounds":1,"items":[{"reps":1,"dist":[400,500],"what":"swim","effort":"easy","note":"mix swim, kick, pull"}]},
+    {"name":"Pre-set","rounds":1,"items":[{"reps":8,"dist":25,"pattern":{"odds":{"what":"drill"},"evens":{"what":"swim","stroke":"free","effort":"fast"}},"interval":{"rest":15}}]},
+    {"name":"Main set","rounds":1,"main":true,"items":[{"reps":5,"dist":200,"what":"swim","stroke":"free","effort":"threshold","interval":{"rest":30},"note":"A pace you could hold for all five."}]},
+    {"name":"Cool-down","rounds":1,"items":[{"reps":1,"dist":200,"what":"swim","stroke":"choice","effort":"easy"}]},
+  ]},
+  { id:"p3-speed", name:"Speed", stage:3, blocks:[
+    {"name":"Warm-up","rounds":1,"items":[{"reps":1,"dist":[400,500],"what":"swim","effort":"easy","note":"mix swim, kick, pull"}]},
+    {"name":"Pre-set","rounds":1,"items":[{"reps":8,"dist":25,"pattern":{"odds":{"what":"drill"},"evens":{"what":"swim","stroke":"free","effort":"fast"}},"interval":{"rest":15}}]},
+    {"name":"Main set","rounds":1,"main":true,"items":[{"reps":[12,16],"dist":50,"what":"swim","stroke":"free","pattern":{"groups":["easy","build","fast","easy"]},"interval":{"rest":20}}]},
+    {"name":"Cool-down","rounds":1,"items":[{"reps":1,"dist":200,"what":"swim","stroke":"choice","effort":"easy"}]},
+  ]},
+  { id:"p3-im", name:"IM", stage:3, blocks:[
+    {"name":"Warm-up","rounds":1,"items":[{"reps":1,"dist":[400,500],"what":"swim","effort":"easy","note":"mix swim, kick, pull"}]},
+    {"name":"Pre-set","rounds":1,"items":[{"reps":8,"dist":25,"pattern":{"odds":{"what":"drill"},"evens":{"what":"swim","stroke":"free","effort":"fast"}},"interval":{"rest":15}}]},
+    {"name":"Main set","rounds":1,"main":true,"items":[{"reps":4,"dist":100,"what":"swim","stroke":"IM","effort":"easy","note":"IM or stroke work"},{"reps":6,"dist":100,"what":"swim","stroke":"free","pattern":{"descend":3},"note":"The plan gives no rest for this day."}]},
+    {"name":"Cool-down","rounds":1,"items":[{"reps":1,"dist":200,"what":"swim","stroke":"choice","effort":"easy"}]},
+  ]},
+];
 
 // ---------- dates & formats ----------
 const pad = (n) => String(n).padStart(2,"0");
@@ -829,10 +1067,406 @@ function parseTime(v){ v=String(v||"").trim(); if(!v) return 0;
   const n=Number(v); return isNaN(n)?0:n; }
 const fmtMin = (min) => { const s=Math.max(0,Math.round((min||0)*60)); const m=Math.floor(s/60), r=s%60;
   return r ? m+":"+pad(r) : m+"′"; };
-const secFmt = (sec) => Math.floor(sec/60)+":"+pad(Math.round(sec)%60);
+const secFmt = (sec) => { const s=Math.max(0,Math.round(sec)); return Math.floor(s/60)+":"+pad(s%60); };
 const paceStr  = (min,mi) => (min>0&&mi>0) ? secFmt(min*60/mi)+"/mi" : "";
 const splitStr = (min,m)  => (min>0&&m>0)  ? secFmt(min*60/(m/500))+"/500m" : "";
 const pace100  = (min,yd) => (min>0&&yd>0) ? secFmt(min*60/(yd/100))+"/100" : "";
+
+// ---------- swim model ----------
+// Pure functions: no DOM, no store. tools/swim-tests.js tests them through window.__DL.
+// A template is blocks; a block has rounds and items; an item is a group of repeats
+// (docs/activity-model.md). Distances are in the pool's own unit and never converted.
+const POOLS = { "25yd":{label:"25 yd",unit:"yd"}, "25m":{label:"25 m",unit:"m"}, "50m":{label:"50 m",unit:"m"} };
+const poolOf = (p) => POOLS[p] ? p : "25yd";
+const WHATS = ["swim","kick","pull","drill"];
+const STROKES = ["free","back","breast","fly","IM","choice"];
+const GEARS = ["board","buoy","fins","paddles","snorkel"];
+const EFFORTS = ["easy","moderate","steady","strong","threshold","fast","sprint","build"];
+const EFFORT_WORDS = ["","Easy","Easy","Moderate","Moderate","Steady","Steady","Hard","Hard","All out","All out"];
+const STAGES = { 1:"Weeks 1–2", 2:"Weeks 3–4", 3:"Weeks 5+" };
+const STAGE_NAMES = { 1:"Reacclimation", 2:"Build", 3:"Structured work" };
+const LIVE_MAX_AGE = 3*3600e3;   // a swim left longer than this asks before resuming
+const clone = (o) => o==null ? o : JSON.parse(JSON.stringify(o));
+function stableStr(o){
+  if (Array.isArray(o)) return "["+o.map(stableStr).join(",")+"]";
+  if (o && typeof o==="object") return "{"+Object.keys(o).sort().filter(k=>o[k]!==undefined)
+    .map(k=>JSON.stringify(k)+":"+stableStr(o[k])).join(",")+"}";
+  return JSON.stringify(o===undefined?null:o);
+}
+const rng = (v) => { if (Array.isArray(v)){ const a=Number(v[0])||0, b=v.length>1?Number(v[1])||0:a; return a<=b?[a,b]:[b,a]; }
+  const n=Number(v)||0; return [n,n]; };
+const lo = (v) => rng(v)[0];
+const hi = (v) => rng(v)[1];
+const fmtRng = (v,f) => { f=f||((x)=>x.toLocaleString()); const [a,b]=rng(v); return a===b ? f(a) : f(a)+"–"+f(b); };
+const fmtClock = (sec) => { sec=Math.max(0,Math.round(sec)); return sec<60 ? ":"+pad(sec) : Math.floor(sec/60)+":"+pad(sec%60); };
+const fmtRepTime = (sec) => { if (!(sec>0)) return ""; const s=Math.round(sec); return Math.floor(s/60)+":"+pad(s%60); };
+const dateOf = (ms) => { const d=new Date(ms); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+const dateAdd = (dateStr,n) => dateOf(toTs(dateStr)+n*864e5);
+const daysBetween = (a,b) => Math.round((toTs(b)-toTs(a))/864e5);
+const cap1 = (x) => x ? x.charAt(0).toUpperCase()+x.slice(1) : "";
+
+// "1:38", "1:38.4", "138" (m ss) or "42" (seconds). Blank is null, anything else NaN.
+function parseRepTime(v){
+  v=String(v==null?"":v).trim(); if (!v) return null;
+  let s=NaN, m;
+  if ((m=/^(\d{1,2}):([0-5]\d|\d)(\.\d+)?$/.exec(v))) s=Number(m[1])*60+Number(m[2]+(m[3]||""));
+  else if ((m=/^(\d{1,2})([0-5]\d)$/.exec(v))) s=Number(m[1])*60+Number(m[2]);
+  else if (/^\d{1,2}(\.\d+)?$/.test(v)) s=Number(v);
+  return s>0 ? Math.round(s*10)/10 : NaN;
+}
+
+// ----- normalizing what's stored (never written back until the owner saves) -----
+function normRange(v, min, max, dflt){
+  const cl=(x)=>Math.min(max,Math.max(min,Math.round(Number(x))));
+  if (Array.isArray(v)){
+    let a=Number(v[0]), b=v.length>1&&v[1]!==""&&v[1]!=null?Number(v[1]):a;
+    if (!isFinite(a)) a=dflt; if (!isFinite(b)) b=a;
+    a=cl(a); b=cl(b); if (a>b) [a,b]=[b,a]; return a===b?a:[a,b];
+  }
+  const n=Number(v); return (v!==""&&v!=null&&isFinite(n)) ? cl(n) : dflt;
+}
+function normSide(o){
+  o=o&&typeof o==="object"?o:{}; const r={};
+  if (WHATS.includes(o.what)) r.what=o.what;
+  for (const k of ["stroke","effort","note","drill"]) if (o[k]) r[k]=String(o[k]);
+  return r;
+}
+function normPattern(p){
+  if (!p || typeof p!=="object") return null;
+  if (Array.isArray(p.parts) && p.parts.length)
+    return { parts:p.parts.map(x=>Object.assign({ dist:Math.max(0,Math.round(Number(x&&x.dist)||0)) }, normSide(x))) };
+  if (p.odds || p.evens) return { odds:normSide(p.odds), evens:normSide(p.evens) };
+  if (Array.isArray(p.groups)){ const g=p.groups.map(x=>String(x).trim()).filter(Boolean); if (g.length) return { groups:g }; }
+  if (p.descend) return { descend:Math.min(10,Math.max(2,Math.round(Number(p.descend))||3)) };
+  return null;
+}
+function normItem(it){
+  it=it&&typeof it==="object"?it:{};
+  const o={ reps:normRange(it.reps,1,30,1), dist:normRange(it.dist,0,10000,100) };
+  if (WHATS.includes(it.what)) o.what=it.what;   // unset reads as swim
+  if (it.stroke) o.stroke=String(it.stroke);
+  const gear=Array.isArray(it.gear)?it.gear.filter(g=>GEARS.includes(g)):[];
+  if (gear.length) o.gear=gear;
+  if (it.effort) o.effort=String(it.effort);
+  const pat=normPattern(it.pattern); if (pat) o.pattern=pat;
+  const iv=it.interval;
+  if (iv && typeof iv==="object"){
+    if (Number(iv.sendoff)>0) o.interval={ sendoff:Math.round(Number(iv.sendoff)) };
+    else if (iv.rest!=null){ const r=normRange(iv.rest,0,600,0); if (hi(r)>0) o.interval={ rest:r }; }
+  }
+  if (it.ramp && typeof it.ramp==="object" && Number(it.ramp.swims)>0)
+    o.ramp={ swims:Math.round(Number(it.ramp.swims)), reps:normRange(it.ramp.reps,1,30,lo(o.reps)) };
+  if (it.note) o.note=String(it.note);
+  return o;
+}
+function normBlock(b){
+  b=b&&typeof b==="object"?b:{};
+  const o={ name:String(b.name||"Set").slice(0,60), rounds:normRange(b.rounds,1,20,1) };
+  if (b.main) o.main=true;
+  o.items=(Array.isArray(b.items)?b.items:[]).map(normItem);
+  if (!o.items.length) o.items.push(normItem({}));
+  return o;
+}
+// v3 sets were {n, d, y} or {n, d, reps, each}: one block, one item each.
+function oldSetToBlock(st){
+  st=st||{}; const reps=Number(st.reps)||0, each=Number(st.each)||0;
+  const it = reps>0 ? { reps, dist:each||100, what:"swim" } : { reps:1, dist:Math.max(0,Number(st.y)||0), what:"swim" };
+  if (st.d) it.note=String(st.d);
+  return normBlock({ name:st.n||"Set", rounds:1, items:[it] });
+}
+function normTpl(t){
+  t=t&&typeof t==="object"?t:{};
+  const o={ id:String(t.id||("s"+Date.now().toString(36))), name:String(t.name||"Swim").slice(0,60) };
+  if ([1,2,3].includes(Number(t.stage))) o.stage=Number(t.stage);
+  if (Array.isArray(t.blocks)) o.blocks=t.blocks.map(normBlock);
+  else if (Array.isArray(t.sets)){
+    o.blocks=t.sets.map(oldSetToBlock);
+    let mi=t.sets.findIndex(s=>s&&Number(s.reps)>0);
+    if (mi<0) mi=o.blocks.findIndex(b=>/main/i.test(b.name));
+    if (mi>=0) o.blocks[mi].main=true;
+  } else o.blocks=[];
+  if (!o.blocks.length) o.blocks.push(normBlock({ name:"Main set", main:true }));
+  return o;
+}
+// The plan templates join the stored doc by id, in memory. `seeded` lists the ids already
+// offered, so once the doc is saved a plan template he deleted stays deleted.
+function mergeSwimDoc(raw, plan){
+  raw=raw&&typeof raw==="object"?raw:{};
+  const templates=(Array.isArray(raw.templates)?raw.templates:[]).map(normTpl);
+  const seeded=new Set(Array.isArray(raw.seeded)?raw.seeded.map(String):[]);
+  const have=new Set(templates.map(t=>t.id));
+  for (const p of plan) if (!have.has(p.id) && !seeded.has(p.id)) templates.push(normTpl(clone(p)));
+  for (const p of plan) seeded.add(p.id);
+  const out=clone(raw);
+  out.templates=templates; out.seeded=[...seeded]; out.pool=poolOf(raw.pool);
+  out.startDate=/^\d{4}-\d{2}-\d{2}$/.test(raw.startDate||"")?raw.startDate:"";
+  return out;
+}
+
+// ----- totals: [low, high] in pool units -----
+// useRamp: true = the ramp applies (an early swim), false = plan reps, unset = both (the label range)
+function itemRange(it, useRamp){
+  let [r0,r1]=rng(it.reps);
+  if (it.ramp){ const [a,b]=rng(it.ramp.reps); if (useRamp===true){ r0=a; r1=b; } else if (useRamp!==false) r0=Math.min(r0,a); }
+  const [d0,d1]=rng(it.dist); return [r0*d0, r1*d1];
+}
+function blockRange(b, useRamp){
+  let a=0,c=0; for (const it of b.items){ const [x,y]=itemRange(it,useRamp); a+=x; c+=y; }
+  const [n0,n1]=rng(b.rounds); return [n0*a, n1*c];
+}
+function tplRange(t, useRamp){
+  let a=0,c=0; for (const b of t.blocks){ const [x,y]=blockRange(b,useRamp); a+=x; c+=y; } return [a,c];
+}
+
+// ----- words -----
+function strokeWhat(o){ const w=o.what||"swim"; return w!=="swim" ? w+(o.stroke?" "+o.stroke:"") : (o.stroke||"swim"); }
+const sideWord = (o) => (o&&o.effort) || strokeWhat(o||{});
+function intervalText(iv){
+  if (!iv) return "";
+  if (iv.sendoff>0) return "on "+fmtClock(iv.sendoff);
+  if (iv.rest!=null && hi(iv.rest)>0) return "@ "+fmtRng(iv.rest,fmtClock);
+  return "";
+}
+function itemText(it, o){
+  o=o||{};
+  const reps=(o.ramp&&it.ramp) ? it.ramp.reps : (o.reps!=null ? o.reps : it.reps);
+  const [r0,r1]=rng(reps);
+  const head=(o.noReps || (r0===1&&r1===1)) ? "" : fmtRng(reps)+"×";
+  const p=it.pattern||null; let body;
+  if (p && p.parts){ const ds=p.parts.map(x=>x.dist);
+    body=p.parts.map(x=>x.what||"swim").join("/")+(ds.every(d=>d===ds[0])?" by "+ds[0]:" ("+ds.join("/")+")"); }
+  else if (p && (p.odds||p.evens)) body="odds "+sideWord(p.odds)+", evens "+sideWord(p.evens);
+  else if (p && p.groups) body=(it.stroke?it.stroke+" ":"")+p.groups.join("/");
+  else if (p && p.descend){ const N=p.descend, cyc=[];
+    for (let s=1;s<=r0;s+=N){ const e=Math.min(r0,s+N-1); cyc.push(e>s?s+"–"+e:String(s)); }
+    body=(it.stroke?it.stroke+" ":"")+"descend "+cyc.join(", "); }
+  else body=strokeWhat(it)+(it.effort?" "+it.effort:"");
+  if (it.gear && it.gear.length) body+=" ("+it.gear.join(", ")+")";
+  const iv=o.noInterval?"":intervalText(it.interval);
+  return head+fmtRng(it.dist)+" "+body+(iv?" "+iv:"");
+}
+function blockText(b, o){
+  o=o||{};
+  const ivs=b.items.map(it=>intervalText(it.interval)), same=ivs.every(x=>x===ivs[0]);
+  if (hi(b.rounds)>1)
+    return fmtRng(b.rounds)+" × ["+b.items.map(it=>itemText(it,{ramp:o.ramp,noInterval:same})).join(" + ")+"]"+(same&&ivs[0]?" "+ivs[0]:"");
+  return b.items.map(it=>itemText(it,{ramp:o.ramp})).join(" · ");
+}
+// Which group rep k (0-based) falls in when `reps` split evenly across n groups.
+const groupIndex = (k,reps,n) => Math.min(n-1, Math.floor(k*n/Math.max(1,reps)));
+function groupSpan(g,reps,n){ let a=-1,b=-1;
+  for (let k=0;k<reps;k++) if (groupIndex(k,reps,n)===g){ if (a<0) a=k; b=k; }
+  return [a+1,b+1]; }
+// The pattern spelled out for rep k (0-based) of `reps`.
+function repSpec(it, k, reps){
+  const p=it.pattern||null;
+  if (p && p.parts) return {
+    label: p.parts.map(x=>x.dist+" "+strokeWhat(x)).join(", then "),
+    detail: p.parts.map(x=>x.drill).filter(Boolean).join(" · ") || it.note || "" };
+  if (p && (p.odds||p.evens)){
+    const odd=k%2===0, side=(odd?p.odds:p.evens)||{}, what=side.what||it.what||"swim";
+    const o={ what, stroke:side.stroke||(what==="swim"?it.stroke:undefined), effort:side.effort };
+    return { label:o.effort?o.effort+" · "+strokeWhat(o):strokeWhat(o), detail:(odd?"odd":"even")+" rep"+(side.note?" · "+side.note:"") };
+  }
+  if (p && p.groups){
+    const n=p.groups.length, g=groupIndex(k,reps,n), [a,b]=groupSpan(g,reps,n);
+    return { label:p.groups[g]+(it.stroke?" · "+it.stroke:""), detail:"group "+(g+1)+" of "+n+" · reps "+(a===b?a:a+"–"+b) };
+  }
+  if (p && p.descend){
+    const N=p.descend, pos=k%N+1;
+    return { label:"descend "+pos+" of "+N+(it.stroke?" · "+it.stroke:""),
+      detail: pos===1?"start controlled":pos===N?"fastest of this "+N:"faster than the last" };
+  }
+  return { label:it.effort?it.effort+" · "+strokeWhat(it):strokeWhat(it), detail:it.note||"" };
+}
+const repLabel = (it,k,reps) => "Rep "+(k+1)+" of "+reps+": "+repSpec(it,k,reps).label;
+
+// ----- the comeback calendar -----
+// Days 0–13 are weeks 1–2, 14–27 weeks 3–4, 28 on weeks 5+.
+function phaseOf(startDate, today){
+  if (!startDate) return { started:false, day:0, stage:1, label:STAGES[1] };
+  const day=daysBetween(startDate, today);
+  if (day<0) return { started:false, day, stage:1, label:STAGES[1] };
+  const stage=day<14?1:day<28?2:3;
+  return { started:true, day, stage, label:STAGES[stage] };
+}
+const isSwim = (s) => s && s.type==="swim";
+const swimsSince = (sessions, startDate) => startDate ? sessions.filter(s=>isSwim(s)&&(s.date||"")>=startDate).length : 0;
+const rampOn = (it, swimsSoFar) => !!(it.ramp && swimsSoFar<it.ramp.swims);
+const tplRampOn = (t, n) => t.blocks.some(b=>b.items.some(i=>rampOn(i,n)));
+const hasPaddles = (t) => t.blocks.some(b=>b.items.some(i=>(i.gear||[]).includes("paddles")));
+const paddlesWarn = (t, startDate, today) => hasPaddles(t) && (!startDate || daysBetween(startDate,today)<30);
+function lastSwumOf(t, sessions){
+  let best=null;
+  for (const s of sessions) if (isSwim(s) && (s.tplId===t.id || (!s.tplId && s.tpl===t.name)))
+    if (!best || (s.ts||0)>(best.ts||0)) best=s;
+  return best;
+}
+// The current stage's workout, least recently swum first (weeks 5+ rotate this way).
+function nextSwim(templates, stage, sessions){
+  let pool=templates.filter(t=>t.stage===stage); if (!pool.length) pool=templates.slice();
+  if (!pool.length) return null;
+  const c=pool.map((t,i)=>({ t, i, run:lastSwumOf(t,sessions) }));
+  c.sort((a,b)=>(((a.run&&a.run.ts)||0)-((b.run&&b.run.ts)||0)) || a.i-b.i);
+  return c[0];
+}
+
+// ----- a swim in progress -----
+// phase: ready (waiting to start a block) → swim (a rep is under way since repStart)
+// → rest (until restEnd, then the next rep starts at restEnd) … → end (finish screen).
+// The cursor (b, r, i) is the block, round and item; the rep under way or next is items.done.
+function newLive(t, ctx){
+  const n=ctx.swimsSoFar||0;
+  const blocks=t.blocks.map(b=>{
+    const defs=b.items.map(it=>{ const d=clone(it); d.target=clone(rampOn(it,n)?it.ramp.reps:it.reps); delete d.ramp; return d; });
+    const rounds=[]; for (let r=0;r<lo(b.rounds);r++)
+      rounds.push({ items:defs.map(d=>({ reps:lo(d.target), dist:lo(d.dist), done:0, times:[] })) });
+    return { name:b.name, main:!!b.main, roundsTarget:clone(b.rounds), defs, rounds, status:"todo" };
+  });
+  return { v:1, uid:ctx.uid||null, tplId:t.id, tplName:t.name, tplStage:t.stage||null, stage:ctx.stage||1,
+    pool:poolOf(ctx.pool), unit:POOLS[poolOf(ctx.pool)].unit, ramp:tplRampOn(t,n),
+    createdAt:ctx.now, updatedAt:ctx.now, startedAt:null, endedAt:null, blocks,
+    b:0, r:0, i:0, phase:"ready", repStart:null, restStart:null, restEnd:null, hist:[], fin:null };
+}
+const curProg = (L) => { const B=L.blocks[L.b]; return B && B.rounds[L.r] ? B.rounds[L.r].items[L.i] : null; };
+const curDef = (L) => { const B=L.blocks[L.b]; return B ? B.defs[L.i] : null; };
+const blockDoneReps = (B) => B.rounds.reduce((a,R)=>a+R.items.reduce((x,p)=>x+p.done,0),0);
+// Next item in this block with reps left, after the cursor.
+function nextPos(L){
+  const B=L.blocks[L.b]; let r=L.r, i=L.i;
+  for (;;){ i++; if (i>=B.defs.length){ i=0; r++; } if (r>=B.rounds.length) return null;
+    const p=B.rounds[r].items[i]; if (p.done<p.reps) return { r, i }; }
+}
+function toNextBlock(L, now){
+  L.repStart=L.restStart=L.restEnd=null;
+  if (L.b+1>=L.blocks.length){ L.phase="end"; L.endedAt=now; return; }
+  L.b++; L.r=0; L.i=0; L.phase="ready";
+}
+// Rest after a rep of item d: the item's own rest, or until rep start + send-off.
+function beginRest(L, d, repStart, now){
+  const iv=d.interval; let end=null;
+  if (iv && iv.sendoff>0) end=repStart+iv.sendoff*1000;
+  else if (iv && iv.rest!=null && hi(iv.rest)>0) end=now+hi(iv.rest)*1000;   // a range rests its long end
+  if (end!=null && end>now){ L.phase="rest"; L.restStart=now; L.restEnd=end; L.repStart=null; }
+  else { L.phase="swim"; L.repStart=now; L.restStart=L.restEnd=null; }
+}
+// If the cursor's item has no reps left (reps were cut), move on.
+function settle(L, now){
+  const p=curProg(L); if (!p || p.done<p.reps) return;
+  const nx=nextPos(L);
+  if (nx){ L.r=nx.r; L.i=nx.i; return; }
+  L.blocks[L.b].status="done"; toNextBlock(L, now);
+}
+const HIST_MAX=15;
+// One step. Returns { L, changed, beep }. Never mutates its input.
+function runStep(L0, a, now){
+  if (a.type==="undo"){
+    if (!L0.hist || !L0.hist.length) return { L:L0 };
+    const prev=clone(L0.hist[L0.hist.length-1]);
+    prev.hist=L0.hist.slice(0,-1); prev.fin=clone(L0.fin); prev.updatedAt=now;
+    return { L:prev, changed:true };
+  }
+  if (a.type==="tick"){
+    if (L0.phase!=="rest" || now<L0.restEnd) return { L:L0 };
+    const L=clone(L0); L.phase="swim"; L.repStart=L0.restEnd; L.restStart=L.restEnd=null; L.updatedAt=now;
+    return { L, changed:true, beep:true };
+  }
+  const L=clone(L0), B=L.blocks[L.b];
+  const before=clone(L0); delete before.hist; delete before.fin;
+  switch (a.type){
+    case "start":
+      if (L.phase!=="ready") return { L:L0 };
+      L.startedAt=L.startedAt||now; L.phase="swim"; L.repStart=now; B.status="active"; break;
+    case "rep": {
+      if (L.phase!=="swim") return { L:L0 };
+      const p=curProg(L), d=curDef(L), repStart=L.repStart;
+      p.times[p.done]=Math.round((now-repStart)/100)/10; p.done++;
+      if (p.done<p.reps){ beginRest(L,d,repStart,now); break; }
+      const nx=nextPos(L);
+      if (nx){ L.r=nx.r; L.i=nx.i; beginRest(L,d,repStart,now); }
+      else { B.status="done"; toNextBlock(L,now); }   // no rest between blocks
+      break; }
+    case "go":
+      if (L.phase!=="rest") return { L:L0 };
+      L.phase="swim"; L.repStart=now; L.restStart=L.restEnd=null; break;
+    case "plus10":
+      if (L.phase!=="rest") return { L:L0 };
+      L.restEnd+=10000; break;
+    case "reps": {
+      const p=curProg(L); if (!p || L.phase==="end") return { L:L0 };
+      const v=Math.max(Math.max(1,p.done+(L.phase==="swim"?1:0)), Math.min(30,p.reps+(a.d||0)));
+      if (v===p.reps) return { L:L0 };
+      p.reps=v; if (L.phase!=="swim") settle(L,now); break; }
+    case "dist": {
+      const p=curProg(L); if (!p || !(a.v>=0) || a.v===p.dist) return { L:L0 };
+      p.dist=a.v; break; }
+    case "finishBlock":
+      if (L.phase==="end") return { L:L0 };
+      for (const R of B.rounds) for (const p of R.items) while (p.done<p.reps){ p.times[p.done]=null; p.done++; }
+      B.status="done"; toNextBlock(L,now); break;
+    case "skipBlock":
+      if (L.phase==="end") return { L:L0 };
+      B.status=blockDoneReps(B)>0?"cut":"skipped"; toNextBlock(L,now); break;
+    case "end":
+      if (L.phase==="end") return { L:L0 };
+      if (B.status!=="done") B.status=blockDoneReps(B)>0?"cut":"skipped";
+      for (let j=L.b+1;j<L.blocks.length;j++) L.blocks[j].status="skipped";
+      L.phase="end"; L.endedAt=now; L.repStart=L.restStart=L.restEnd=null; break;
+    default: return { L:L0 };
+  }
+  L.hist=(L0.hist||[]).concat([before]).slice(-HIST_MAX); L.updatedAt=now;
+  return { L, changed:true };
+}
+// What gets saved per block: target, done and times for each round and item.
+function swimLog(L, overrides){
+  overrides=overrides||{};
+  return L.blocks.map((B,j)=>({
+    name:B.name, main:B.main,
+    status:(B.status==="done"||B.status==="cut"||B.status==="skipped") ? B.status : (blockDoneReps(B)>0?"cut":"skipped"),
+    rounds:B.rounds.map((R,r)=>({ items:R.items.map((p,i)=>{
+      const d=B.defs[i], out={ label:itemText(Object.assign({},d,{dist:p.dist}),{noReps:true,noInterval:true}),
+        what:d.what, dist:p.dist, target:clone(d.target), done:p.done, times:[] };
+      if (d.stroke) out.stroke=d.stroke;
+      for (let k=0;k<p.done;k++){ const key=j+"."+r+"."+i+"."+k;
+        const t=Object.prototype.hasOwnProperty.call(overrides,key) ? overrides[key] : p.times[k];
+        out.times.push(t>0?t:null); }
+      return out; }) })),
+  }));
+}
+const logDist = (blocks) => blocks.reduce((a,b)=>a+b.rounds.reduce((x,R)=>x+R.items.reduce((y,it)=>y+(it.done||0)*(it.dist||0),0),0),0);
+// Seconds per 100 from main-set reps that have times; null without any.
+function mainPaceOf(blocks){
+  let t=0, d=0;
+  for (const b of blocks||[]) if (b.main) for (const R of b.rounds||[]) for (const it of R.items||[])
+    for (const x of it.times||[]) if (x>0){ t+=x; d+=Number(it.dist)||0; }
+  return (t>0&&d>0) ? Math.round(t/d*100*10)/10 : null;
+}
+function swimSessionBody(L, f){
+  const blocks=swimLog(L, f.times), dist=logDist(blocks), min=Math.round(f.minutes*100)/100;
+  const body={ date:f.date, ts:toTs(f.date), type:"swim", minutes:min, swimDist:dist, swimUnit:L.unit,
+    effort:f.effort, feel:f.feel, notes:f.notes||"", tpl:L.tplName, tplId:L.tplId, stage:L.stage, pool:L.pool,
+    swim:{ blocks }, mainPace:mainPaceOf(blocks),
+    sessionPace:(min>0&&dist>0) ? Math.round(min*60/(dist/100)*10)/10 : null };
+  if (L.unit==="yd") body.yards=dist;
+  if (f.sore && Object.keys(f.sore).length) body.sore=f.sore;
+  return body;
+}
+// Any swim session, old or new, read as { dist, unit, blocks, mainPace, sessionPace }.
+function swimOf(s){
+  const unit=s.swimUnit==="m"?"m":"yd";
+  const dist=Number(s.swimDist!=null?s.swimDist:s.yards)||0;
+  let blocks=null;
+  if (s.swim && Array.isArray(s.swim.blocks)) blocks=s.swim.blocks;
+  else if (Array.isArray(s.swimSets) && s.swimSets.length) blocks=s.swimSets.map(st=>{
+    const reps=Number(st.reps)||0, each=Number(st.each)||0, y=Number(st.y)||reps*each;
+    return { name:String(st.n||"Set"), main:reps>0, status:"done", legacy:true,
+      rounds:[{ items:[{ dist:reps>0?each:y, target:reps||1, done:reps||1, times:[] }] }] };
+  });
+  const min=Number(s.minutes)||0;
+  return { dist, unit, blocks,
+    mainPace:Number(s.mainPace)>0?Number(s.mainPace):null,
+    sessionPace:Number(s.sessionPace)>0?Number(s.sessionPace):((min>0&&dist>0)?Math.round(min*60/(dist/100)*10)/10:null) };
+}
 
 // ---------- tabs ----------
 const TABS = ["home","log","train","trends","coach"];
@@ -922,7 +1556,7 @@ function updPaceHint(){
   const el=$("#paceHint"); el.textContent="";
   const min=parseTime($("#sessMin").value); if(!(min>0)) return;
   let p="";
-  if (S.pickedType==="swim"){ const yd=Number($("#sessYards").value); p=pace100(min,yd); }
+  if (S.pickedType==="swim"){ const yd=Number($("#sessYards").value); p=pace100(min,yd); if (p) p+=" "+unitNow()+", rest included"; }
   if (S.pickedType==="run"){ const mi=Number($("#sessMiles").value); p=paceStr(min,mi); }
   if (S.pickedType==="row"){ const m=Number($("#sessMeters").value); p=splitStr(min,m); }
   if (p){ el.append("Pace works out to "); const b=document.createElement("b"); b.textContent=p; el.append(b); }
@@ -936,7 +1570,7 @@ $("#notesToggle").addEventListener("click",()=>{
 // soreness widget
 const SORE_AREAS=["Shoulders","Neck","Low back","Hips","Knees","Legs","Elbows","Wrists"];
 const SORE_DOTS=["","•","••","•••"];
-function makeSoreness(hostId){
+function makeSoreness(hostId, onChange){
   const host=document.getElementById(hostId);
   const lvl={};
   const paint=(b,a)=>{ const v=lvl[a]||0;
@@ -944,18 +1578,20 @@ function makeSoreness(hostId){
     b.setAttribute("aria-pressed",String(v>0)); b.dataset.lvl=String(v); };
   SORE_AREAS.forEach(a=>{
     const b=document.createElement("button"); b.type="button";
-    b.addEventListener("click",()=>{ lvl[a]=((lvl[a]||0)+1)%4; paint(b,a); });
+    b.addEventListener("click",()=>{ lvl[a]=((lvl[a]||0)+1)%4; paint(b,a); if (onChange) onChange(); });
     host.append(b); paint(b,a);
   });
   return {
     get(){ const o={}; for(const a of SORE_AREAS) if(lvl[a]>0) o[a]=lvl[a]; return o; },
     reset(){ for(const a of SORE_AREAS) lvl[a]=0;
+      host.querySelectorAll("button").forEach((b,i)=>paint(b,SORE_AREAS[i])); },
+    set(o){ for(const a of SORE_AREAS) lvl[a]=Math.min(3,Math.max(0,Number(o&&o[a])||0));
       host.querySelectorAll("button").forEach((b,i)=>paint(b,SORE_AREAS[i])); }
   };
 }
 const soreMain=makeSoreness("soreMain");
 const soreLift=makeSoreness("soreLift");
-const soreSwim=makeSoreness("soreSwim");
+const soreSwim=makeSoreness("soreSwim",()=>{ if (R){ finDraft().sore=soreSwim.get(); saveFinDraft(); } });
 const soreTxt=(sore)=>Object.keys(sore).map(a=>a+" "+"•".repeat(Math.min(3,Number(sore[a])||1))).join(", ");
 
 function userCol(sub){ return S.db.doc("data/users/"+S.uid+"/log").collection(sub); }
@@ -977,7 +1613,11 @@ $("#sessForm").addEventListener("submit", async (e)=>{
   if (!date || (S.pickedType!=="rest" && !(min>0))) return flash(msg,"Time and date needed.",true);
   const body={ date, ts:toTs(date), type:S.pickedType, minutes:Math.round(min*100)/100,
                feel:S.pickedFeel, notes:$("#sessNotes").value.trim() };
-  if (S.pickedType==="swim" && $("#sessYards").value) body.yards=Math.round(Number($("#sessYards").value));
+  if (S.pickedType==="swim" && $("#sessYards").value){
+    const sd=swimData(), dist=Math.round(Number($("#sessYards").value));
+    body.swimDist=dist; body.swimUnit=POOLS[sd.pool].unit; body.pool=sd.pool;
+    if (body.swimUnit==="yd") body.yards=dist;
+  }
   if (S.pickedType==="run" && $("#sessMiles").value) body.miles=Math.round(Number($("#sessMiles").value)*100)/100;
   if (S.pickedType==="row" && $("#sessMeters").value) body.meters=Math.round(Number($("#sessMeters").value));
   if ((S.pickedType==="run"||S.pickedType==="row") && S.pickedKind) body.kind=S.pickedKind;
@@ -987,6 +1627,7 @@ $("#sessForm").addEventListener("submit", async (e)=>{
   try {
     await userCol("sessions").add(body);
     flash(msg, TYPES[body.type].label+" logged.");
+    if (body.type==="swim") markComebackStart(body.date);
     $("#sessMin").value=""; $("#sessYards").value=""; $("#sessMiles").value=""; $("#sessMeters").value="";
     $("#sessSpm").value=""; $("#sessNotes").value=""; soreMain.reset(); S.pickedKind=null;
     document.querySelectorAll("#kindChips button").forEach(c=>c.setAttribute("aria-pressed","false"));
@@ -1014,7 +1655,6 @@ const e1rm=(w,r)=>(w>0&&r>0)?w*(1+r/30):0;
 const fmtW=(w)=>w>0?(Math.round(w*10)/10).toLocaleString():"BW";
 const setStr=(st)=>fmtW(st[0])+"×"+st[1];
 function liftData(){ return S.lift || DEFAULT_LIFT; }
-function swimData(){ return S.swim || DEFAULT_SWIM; }
 function exNames(){
   const set=new Set();
   for (const t of liftData().templates) for (const e of t.ex) set.add(e.name);
@@ -1060,14 +1700,6 @@ async function saveLiftDoc(msgEl){
   catch(e){ if(msgEl) flash(msgEl,saveErr(e),true); return false; }
   finally { S.liftSaving=false; }
 }
-async function saveSwimDoc(msgEl){
-  if (!S.db || !S.uid){ if(msgEl) flash(msgEl,"Still connecting — try again in a moment.",true); return false; }
-  if (S.swimSaving) return false; S.swimSaving=true;
-  try { await S.db.doc("data/users/"+S.uid+"/swim").set(swimData()); S.swim=swimData(); return true; }
-  catch(e){ if(msgEl) flash(msgEl,saveErr(e),true); return false; }
-  finally { S.swimSaving=false; }
-}
-const tplYards=(t)=>t.sets.reduce((a,s)=>a+(s.reps?s.reps*(s.each||0):(s.y||0)),0);
 function lastRunOf(names){
   const keys=new Set([...names].map(n=>String(n).trim().toLowerCase()));
   let best=null;
@@ -1080,7 +1712,7 @@ function lastRunOf(names){
 }
 
 // ---------- train home ----------
-let editTpl=null, editSwimTpl=null;
+let editTpl=null;
 function renderTrainHome(){ renderExLib(); renderLiftHome(); renderSwimHome(); renderSettings(); }
 function renderLiftHome(){
   const list=$("#tplList"); list.textContent="";
@@ -1157,84 +1789,637 @@ function renderExLib(){
   for (const n of exNames()){ const o=document.createElement("option"); o.value=n; dl.append(o); }
 }
 
+// ---------- small DOM helpers ----------
+function el(tag, cls, text){ const e=document.createElement(tag); if (cls) e.className=cls; if (text!=null) e.textContent=text; return e; }
+function btn(cls, text, fn, disabled){ const b=el("button",cls,text); b.type="button"; if (fn) b.addEventListener("click",fn); if (disabled) b.disabled=true; return b; }
+function inp(type, value, aria){ const i=el("input"); i.type=type; i.value=value==null?"":value; if (aria) i.setAttribute("aria-label",aria); return i; }
+function sel(options, value, aria){ const s=el("select"); for (const [v,t] of options){ const o=el("option",null,t); o.value=v; s.append(o); }
+  s.value=value==null?"":value; if (aria) s.setAttribute("aria-label",aria); return s; }
+function fld(label, control, wide){ const w=el("div","f"+(wide?" wide":"")); w.append(el("span","fl",label), control); return w; }
+// lo–hi number inputs; a blank high end means a single number.
+function rangeIn(v, min, max, aria, onChange, step){
+  const w=el("span","rngin"); let cur=v;
+  const i1=inp("number",lo(v),aria), i2=inp("number",lo(v)===hi(v)?"":hi(v),aria+", high end (optional)");
+  for (const i of [i1,i2]){ i.min=min; i.max=max; i.step=step||1; i.inputMode="numeric"; }
+  i2.placeholder="—";
+  const fire=()=>{
+    if (i1.value===""||!isFinite(Number(i1.value))){ i1.value=lo(cur); return; }
+    const a=Number(i1.value), b=i2.value===""?a:Number(i2.value);
+    cur=normRange(b===a?a:[a,b],min,max,a);
+    i1.value=lo(cur); i2.value=lo(cur)===hi(cur)?"":hi(cur); onChange(cur);
+  };
+  i1.addEventListener("change",fire); i2.addEventListener("change",fire);
+  w.append(i1, el("span","xsep","–"), i2); return w;
+}
+
+// ---------- swim data ----------
+function swimData(){ if (!S.swim) S.swim=mergeSwimDoc(S.swimRaw, PLAN_SWIM); return S.swim; }
+// One write at a time per doc: a write that arrives while one is in flight waits, and only the
+// newest waiting body is sent.
+function docWriter(pathFn){
+  let pending=null, running=false;
+  async function run(){
+    running=true;
+    while (pending){
+      const job=pending; pending=null;
+      try { const ref=S.db.doc(pathFn()); if (job.op==="delete") await ref.delete(); else await ref.set(job.data);
+            job.res.forEach(r=>r[0]()); }
+      catch(e){ job.res.forEach(r=>r[1](e)); }
+    }
+    running=false;
+  }
+  return (op, data) => new Promise((ok, err)=>{
+    if (pending){ pending.op=op; pending.data=data; pending.res.push([ok,err]); }
+    else pending={ op, data, res:[[ok,err]] };
+    if (!running) run();
+  });
+}
+const writeSwimDoc=docWriter(()=>"data/users/"+S.uid+"/swim");
+const writeLiveDoc=docWriter(()=>"data/users/"+S.uid+"/live");
+async function saveSwimDoc(msgEl){
+  if (!S.db || !S.uid){ if (msgEl) flash(msgEl,"Still connecting — try again in a moment.",true); return false; }
+  const body=clone(swimData()); S.swimLastWrite=stableStr(body);
+  try { await writeSwimDoc("set", body); S.swimRaw=body; return true; }
+  catch(e){ if (msgEl) flash(msgEl,saveErr(e),true); return false; }
+}
+const unitNow = () => POOLS[swimData().pool].unit;
+
+// ---------- Train → Swim ----------
+let editSwimTpl=null, openItem=null;
+const cardRefs=new Map();
 function renderSwimHome(){
-  const list=$("#swimTplList"); list.textContent="";
-  for (const t of swimData().templates){
-    const card=document.createElement("div"); card.className="tpl";
-    const row=document.createElement("div"); row.className="trow";
-    const nm=document.createElement("div"); nm.className="tname"; nm.textContent=t.name;
-    const start=document.createElement("button"); start.className="btn blue sm"; start.type="button"; start.textContent="Start";
-    start.addEventListener("click",()=>startSwim(t));
-    const edit=document.createElement("button"); edit.className="btn ghost"; edit.type="button";
-    edit.textContent=editSwimTpl===t.id?"Close":"Edit";
-    edit.addEventListener("click",()=>{ editSwimTpl=editSwimTpl===t.id?null:t.id; renderSwimHome(); });
-    row.append(nm,start,edit); card.append(row);
-    const last=lastRunOf([t.name]);
-    const meta=document.createElement("div"); meta.className="tmeta";
-    meta.textContent=tplYards(t).toLocaleString()+" yd · "+t.sets.length+" sets"+(last?" — last swum "+fmtDate(last.date):"");
-    card.append(meta);
+  const d=swimData(), today=todayStr(), ph=phaseOf(d.startDate,today), unit=POOLS[d.pool].unit;
+  $("#swimSecNote").textContent=POOLS[d.pool].label+" pool · rep by rep";
+  renderSwimPhase();
+  renderSwimResume();
+  const list=$("#swimTplList"); list.textContent=""; cardRefs.clear();
+  const nx=nextSwim(d.templates, ph.stage, S.sessions);
+  for (const t of d.templates){
+    const card=el("div","tpl swimtpl");
+    const row=el("div","trow");
+    const nm=el("div","tname",t.name);
+    row.append(nm, btn("btn blue sm","Start",()=>startSwim(t)),
+      btn("btn ghost", editSwimTpl===t.id?"Close":"Edit", ()=>{ editSwimTpl=editSwimTpl===t.id?null:t.id; openItem=null; renderSwimHome(); }));
+    card.append(row);
+    const chips=el("div","tchips"), meta=el("div","tmeta"), sum=el("dl","blk");
+    card.append(chips, meta, sum);
+    cardRefs.set(t.id,{ t, chips, meta, sum, nm, isNext: !!(nx && nx.t===t) });
+    paintSwimCard(t.id);
     if (editSwimTpl===t.id) card.append(buildSwimEditor(t));
-    else { const sum=document.createElement("div"); sum.className="exsum";
-      sum.textContent=t.sets.map(s=>s.n+" "+(s.reps?s.reps+"×"+s.each:s.y)+"").join(" · ")+" yd"; card.append(sum); }
     list.append(card);
   }
 }
+function paintSwimCard(id){
+  const c=cardRefs.get(id); if (!c) return;
+  const t=c.t, d=swimData(), today=todayStr(), unit=POOLS[d.pool].unit, n=swimsSince(S.sessions,d.startDate);
+  c.nm.textContent=t.name;
+  c.chips.textContent="";
+  if (t.stage) c.chips.append(el("span","chip",STAGES[t.stage]));
+  if (c.isNext) c.chips.append(el("span","chip now","Up next"));
+  if (paddlesWarn(t,d.startDate,today))
+    c.chips.append(el("span","chip warn", d.startDate ? "No paddles before "+fmtDate(dateAdd(d.startDate,30)) : "No paddles in month one"));
+  const last=lastSwumOf(t,S.sessions);
+  c.meta.textContent=fmtRng(tplRange(t))+" "+unit+" · "+t.blocks.length+" blocks"+(last?" — last swum "+fmtDate(last.date):" — not swum yet");
+  c.sum.textContent="";
+  const ramp=tplRampOn(t,n);
+  for (const b of t.blocks){
+    const dt=el("dt",null,b.name), dd=el("dd",b.main?"main":null,blockText(b,{ramp}));
+    const rampIt=b.items.find(i=>rampOn(i,n));
+    if (rampIt) dd.append(el("span","rampnote"," ramp: swims 1–"+rampIt.ramp.swims+", then "+fmtRng(rampIt.reps)));
+    c.sum.append(dt,dd);
+  }
+}
+function renderSwimPhase(){
+  const d=swimData(), today=todayStr(), ph=phaseOf(d.startDate,today), n=swimsSince(S.sessions,d.startDate);
+  const box=$("#swimPhase"); box.textContent="";
+  const day=el("div","pday"), txt=el("div","ptxt");
+  const nx=nextSwim(d.templates,ph.stage,S.sessions);
+  const rampIt=nx && nx.t.blocks.flatMap(b=>b.items).find(i=>i.ramp);
+  if (!ph.started){
+    day.append(el("span",null,"—"), el("small",null,"DAY"));
+    const b=el("b",null,"Comeback not started. ");
+    txt.append(b, "Your first saved swim sets day 1 and starts "+STAGES[1]+" ("+STAGE_NAMES[1]+").");
+    if (rampIt) txt.append(" The main set is capped at "+fmtRng(rampIt.ramp.reps)+" for the first "+rampIt.ramp.swims+" swims.");
+  } else {
+    day.append(el("span",null,String(ph.day+1)), el("small",null,"DAY"));
+    txt.append(el("b",null,ph.label+" · "+STAGE_NAMES[ph.stage]+". "));
+    txt.append(n+" swim"+(n===1?"":"s")+" since "+fmtDate(d.startDate)+".");
+    if (rampIt && n<rampIt.ramp.swims){ const left=rampIt.ramp.swims-n;
+      txt.append(" Main set capped at "+fmtRng(rampIt.ramp.reps)+" for "+left+" more swim"+(left===1?"":"s")+"."); }
+    if (ph.stage<3) txt.append(" "+STAGES[ph.stage+1]+" start "+fmtDate(dateAdd(d.startDate,ph.stage===1?14:28))+".");
+    if (ph.day<30) txt.append(" No paddles before "+fmtDate(dateAdd(d.startDate,30))+".");
+  }
+  box.append(day,txt);
+}
+
+// ----- the structured editor -----
 function buildSwimEditor(t){
-  const box=document.createElement("div"); box.className="tpledit";
-  const nameRow=document.createElement("div"); nameRow.className="exrow";
-  const nameIn=document.createElement("input"); nameIn.type="text"; nameIn.className="exn"; nameIn.value=t.name;
-  nameIn.setAttribute("aria-label","Workout name");
-  nameIn.addEventListener("change",()=>{ t.name=nameIn.value.trim()||t.name; persist(); });
-  const delT=document.createElement("button"); delT.className="mini x"; delT.type="button"; delT.textContent="delete";
-  delT.addEventListener("click",()=>{
-    if (delT.textContent!=="sure?"){ delT.textContent="sure?"; setTimeout(()=>delT.textContent="delete",2500); return; }
-    const d=swimData(); d.templates=d.templates.filter(x=>x!==t); editSwimTpl=null; S.swim=d; persist();
-  });
-  nameRow.append(nameIn,delT); box.append(nameRow);
-  t.sets.forEach((st,i)=>{
-    const r=document.createElement("div"); r.className="exrow";
-    const n=document.createElement("input"); n.type="text"; n.className="exn"; n.value=st.n;
-    n.setAttribute("aria-label","Set name"); n.style.flex="0 1 110px";
-    n.addEventListener("change",()=>{ st.n=n.value.trim()||st.n; persist(); });
-    let yIn;
-    if (st.reps){
-      const ri=document.createElement("input"); ri.type="number"; ri.className="exs"; ri.value=st.reps; ri.min=1; ri.max=30;
-      ri.setAttribute("aria-label","Repeats");
-      ri.addEventListener("change",()=>{ st.reps=Math.max(1,Number(ri.value)||st.reps); persist(); });
-      const x=document.createElement("span"); x.className="xsep"; x.textContent="×";
-      const ei=document.createElement("input"); ei.type="number"; ei.className="exr"; ei.value=st.each; ei.min=25; ei.step=25;
-      ei.setAttribute("aria-label","Yards each");
-      ei.addEventListener("change",()=>{ st.each=Math.max(25,Number(ei.value)||st.each); persist(); });
-      r.append(n,ri,x,ei);
-    } else {
-      yIn=document.createElement("input"); yIn.type="number"; yIn.className="exr"; yIn.value=st.y; yIn.min=0; yIn.step=25;
-      yIn.setAttribute("aria-label","Yards");
-      yIn.addEventListener("change",()=>{ st.y=Math.max(0,Number(yIn.value)||0); persist(); });
-      r.append(n,yIn);
-    }
-    const d=document.createElement("input"); d.type="text"; d.className="exd"; d.value=st.d||""; d.placeholder="detail";
-    d.setAttribute("aria-label","Set detail");
-    d.addEventListener("change",()=>{ st.d=d.value.trim(); persist(); });
-    const del=document.createElement("button"); del.className="mini x"; del.type="button"; del.textContent="×";
-    del.setAttribute("aria-label","Remove set");
-    del.addEventListener("click",()=>{ t.sets.splice(i,1); persist(); });
-    r.append(d,del); box.append(r);
-  });
-  const addRow=document.createElement("div"); addRow.className="exrow";
-  const addBtn=document.createElement("button"); addBtn.className="mini"; addBtn.type="button"; addBtn.textContent="+ add set";
-  addBtn.addEventListener("click",()=>{ t.sets.push({n:"Set",d:"",y:100}); persist(); });
-  const addMain=document.createElement("button"); addMain.className="mini"; addMain.type="button"; addMain.textContent="+ add repeat set";
-  addMain.addEventListener("click",()=>{ t.sets.push({n:"Main set",d:"",reps:8,each:100}); persist(); });
-  addRow.append(addBtn,addMain); box.append(addRow);
-  function persist(){ renderSwimHome(); saveSwimDoc($("#swimTplMsg")); }
+  const box=el("div","sed");
+  const saveQuiet=()=>{ paintSwimCard(t.id); saveSwimDoc($("#swimTplMsg")); };
+  const rebuild=(noSave)=>{ renderSwimHome(); if (!noSave) saveSwimDoc($("#swimTplMsg")); };
+  const top=el("div","srow");
+  const nameIn=inp("text",t.name,"Workout name"); nameIn.className="grow"; nameIn.id="sedName-"+t.id;
+  nameIn.addEventListener("change",()=>{ t.name=nameIn.value.trim().slice(0,60)||t.name; nameIn.value=t.name; saveQuiet(); });
+  const stSel=sel([["","No phase"],["1",STAGES[1]],["2",STAGES[2]],["3",STAGES[3]]], t.stage?String(t.stage):"", "Phase");
+  stSel.addEventListener("change",()=>{ if (stSel.value) t.stage=Number(stSel.value); else delete t.stage; rebuild(); });
+  top.append(fld("Name",nameIn,true), fld("Phase",stSel));
+  box.append(top);
+  t.blocks.forEach((b,bi)=>box.append(blockEditor(t,b,bi,saveQuiet,rebuild)));
+  const foot=el("div","srow");
+  foot.append(btn("mini","+ add block",()=>{
+    t.blocks.push(normBlock({ name:"Set", items:[{ reps:4, dist:50, what:"swim", stroke:"free", effort:"easy", interval:{rest:20} }] }));
+    rebuild(); }));
+  const delT=btn("mini x","delete workout",()=>{
+    if (delT.textContent!=="tap again to delete"){ delT.textContent="tap again to delete"; setTimeout(()=>{ delT.textContent="delete workout"; },2500); return; }
+    const d=swimData(); d.templates=d.templates.filter(x=>x!==t); editSwimTpl=null; rebuild(); });
+  foot.append(delT);
+  box.append(foot);
   return box;
 }
+function moveIn(arr, i, d){ const j=i+d; if (j<0||j>=arr.length) return false; arr.splice(j,0,arr.splice(i,1)[0]); return true; }
+function blockEditor(t,b,bi,saveQuiet,rebuild){
+  const wrap=el("div","sblock"+(b.main?" main":""));
+  const r1=el("div","srow");
+  const nm=inp("text",b.name,"Block name"); nm.className="grow";
+  nm.addEventListener("change",()=>{ b.name=nm.value.trim().slice(0,60)||b.name; nm.value=b.name; saveQuiet(); });
+  const rounds=rangeIn(b.rounds,1,20,"Rounds",(v)=>{ b.rounds=v; saveQuiet(); });
+  const mainBox=el("label","chk"); const cb=inp("checkbox"); cb.checked=!!b.main;
+  cb.addEventListener("change",()=>{ if (cb.checked) b.main=true; else delete b.main; wrap.classList.toggle("main",cb.checked); saveQuiet(); });
+  mainBox.append(cb," Main set");
+  r1.append(fld("Block",nm,true), fld("Rounds",rounds), mainBox);
+  const tools=el("div","stools");
+  tools.append(
+    btn("mini","↑",()=>{ if (moveIn(t.blocks,bi,-1)){ openItem=null; rebuild(); } }, bi===0),
+    btn("mini","↓",()=>{ if (moveIn(t.blocks,bi,1)){ openItem=null; rebuild(); } }, bi===t.blocks.length-1));
+  const del=btn("mini x","remove block",()=>{
+    if (t.blocks.length<2) return;
+    if (del.textContent!=="tap again"){ del.textContent="tap again"; setTimeout(()=>{ del.textContent="remove block"; },2500); return; }
+    t.blocks.splice(bi,1); openItem=null; rebuild(); }, t.blocks.length<2);
+  tools.firstChild.setAttribute("aria-label","Move block up"); tools.children[1].setAttribute("aria-label","Move block down");
+  tools.append(del); r1.append(tools);
+  wrap.append(r1);
+  b.items.forEach((it,ii)=>wrap.append(itemEditor(t,b,bi,it,ii,saveQuiet,rebuild)));
+  wrap.append(btn("mini add","+ add item",()=>{
+    b.items.push(normItem({ reps:1, dist:100, what:"swim", stroke:"free", effort:"easy" }));
+    openItem=t.id+":"+bi+"."+(b.items.length-1); rebuild(); }));
+  return wrap;
+}
+function itemEditor(t,b,bi,it,ii,saveQuiet,rebuild){
+  const key=t.id+":"+bi+"."+ii, open=openItem===key;
+  const box=el("div","sitem"+(open?" open":""));
+  const head=el("div","sum");
+  const txt=btn("open",itemText(it),()=>{ openItem=open?null:key; rebuild(true); });
+  txt.setAttribute("aria-expanded",String(open));
+  const up=btn("mini","↑",()=>{ if (moveIn(b.items,ii,-1)){ openItem=null; rebuild(); } }, ii===0);
+  const dn=btn("mini","↓",()=>{ if (moveIn(b.items,ii,1)){ openItem=null; rebuild(); } }, ii===b.items.length-1);
+  const del=btn("mini x","×",()=>{ if (b.items.length<2) return; b.items.splice(ii,1); openItem=null; rebuild(); }, b.items.length<2);
+  up.setAttribute("aria-label","Move item up"); dn.setAttribute("aria-label","Move item down"); del.setAttribute("aria-label","Remove item");
+  head.append(txt,up,dn,del); box.append(head);
+  if (open) box.append(itemFields(it,()=>{ txt.textContent=itemText(it); saveQuiet(); },rebuild));
+  return box;
+}
+const optList = (arr, blank) => (blank!=null?[["",blank]]:[]).concat(arr.map(x=>[x,x]));
+function sideFields(side, label, save){
+  const g=el("div","f wide sidebox"); g.append(el("span","fl",label));
+  const row=el("div","sidegrid");
+  const w=sel(optList(WHATS,"same"),side.what||"",label+": what"), s=sel(optList(STROKES,"—"),side.stroke||"",label+": stroke"),
+        e=sel(optList(EFFORTS,"—"),side.effort||"",label+": effort"), n=inp("text",side.note||"",label+": note");
+  n.placeholder="e.g. build to fast";
+  const put=(k,v)=>{ if (v) side[k]=v; else delete side[k]; save(); };
+  w.addEventListener("change",()=>put("what",w.value)); s.addEventListener("change",()=>put("stroke",s.value));
+  e.addEventListener("change",()=>put("effort",e.value)); n.addEventListener("change",()=>put("note",n.value.trim()));
+  row.append(fld("What",w), fld("Stroke",s), fld("Effort",e), fld("Note",n,true)); g.append(row); return g;
+}
+function patKind(p){ return !p?"":p.parts?"parts":(p.odds||p.evens)?"oddeven":p.groups?"groups":p.descend?"descend":""; }
+function itemFields(it, save, rebuild){
+  const g=el("div","ifields");
+  g.append(fld("Reps", rangeIn(it.reps,1,30,"Reps",(v)=>{ it.reps=v; save(); })));
+  g.append(fld("Distance", rangeIn(it.dist,0,10000,"Distance",(v)=>{ it.dist=v; save(); },25)));
+  const w=sel(WHATS.map(x=>[x,x]),it.what||"swim","What");
+  w.addEventListener("change",()=>{ it.what=w.value; save(); });
+  const st=sel(optList(STROKES,"—"),it.stroke||"","Stroke");
+  st.addEventListener("change",()=>{ if (st.value) it.stroke=st.value; else delete it.stroke; save(); });
+  g.append(fld("What",w), fld("Stroke",st));
+  // gear
+  const gear=el("div","gearchips");
+  for (const x of GEARS){
+    const on=(it.gear||[]).includes(x);
+    const b=btn(null,x,()=>{ const cur=new Set(it.gear||[]); cur.has(x)?cur.delete(x):cur.add(x);
+      const arr=GEARS.filter(y=>cur.has(y)); if (arr.length) it.gear=arr; else delete it.gear;
+      b.setAttribute("aria-pressed",String(cur.has(x))); save(); });
+    b.setAttribute("aria-pressed",String(on)); gear.append(b);
+  }
+  g.append(fld("Gear",gear,true));
+  // effort or pattern
+  const kind=patKind(it.pattern);
+  const pk=sel([["","No pattern"],["oddeven","Odds / evens"],["groups","Groups"],["descend","Descend"],["parts","Parts of a rep"]],kind,"Pattern");
+  pk.addEventListener("change",()=>{
+    const v=pk.value, dd=lo(it.dist);
+    if (!v) delete it.pattern;
+    else if (v==="oddeven") it.pattern={ odds:{what:"drill"}, evens:{what:"swim", stroke:it.stroke||"free", effort:"build"} };
+    else if (v==="groups") it.pattern={ groups:["easy","build","fast","easy"] };
+    else if (v==="descend") it.pattern={ descend:3 };
+    else it.pattern={ parts:[{ dist:Math.round(dd/2), what:"drill" },{ dist:dd-Math.round(dd/2), what:"swim", stroke:it.stroke||"free" }] };
+    rebuild();
+  });
+  g.append(fld("Pattern",pk));
+  if (!kind){
+    const ef=sel(optList(EFFORTS,"—"),it.effort||"","Effort");
+    ef.addEventListener("change",()=>{ if (ef.value) it.effort=ef.value; else delete it.effort; save(); });
+    g.append(fld("Effort",ef));
+  } else g.append(el("div"));
+  const p=it.pattern;
+  if (kind==="oddeven"){ g.append(sideFields(p.odds||(p.odds={}),"Odd reps (1, 3, 5…)",save), sideFields(p.evens||(p.evens={}),"Even reps (2, 4, 6…)",save)); }
+  if (kind==="groups"){
+    const gi=inp("text",p.groups.join(", "),"Groups, in order"); gi.className="grow";
+    gi.addEventListener("change",()=>{ const arr=gi.value.split(",").map(x=>x.trim()).filter(Boolean); if (arr.length) p.groups=arr; gi.value=p.groups.join(", "); save(); });
+    const f=fld("Groups, in order (reps split evenly)",gi,true); g.append(f);
+  }
+  if (kind==="descend"){
+    const di=inp("number",p.descend,"Descend in runs of"); di.min=2; di.max=10;
+    di.addEventListener("change",()=>{ p.descend=Math.min(10,Math.max(2,Math.round(Number(di.value))||3)); di.value=p.descend; save(); });
+    g.append(fld("Descend in runs of",di));
+    g.append(el("div"));
+  }
+  if (kind==="parts"){
+    const pw=el("div","f wide partsbox"); pw.append(el("span","fl","Each rep, in parts"));
+    const warn=el("p","hint partwarn");
+    const check=()=>{ const s=p.parts.reduce((a,x)=>a+x.dist,0); warn.textContent=s===lo(it.dist)&&s===hi(it.dist)?"":"Parts add up to "+s+", the rep is "+fmtRng(it.dist)+"."; };
+    p.parts.forEach((x,pi)=>{
+      const row=el("div","srow");
+      const di=inp("number",x.dist,"Part distance"); di.min=0; di.step=25; di.className="num";
+      di.addEventListener("change",()=>{ x.dist=Math.max(0,Math.round(Number(di.value))||0); di.value=x.dist; check(); save(); });
+      const wi=sel(WHATS.map(y=>[y,y]),x.what||"swim","Part: what");
+      wi.addEventListener("change",()=>{ x.what=wi.value; save(); });
+      const si=sel(optList(STROKES,"—"),x.stroke||"","Part: stroke");
+      si.addEventListener("change",()=>{ if (si.value) x.stroke=si.value; else delete x.stroke; save(); });
+      const dr=inp("text",x.drill||"","Part: drill"); dr.placeholder="drill, e.g. catch-up"; dr.className="grow";
+      dr.addEventListener("change",()=>{ const v=dr.value.trim(); if (v) x.drill=v; else delete x.drill; save(); });
+      const rm=btn("mini x","×",()=>{ if (p.parts.length<2) return; p.parts.splice(pi,1); rebuild(); }, p.parts.length<2);
+      rm.setAttribute("aria-label","Remove part");
+      row.append(di,wi,si,dr,rm); pw.append(row);
+    });
+    pw.append(btn("mini add","+ add part",()=>{ p.parts.push({ dist:25, what:"swim", stroke:it.stroke||"free" }); rebuild(); }));
+    check(); pw.append(warn); g.append(pw);
+  }
+  // interval
+  const iv=it.interval||null, mode=!iv?"":iv.sendoff?"sendoff":"rest";
+  const im=sel([["","No set rest"],["rest","Rest"],["sendoff","Send-off"]],mode,"Interval");
+  im.addEventListener("change",()=>{
+    if (!im.value) delete it.interval;
+    else if (im.value==="rest") it.interval={ rest:20 };
+    else it.interval={ sendoff: lo(it.dist)>=100 ? 100*Math.round(lo(it.dist)/100) : 60 };
+    rebuild(); });
+  g.append(fld("Interval",im));
+  if (mode==="rest") g.append(fld("Rest, seconds",rangeIn(iv.rest,0,600,"Rest seconds",(v)=>{ if (hi(v)>0) it.interval={ rest:v }; else delete it.interval; save(); },5)));
+  else if (mode==="sendoff"){
+    const so=inp("text",fmtRepTime(iv.sendoff),"Send-off, m:ss"); so.inputMode="numeric"; so.placeholder="1:40";
+    so.addEventListener("change",()=>{ const v=parseRepTime(so.value); if (v>0) it.interval={ sendoff:Math.round(v) }; so.value=fmtRepTime(it.interval.sendoff); save(); });
+    g.append(fld("Leave every (m:ss)",so));
+  } else g.append(el("div"));
+  // ramp
+  const rb=el("div","f wide rampbox");
+  const rc=el("label","chk"); const cb=inp("checkbox"); cb.checked=!!it.ramp;
+  cb.addEventListener("change",()=>{ if (cb.checked) it.ramp={ swims:4, reps:[6,8] }; else delete it.ramp; rebuild(); });
+  rc.append(cb," Ramp: fewer reps for the first swims of the comeback");
+  rb.append(rc);
+  if (it.ramp){
+    const row=el("div","srow");
+    const sw=inp("number",it.ramp.swims,"Ramp: number of swims"); sw.min=1; sw.max=20; sw.className="num";
+    sw.addEventListener("change",()=>{ it.ramp.swims=Math.min(20,Math.max(1,Math.round(Number(sw.value))||4)); sw.value=it.ramp.swims; save(); });
+    row.append(el("span","hint","first"), sw, el("span","hint","swims at"),
+      rangeIn(it.ramp.reps,1,30,"Ramp reps",(v)=>{ it.ramp.reps=v; save(); }), el("span","hint","reps"));
+    rb.append(row);
+  }
+  g.append(rb);
+  const note=inp("text",it.note||"","Note"); note.placeholder="e.g. long strokes, breathe every 3";
+  note.addEventListener("change",()=>{ const v=note.value.trim(); if (v) it.note=v; else delete it.note; save(); });
+  g.append(fld("Note",note,true));
+  return g;
+}
 $("#swimTplAdd").addEventListener("click",()=>{
-  const d=swimData(); const id="s"+Date.now().toString(36);
-  d.templates.push({id, name:"New swim", sets:[
-    {n:"Warm-up",d:"easy",y:300},{n:"Main set",d:"",reps:8,each:100},{n:"Cool-down",d:"easy",y:200}]});
-  editSwimTpl=id; S.swim=d; renderSwimHome(); saveSwimDoc($("#swimTplMsg"));
+  const d=swimData(), id="s"+Date.now().toString(36);
+  d.templates.push(normTpl({ id, name:"New swim", blocks:[
+    { name:"Warm-up", items:[{ reps:1, dist:300, what:"swim", effort:"easy" }] },
+    { name:"Main set", main:true, items:[{ reps:8, dist:100, what:"swim", stroke:"free", effort:"moderate", interval:{rest:20} }] },
+    { name:"Cool-down", items:[{ reps:1, dist:200, what:"swim", stroke:"choice", effort:"easy" }] } ] }));
+  editSwimTpl=id; openItem=null; renderSwimHome(); saveSwimDoc($("#swimTplMsg"));
 });
+
+// ----- a swim left unfinished: resume or discard -----
+function renderSwimResume(){
+  for (const id of ["#swimResume","#homeLive"]){
+    const box=$(id); box.textContent="";
+    const L=S.staleLive; box.hidden=!L || !!R;
+    if (!L || R) continue;
+    const doneB=L.blocks.filter(B=>B.status==="done").length;
+    const when=new Date(L.updatedAt||L.createdAt);
+    box.append(el("b",null,"Unfinished swim: "+L.tplName+". "),
+      "Last touched "+when.toLocaleDateString(undefined,{weekday:"short"})+" "+when.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})
+      +", "+doneB+" of "+L.blocks.length+" blocks done. ");
+    const row=el("span","resumebtns");
+    row.append(btn("btn sm blue","Resume",resumeStale), btn("btn ghost","Discard",discardStale));
+    box.append(row);
+  }
+}
+function resumeStale(){ if (!S.staleLive) return; R=S.staleLive; S.staleLive=null; R.updatedAt=Date.now(); persistLive(); renderSwimResume(); showRunner(); }
+function discardStale(){ S.staleLive=null; clearLive(); renderSwimResume(); renderHome(); }
+
+// ---------- the pool-side runner ----------
+const LIVE_KEY="dl-live";
+let R=null, rTimer=null, rLastTap=0, rLiveState="";
+function startSwim(t){
+  if (!S.db || !S.uid){ flash($("#swimTplMsg"),"Sign in to run a workout.",true); return; }
+  if (R){ showRunner(); return; }
+  if (S.staleLive){ flash($("#swimTplMsg"),"Resume or discard the unfinished swim first.",true); location.hash="#train"; return; }
+  const d=swimData(), today=todayStr();
+  R=newLive(t,{ now:Date.now(), pool:d.pool, swimsSoFar:swimsSince(S.sessions,d.startDate), stage:phaseOf(d.startDate,today).stage, uid:S.uid });
+  persistLive(); showRunner();
+}
+function showRunner(){
+  if (!R) return;
+  const fin=R.phase==="end";
+  $("#trainHome").hidden=true; $("#liftWo").hidden=true; $("#liftFinish").hidden=true;
+  $("#swimRun").hidden=fin; $("#swimFinish").hidden=!fin;
+  document.body.classList.toggle("running",!fin);
+  if (location.hash!=="#train") location.hash="#train";
+  acquireWake();
+  if (!rTimer) rTimer=setInterval(rTick,250);
+  if (fin) renderSwimFinish(); else renderRunner();
+  window.scrollTo(0,0);
+}
+function endRunner(){
+  if (rTimer){ clearInterval(rTimer); rTimer=null; }
+  R=null; document.body.classList.remove("running");
+  if (!LW.active) releaseWake();
+  $("#swimRun").hidden=true; $("#swimFinish").hidden=true; $("#trainHome").hidden=false;
+  $("#rnExit").textContent="Exit without saving"; $("#rnEnd").textContent="End swim now";
+  renderTrainHome(); renderHome();
+}
+function persistLive(){
+  if (!R) return;
+  try { localStorage.setItem(LIVE_KEY, JSON.stringify(R)); rLiveState="local"; } catch(e){ rLiveState="nolocal"; }
+  if (S.db && S.uid){
+    const mine=R;
+    writeLiveDoc("set", clone(R)).then(()=>{ if (R===mine) { rLiveState="saved"; paintSaveNote(); } },
+                                       ()=>{ rLiveState="failed"; paintSaveNote(); });
+  }
+  paintSaveNote();
+}
+function clearLive(){
+  try { localStorage.removeItem(LIVE_KEY); } catch(e){}
+  if (S.db && S.uid) writeLiveDoc("delete").catch(()=>{});
+}
+function paintSaveNote(){
+  const n=$("#rnSaveNote"); if (!n) return;
+  n.textContent = rLiveState==="failed" ? "Saved on this phone only — your account didn't answer. It retries on your next tap."
+    : rLiveState==="nolocal" ? "Saving to your account only (this browser blocks local storage)."
+    : "Saved as you go — a reload picks up where you are.";
+  n.classList.toggle("err", rLiveState==="failed");
+}
+function act(type, extra){
+  if (!R) return;
+  unlockAudio();
+  const res=runStep(R, Object.assign({ type }, extra||{}), Date.now());
+  if (!res.changed) return;
+  R=res.L; persistLive();
+  if (R.phase==="end" || !$("#swimFinish").hidden) showRunner(); else renderRunner();
+}
+// A rest that has run out moves on to the next rep, which started when the rest ended.
+function advanceRest(now){
+  const res=runStep(R,{ type:"tick" },now);
+  if (!res.changed) return false;
+  R=res.L; persistLive(); if (res.beep) beep(); renderRunner();
+  return true;
+}
+function rTick(){
+  if (!R) return;
+  const now=Date.now();
+  if (advanceRest(now)){ rLastTap=now; return; }   // the screen just changed under his hand
+  paintClocks();
+}
+// The big button. A tap in the first moment after the screen changed is a drip, not a decision.
+function bigTap(){
+  if (!R) return;
+  const now=Date.now();
+  advanceRest(now);   // the page may have slept through the end of a rest
+  if (now-rLastTap<1200) return;
+  if (R.phase==="swim" && now-R.repStart<3000) return;
+  rLastTap=now;
+  act(R.phase==="ready"?"start":R.phase==="swim"?"rep":"go");
+}
+function blockPlanned(B){ return B.rounds.reduce((a,Rd)=>a+Rd.items.reduce((x,p)=>x+p.reps*p.dist,0),0); }
+function liveBlockText(B){
+  return blockText({ rounds:B.rounds.length, items:B.defs.map((x,i)=>Object.assign({},x,{ reps:B.rounds[0].items[i].reps, dist:B.rounds[0].items[i].dist })) });
+}
+// The step after the rep on screen (the one under way, or the one the rest leads into).
+function whatsNext(L){
+  const B=L.blocks[L.b], p=curProg(L), d=curDef(L), nb=L.blocks[L.b+1];
+  const after=nb ? "Next block: "+nb.name+", "+liveBlockText(nb)+"." : "That's the last block.";
+  if (L.phase==="ready") return "This block: "+liveBlockText(B)+". "+(nb?"Then "+nb.name+".":"Then you're done.");
+  const k=p.done+1;
+  if (k<p.reps){ const iv=intervalText(d.interval);
+    return "Then rep "+(k+1)+" of "+p.reps+": "+repSpec(d,k,p.reps).label+(iv?" · "+iv:""); }
+  const nx=nextPos(L);
+  if (nx){ const nd=B.defs[nx.i], np=B.rounds[nx.r].items[nx.i];
+    return "Then "+(nx.r!==L.r?"round "+(nx.r+1)+": ":"")+itemText(Object.assign({},nd,{ reps:np.reps, dist:np.dist })); }
+  return after;
+}
+function renderRunner(){
+  const L=R; if (!L || L.phase==="end") return;
+  const run=$("#swimRun"); run.dataset.phase=L.phase;
+  const B=L.blocks[L.b], d=curDef(L), p=curProg(L);
+  $("#rnName").textContent=L.tplName;
+  const strip=$("#rnStrip"); strip.textContent="";
+  L.blocks.forEach((X,j)=>{ const i=el("i", j===L.b?"cur":X.status==="done"?"done":X.status==="cut"?"cut":X.status==="skipped"?"skipped":"");
+    i.title=X.name; strip.append(i); });
+  $("#rnKick").textContent=B.name+(B.main&&!/main/i.test(B.name)?" · main set":"")+(B.rounds.length>1?" · round "+(L.r+1)+" of "+B.rounds.length:"")
+    +(B.defs.length>1?" · part "+(L.i+1)+" of "+B.defs.length:"");
+  $("#rnItem").textContent=itemText(Object.assign({},d,{reps:p.reps,dist:p.dist}),{noInterval:true});
+  const iv=intervalText(d.interval);
+  $("#rnIv").textContent=iv ? (d.interval.sendoff?"Send-off "+iv.replace("on ",""):"Rest "+iv.replace("@ ","")+(Array.isArray(d.interval.rest)?" — counts the long end":"")) : "No set rest";
+  // rep counter
+  const k=p.done;
+  $("#rnRepNo").textContent=(L.phase==="rest"?"Up: rep ":"Rep ")+Math.min(k+1,p.reps);
+  $("#rnRepOf").textContent="of "+p.reps+(Array.isArray(d.target)||lo(d.target)!==p.reps?" · plan "+fmtRng(d.target):"");
+  $("#rnRepDown").disabled=p.reps<=Math.max(1,p.done+(L.phase==="swim"?1:0));
+  $("#rnRepUp").disabled=p.reps>=30;
+  const rope=$("#rnRope"); rope.textContent="";
+  for (let j=0;j<p.reps;j++) rope.append(el("i", j<p.done?"d":(j===p.done&&L.phase==="swim")?"c":(j===p.done&&L.phase==="rest")?"n":""));
+  const sp=repSpec(d,Math.min(k,p.reps-1),p.reps);
+  const spec=$("#rnSpec"); spec.textContent="";
+  spec.append(el("b",null,cap1(sp.label)));
+  const det=[sp.detail, d.note && d.note!==sp.detail ? d.note : ""].filter(Boolean).join(" · ");
+  if (det) spec.append(el("small",null,det));
+  // distance choice for ranges like 400–500
+  const dist=$("#rnDist"); dist.textContent="";
+  if (lo(d.dist)!==hi(d.dist)){
+    const [a,b]=rng(d.dist), step=(b-a)<=200?50:Math.ceil((b-a)/4/25)*25;
+    for (let v=a; v<=b; v+=step){ const x=btn(null,v.toLocaleString(),()=>act("dist",{v})); x.setAttribute("aria-pressed",String(v===p.dist)); dist.append(x); }
+    if ((b-a)%step){ const x=btn(null,b.toLocaleString(),()=>act("dist",{v:b})); x.setAttribute("aria-pressed",String(b===p.dist)); dist.append(x); }
+  }
+  dist.hidden=!dist.childNodes.length;
+  const warn=$("#rnWarn"), sd=swimData();
+  const paddles=(d.gear||[]).includes("paddles") && (!sd.startDate || daysBetween(sd.startDate,todayStr())<30);
+  warn.hidden=!paddles;
+  warn.textContent=paddles?"Paddles: the plan keeps them out until "+(sd.startDate?fmtDate(dateAdd(sd.startDate,30)):"a month into the comeback")+". Swim it without.":"";
+  // times so far in this block
+  const tl=$("#rnTimes"); tl.textContent="";
+  const parts=[];
+  B.rounds.forEach((Rd,r)=>Rd.items.forEach((q,i)=>{ const ts=q.times.slice(0,q.done).map(x=>x>0?fmtRepTime(x):"—"); if (ts.length) parts.push((B.rounds.length>1?"R"+(r+1)+" ":"")+ts.join(" · ")); }));
+  if (parts.length){ tl.append("Times: "); tl.append(el("b",null,parts.join("  |  "))); }
+  else tl.textContent=L.phase==="ready"?"":"Times show here as you tap.";
+  $("#rnNext").textContent=whatsNext(L);
+  const go=$("#rnGo");
+  go.textContent=L.phase==="ready"?"Start "+B.name:L.phase==="swim"?"Rep done":"Go now";
+  $("#rnUndo").disabled=!(L.hist&&L.hist.length);
+  $("#rnPlus10").disabled=L.phase!=="rest";
+  paintClocks(); paintSaveNote();
+}
+function paintClocks(){
+  const L=R; if (!L || L.phase==="end") return;
+  const now=Date.now();
+  $("#rnElapsed").textContent=L.startedAt?secFmt((now-L.startedAt)/1000):"0:00";
+  const n=$("#rnClock"), l=$("#rnClockLbl"), bar=$("#rnRestBar");
+  if (L.phase==="ready"){
+    n.textContent=blockPlanned(L.blocks[L.b]).toLocaleString(); l.textContent=L.unit+" in this block · tap start as you push off";
+    bar.hidden=true;
+  } else if (L.phase==="swim"){
+    n.textContent=secFmt(Math.max(0,(now-L.repStart)/1000)); l.textContent="this rep"; bar.hidden=true;
+  } else {
+    const left=Math.max(0,Math.ceil((L.restEnd-now)/1000));
+    n.textContent=fmtClock(left); l.textContent="rest — next rep starts on the beep";
+    bar.hidden=false;
+    const tot=Math.max(1,L.restEnd-L.restStart); bar.firstChild.style.width=Math.min(100,100*(now-L.restStart)/tot)+"%";
+  }
+}
+$("#rnGo").addEventListener("click",bigTap);
+$("#rnUndo").addEventListener("click",()=>act("undo"));
+$("#rnPlus10").addEventListener("click",()=>act("plus10"));
+$("#rnFinishBlk").addEventListener("click",()=>act("finishBlock"));
+$("#rnSkipBlk").addEventListener("click",()=>act("skipBlock"));
+$("#rnRepDown").addEventListener("click",()=>act("reps",{d:-1}));
+$("#rnRepUp").addEventListener("click",()=>act("reps",{d:1}));
+function twoTap(b, armed, rest, fn){
+  if (b.textContent!==armed){ b.textContent=armed; setTimeout(()=>{ if (b.textContent===armed) b.textContent=rest; },2800); return; }
+  b.textContent=rest; fn();
+}
+$("#rnEnd").addEventListener("click",(e)=>twoTap(e.currentTarget,"Tap again to end","End swim now",()=>act("end")));
+$("#rnExit").addEventListener("click",(e)=>twoTap(e.currentTarget,"Tap again — nothing is saved","Exit without saving",()=>{ clearLive(); endRunner(); }));
+
+// ---------- finish screen ----------
+let finTimer=null;
+function finDraft(){ if (!R.fin) R.fin={}; if (!R.fin.times) R.fin.times={}; return R.fin; }
+function saveFinDraft(){ clearTimeout(finTimer); finTimer=setTimeout(()=>{ if (R) persistLive(); },600); }
+function blockTarget(B){
+  let a=0,c=0; B.defs.forEach(d=>{ const [r0,r1]=rng(d.target), [d0,d1]=rng(d.dist); a+=r0*d0; c+=r1*d1; });
+  const [n0,n1]=rng(B.roundsTarget); return [n0*a,n1*c];
+}
+function doneText(B){
+  // "6×100", "3×200 + 6×50"; blocks swum as single pieces (a 300 warm-up) need only their total
+  const per=B.defs.map((d,i)=>{ let n=0, dist=null; for (const Rd of B.rounds){ const q=Rd.items[i]; n+=q.done; dist=q.dist; } return { n, dist }; });
+  if (per.every(x=>x.n<=1)) return "";
+  return per.filter(x=>x.n).map(x=>(x.n>1?x.n+"×":"")+x.dist).join(" + ");
+}
+function renderSwimFinish(){
+  const L=R, f=finDraft();
+  const elapsedSec=L.startedAt?Math.max(60,((L.endedAt||Date.now())-L.startedAt)/1000):0;
+  const tb=$("#sfBlocks"); tb.textContent="";
+  L.blocks.forEach(B=>{
+    const tr=el("tr",B.status==="skipped"?"skipped":null);
+    const dn=blockDoneReps(B)?B.rounds.reduce((a,Rd)=>a+Rd.items.reduce((x,q)=>x+q.done*q.dist,0),0):0;
+    tr.append(el("td","n",B.name),
+      el("td","v",B.status==="skipped"?"Skipped":([doneText(B),dn.toLocaleString()+" "+L.unit].filter(Boolean).join(" · ")+(B.status==="cut"?" (cut short)":""))),
+      el("td","t","of "+fmtRng(blockTarget(B))));
+    tb.append(tr);
+  });
+  // main-set rep times
+  const tw=$("#sfTimes"); tw.textContent="";
+  let any=false;
+  L.blocks.forEach((B,j)=>{ if (!B.main) return;
+    B.rounds.forEach((Rd,r)=>Rd.items.forEach((q,i)=>{ if (!q.done) return; any=true;
+      const head=el("div","rthead",(B.rounds.length>1?"Round "+(r+1)+" · ":"")+itemText(Object.assign({},B.defs[i],{reps:q.done,dist:q.dist}),{noInterval:true}));
+      const grid=el("div","reptimes");
+      for (let k=0;k<q.done;k++){
+        const key=j+"."+r+"."+i+"."+k, lab=el("label");
+        const x=inp("text", Object.prototype.hasOwnProperty.call(f.times,key)?f.times[key]:fmtRepTime(q.times[k]), "Rep "+(k+1)+" time");
+        x.id="rt-"+key.replace(/\./g,"-"); x.dataset.key=key; x.inputMode="numeric"; x.placeholder="1:40"; x.autocomplete="off";
+        x.addEventListener("input",()=>{ f.times[key]=x.value; x.classList.toggle("bad",Number.isNaN(parseRepTime(x.value))); updSfPace(); saveFinDraft(); });
+        x.classList.toggle("bad",Number.isNaN(parseRepTime(x.value)));
+        lab.append(el("span",null,"#"+(k+1)),x); grid.append(lab);
+      }
+      tw.append(head,grid);
+    })); });
+  $("#sfTimesWrap").hidden=!any;
+  $("#sfTime").value=f.time!=null?f.time:(elapsedSec?fmtDur(elapsedSec):"");
+  paintEffort(); paintFeel("#sfFeel", f.feel||3);
+  soreSwim.set(f.sore||{});
+  $("#sfNotes").value=f.notes||"";
+  updSfPace();
+  $("#sfDiscard").textContent="Discard this swim";
+}
+const fmtDur = (sec) => { sec=Math.round(sec); const h=Math.floor(sec/3600), m=Math.floor(sec%3600/60), s=sec%60; return h?h+":"+pad(m)+":"+pad(s):m+":"+pad(s); };
+function finTimes(){
+  const out={}, bad=[];
+  document.querySelectorAll("#sfTimes input[data-key]").forEach(x=>{ const v=parseRepTime(x.value); if (Number.isNaN(v)) bad.push(x); else out[x.dataset.key]=v; });
+  return { out, bad };
+}
+function updSfPace(){
+  if (!R) return;
+  const min=parseTime($("#sfTime").value), { out }=finTimes();
+  const blocks=swimLog(R,out), dist=logDist(blocks), mp=mainPaceOf(blocks), u=R.unit;
+  $("#sfSummary").textContent=dist.toLocaleString()+" "+u+" · "+R.tplName;
+  const parts=[];
+  if (mp) parts.push("Main-set pace "+secFmt(mp)+"/100 "+u);
+  if (min>0&&dist>0) parts.push("session pace "+secFmt(min*60/(dist/100))+"/100 "+u+", rest included");
+  $("#sfPace").textContent=parts.join(" · ");
+}
+function paintEffort(){
+  const f=finDraft(), v=f.effort||5, box=$("#sfEffort");
+  if (!box.childNodes.length) for (let n=1;n<=10;n++){
+    const b=btn(null,String(n),()=>{ finDraft().effort=n; paintEffort(); saveFinDraft(); }); b.dataset.e=String(n);
+    b.setAttribute("aria-label","Effort "+n+" of 10, "+EFFORT_WORDS[n]); box.append(b);
+  }
+  box.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(Number(b.dataset.e)===v)));
+  $("#sfEffWord").textContent=v+" · "+EFFORT_WORDS[v];
+}
+function paintFeel(sel, v){ document.querySelectorAll(sel+" button").forEach(c=>c.setAttribute("aria-pressed",String(Number(c.dataset.f)===v))); }
+$("#sfTime").addEventListener("input",()=>{ finDraft().time=$("#sfTime").value; updSfPace(); saveFinDraft(); });
+$("#sfNotes").addEventListener("input",()=>{ finDraft().notes=$("#sfNotes").value; saveFinDraft(); });
+$("#sfFeel").addEventListener("click",(e)=>{
+  const b=e.target.closest("button[data-f]"); if (!b||!R) return;
+  finDraft().feel=Number(b.dataset.f); paintFeel("#sfFeel",finDraft().feel); saveFinDraft();
+});
+$("#sfBack").addEventListener("click",()=>{ act("undo"); });
+$("#sfDiscard").addEventListener("click",(e)=>twoTap(e.currentTarget,"Tap again — nothing is saved","Discard this swim",()=>{ clearLive(); endRunner(); }));
+$("#sfSave").addEventListener("click", async ()=>{
+  const msg=$("#sfMsg");
+  if (!R) return;
+  if (!S.db || !S.uid) return flash(msg,"Still connecting — try again in a moment.",true);
+  const { out, bad }=finTimes();
+  if (bad.length){ bad[0].focus(); return flash(msg,"Check the rep times marked in red: m:ss, like 1:42.",true); }
+  const min=parseTime($("#sfTime").value);
+  if (!(min>0)) return flash(msg,"Enter the total time, like 42:10.",true);
+  const f=finDraft();
+  const body=swimSessionBody(R,{ date:dateOf(R.startedAt||R.createdAt), minutes:min, effort:f.effort||5, feel:f.feel||3,
+    notes:$("#sfNotes").value.trim(), sore:soreSwim.get(), times:out });
+  const b=$("#sfSave"); if (b.disabled) return; b.disabled=true;
+  try {
+    await userCol("sessions").add(body);
+    const name=R.tplName;
+    clearLive(); endRunner(); soreSwim.reset();
+    await markComebackStart(body.date);
+    location.hash="#home";
+    flash($("#saveMsg"), name+" saved — "+body.swimDist.toLocaleString()+" "+body.swimUnit+(body.mainPace?", main set "+secFmt(body.mainPace)+"/100":"")+".");
+  } catch(e){ flash(msg,saveErr(e),true); }
+  finally { b.disabled=false; }
+});
+// The comeback starts with the first saved swim.
+async function markComebackStart(date){
+  const d=swimData(); if (d.startDate) return;
+  d.startDate=date; renderTrainHome(); renderHome();
+  await saveSwimDoc(null);
+}
 
 // exercise history browser
 $("#histEx").addEventListener("input",renderExHist);
@@ -1271,7 +2456,28 @@ function renderSettings(){
   $("#setBar").value=d.barLbs; $("#setRest").value=d.restSec;
   $("#plateBarLbl").textContent=d.barLbs;
   $("#beepToggle").textContent="sound: "+(beepOn()?"on":"off");
+  const sd=swimData(), ph=phaseOf(sd.startDate,todayStr());
+  document.querySelectorAll("#poolChips button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.pool===sd.pool)));
+  if (document.activeElement!==$("#setStart")) $("#setStart").value=sd.startDate||"";
+  $("#startClear").hidden=!sd.startDate;
+  $("#startHint").textContent=sd.startDate
+    ? (ph.started ? "Day "+(ph.day+1)+" · "+ph.label+". " : "Starts in the future. ")+"Change it if your first swim was on another day."
+    : "Blank until your first saved swim, which sets it.";
+  const u=POOLS[sd.pool].unit;
+  $("#ydLabel").textContent="Distance · "+u; $("#sessYards").placeholder=u;
 }
+$("#poolChips").addEventListener("click",(e)=>{
+  const b=e.target.closest("button[data-pool]"); if (!b) return;
+  swimData().pool=poolOf(b.dataset.pool); renderSettings(); renderSwimHome(); renderTrends(); updPaceHint();
+  saveSwimDoc($("#setMsg")).then(ok=>{ if (ok) flash($("#setMsg"),"Pool set to "+POOLS[swimData().pool].label+"."); });
+});
+function setComebackStart(v){
+  swimData().startDate=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:"";
+  renderTrainHome(); renderHome();
+  saveSwimDoc($("#setMsg")).then(ok=>{ if (ok) flash($("#setMsg"), swimData().startDate?"Comeback start saved.":"Comeback start cleared."); });
+}
+$("#setStart").addEventListener("change",()=>setComebackStart($("#setStart").value));
+$("#startClear").addEventListener("click",()=>setComebackStart(""));
 $("#setBar").addEventListener("change",()=>{ liftData().barLbs=Number($("#setBar").value)||45; S.lift=liftData();
   renderSettings(); saveLiftDoc($("#tplMsg")); });
 $("#setRest").addEventListener("change",()=>{ liftData().restSec=Math.max(30,Number($("#setRest").value)||90); S.lift=liftData();
@@ -1285,9 +2491,15 @@ let wakeLock=null;
 async function acquireWake(){ try{ wakeLock=await navigator.wakeLock.request("screen"); }catch(e){ wakeLock=null; } }
 function releaseWake(){ try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock=null; }
 document.addEventListener("visibilitychange",()=>{
-  if (document.visibilityState==="visible" && (LW.active||SW.active)) acquireWake();
+  if (document.visibilityState==="visible" && (LW.active||R)){ acquireWake(); if (R) rTick(); }
 });
 let audioCtx=null;
+// Browsers only play sound after a tap: every runner tap wakes the audio up for the next beep.
+function unlockAudio(){
+  if (!beepOn()) return;
+  try { if (!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+        if (audioCtx.state==="suspended") audioCtx.resume(); } catch(e){}
+}
 function beep(){
   if (!beepOn()) return;
   try{
@@ -1323,7 +2535,7 @@ function startLift(t){
   if (!S.db || !S.uid){ flash($("#tplMsg"),"Sign in to run a workout.",true); return; }
   LW.active=true; LW.tpl=t; LW.idx=0; LW.startTs=Date.now(); LW.feel=3;
   LW.log=t.ex.map(e=>({name:e.name, target:e.s+"×"+e.r, tr:e.r, sets:[]}));
-  $("#trainHome").hidden=true; $("#liftFinish").hidden=true; $("#swimWo").hidden=true; $("#swimFinish").hidden=true;
+  $("#trainHome").hidden=true; $("#liftFinish").hidden=true; $("#swimRun").hidden=true; $("#swimFinish").hidden=true;
   $("#liftWo").hidden=false; $("#lwSess").textContent=t.name;
   location.hash="#train";
   acquireWake(); renderLW(true);
@@ -1417,7 +2629,7 @@ $("#lfSave").addEventListener("click", async ()=>{
   finally { btn.disabled=false; }
 });
 function endLiftUI(){
-  stopRest(); if(!SW.active) releaseWake();
+  stopRest(); if(!R) releaseWake();
   LW.active=false;
   $("#liftWo").hidden=true; $("#liftFinish").hidden=true; $("#trainHome").hidden=false;
   $("#lwExit").textContent="Exit without saving";
@@ -1445,113 +2657,11 @@ function tickRest(){
 function stopRest(){ if(LW.timerInt){ clearInterval(LW.timerInt); LW.timerInt=null; } $("#lwTimer").hidden=true; }
 $("#lwTimer").addEventListener("click",stopRest);
 
-// ---------- swim workout engine ----------
-const SW={ active:false, tpl:null, idx:0, startTs:0, sets:[], feel:3, elInt:null };
-function startSwim(t){
-  if (!S.db || !S.uid){ flash($("#swimTplMsg"),"Sign in to run a workout.",true); return; }
-  SW.active=true; SW.tpl=t; SW.idx=0; SW.startTs=Date.now(); SW.feel=3;
-  SW.sets=t.sets.map(st=>({ n:st.n, d:st.d||"", each:st.each||0, reps:st.reps||0, y:st.y||0, done:false }));
-  $("#trainHome").hidden=true; $("#liftWo").hidden=true; $("#liftFinish").hidden=true; $("#swimFinish").hidden=true;
-  $("#swimWo").hidden=false; $("#swSess").textContent=t.name;
-  location.hash="#train";
-  acquireWake();
-  if (SW.elInt) clearInterval(SW.elInt);
-  SW.elInt=setInterval(()=>{ $("#swElapsed").textContent=secFmt((Date.now()-SW.startTs)/1000); },1000);
-  $("#swElapsed").textContent="0:00";
-  renderSW();
-}
-const swTotal=()=>SW.sets.reduce((a,s)=>a+(s.reps?s.reps*s.each:s.y),0);
-const swDoneYd=(upto)=>SW.sets.slice(0,upto+1).reduce((a,s)=>a+(s.reps?s.reps*s.each:s.y),0);
-function renderSW(){
-  const st=SW.sets[SW.idx];
-  $("#swStep").textContent="Set "+(SW.idx+1)+" of "+SW.sets.length;
-  $("#swName").textContent=st.n;
-  $("#swDetail").textContent=(st.reps? st.reps+" × "+st.each+" yd — " : st.y+" yd — ")+(st.d||"");
-  const wrap=$("#swRepsWrap");
-  if (st.reps){
-    wrap.hidden=false;
-    $("#swEach").textContent=st.each;
-    $("#swReps").value=st.reps;
-    $("#swRepsYd").textContent=(st.reps*st.each).toLocaleString()+" yd this set";
-  } else wrap.hidden=true;
-  const t=$("#swTally"); t.textContent="";
-  t.append("Through this set: "); const b=document.createElement("b");
-  b.textContent=swDoneYd(SW.idx).toLocaleString()+" / "+swTotal().toLocaleString()+" yd"; t.append(b);
-  $("#swPrev").disabled=SW.idx===0;
-  $("#swNext").textContent=SW.idx===SW.sets.length-1?"Done — review":"Next set";
-}
-function swRepChange(d){
-  const st=SW.sets[SW.idx]; if(!st.reps) return;
-  st.reps=Math.max(1,Math.min(20,(Number($("#swReps").value)||st.reps)+d));
-  $("#swReps").value=st.reps; renderSW();
-}
-$("#swRepsDown").addEventListener("click",()=>swRepChange(-1));
-$("#swRepsUp").addEventListener("click",()=>swRepChange(1));
-$("#swReps").addEventListener("change",()=>{
-  const st=SW.sets[SW.idx]; if(!st.reps) return;
-  st.reps=Math.max(1,Math.min(20,Number($("#swReps").value)||st.reps)); renderSW();
-});
-$("#swPrev").addEventListener("click",()=>{ if(SW.idx>0){ SW.idx--; renderSW(); } });
-$("#swNext").addEventListener("click",()=>{
-  if (SW.idx<SW.sets.length-1){ SW.idx++; renderSW(); } else showSwimFinish();
-});
-$("#swExit").addEventListener("click",()=>{
-  const b=$("#swExit");
-  if (b.textContent!=="Sure? Exit now"){ b.textContent="Sure? Exit now";
-    setTimeout(()=>b.textContent="Exit without saving",2500); return; }
-  endSwimUI();
-});
-function showSwimFinish(){
-  const yd=swTotal();
-  $("#sfSummary").textContent=yd.toLocaleString()+" yd · "+SW.tpl.name;
-  const el=(Date.now()-SW.startTs)/60000;
-  if (!$("#sfTime").value) $("#sfTime").value=secFmt(Math.max(60,el*60)).replace("′","");
-  updSfPace();
-  $("#swimWo").hidden=true; $("#swimFinish").hidden=false;
-}
-$("#sfTime").addEventListener("input",updSfPace);
-function updSfPace(){
-  const min=parseTime($("#sfTime").value); const yd=swTotal();
-  $("#sfPace").textContent=(min>0&&yd>0)?("That's "+pace100(min,yd)+" yd"):"";
-}
-$("#sfBack").addEventListener("click",()=>{ $("#swimFinish").hidden=true; $("#swimWo").hidden=false; });
-$("#sfFeel").addEventListener("click",(e)=>{
-  const b=e.target.closest("button[data-f]"); if(!b) return;
-  SW.feel=Number(b.dataset.f);
-  document.querySelectorAll("#sfFeel button").forEach(c=>c.setAttribute("aria-pressed",String(c===b)));
-});
-$("#sfSave").addEventListener("click", async ()=>{
-  const msg=$("#sfMsg");
-  if (!S.db || !S.uid) return flash(msg,"Still connecting — try again in a moment.",true);
-  const yd=swTotal();
-  const min=parseTime($("#sfTime").value) || Math.max(1,(Date.now()-SW.startTs)/60000);
-  const body={ date:todayStr(), ts:toTs(todayStr()), type:"swim", minutes:Math.round(min*100)/100,
-               yards:yd, feel:SW.feel, notes:$("#sfNotes").value.trim(), tpl:SW.tpl.name,
-               swimSets:SW.sets.map(s=>({n:s.n, y:s.reps?s.reps*s.each:s.y, reps:s.reps||0, each:s.each||0})) };
-  const ssore=soreSwim.get(); if (Object.keys(ssore).length) body.sore=ssore;
-  const btn=$("#sfSave"); btn.disabled=true;
-  try {
-    await userCol("sessions").add(body);
-    $("#sfNotes").value=""; $("#sfTime").value=""; soreSwim.reset();
-    endSwimUI(); location.hash="#home";
-    flash($("#saveMsg"), SW.tpl.name+" saved — "+yd.toLocaleString()+" yd, "+pace100(min,yd)+".");
-  } catch(e){ flash(msg,saveErr(e),true); }
-  finally { btn.disabled=false; }
-});
-function endSwimUI(){
-  if (SW.elInt){ clearInterval(SW.elInt); SW.elInt=null; }
-  if (!LW.active) releaseWake();
-  SW.active=false;
-  $("#swimWo").hidden=true; $("#swimFinish").hidden=true; $("#trainHome").hidden=false;
-  $("#swExit").textContent="Exit without saving";
-  renderTrainHome();
-}
-
 // ---------- session figures ----------
 function sessFigure(s){
   if (s.type==="lift" && s.volume) return Number(s.volume).toLocaleString()+" lb";
-  if (s.type==="swim" && s.yards){ const p=pace100(s.minutes,s.yards);
-    return Number(s.yards).toLocaleString()+" yd"+(p?" · "+p:""); }
+  if (s.type==="swim"){ const v=swimOf(s); if (v.dist)
+    return v.dist.toLocaleString()+" "+v.unit+(v.mainPace?" · "+secFmt(v.mainPace)+"/100":""); }
   if (s.type==="run" && s.miles){ const p=paceStr(s.minutes,s.miles);
     return s.miles+" mi"+(p?" · "+p:""); }
   if (s.type==="row" && s.meters){ const p=splitStr(s.minutes,s.meters);
@@ -1561,10 +2671,17 @@ function sessFigure(s){
 function sessTitle(s){
   if (s.tpl) return s.tpl;
   const t=TYPES[typeKey(s)].label;
-  if (s.type==="swim"&&s.yards) return "Swim "+Number(s.yards).toLocaleString()+" yd";
+  if (s.type==="swim"){ const v=swimOf(s); if (v.dist) return "Swim "+v.dist.toLocaleString()+" "+v.unit; }
   if (s.type==="run"&&s.miles) return "Run "+s.miles+" mi";
   if (s.type==="row"&&s.meters) return "Row "+Number(s.meters).toLocaleString()+" m";
   return t;
+}
+function lastSwimLine(){
+  const sw=S.sessions.filter(x=>isSwim(x)&&swimOf(x).dist).sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
+  if (!sw) return "";
+  const v=swimOf(sw);
+  return "Last swim "+fmtDate(sw.date)+": "+v.dist.toLocaleString()+" "+v.unit
+    +(v.mainPace?" · main set "+secFmt(v.mainPace)+"/100":v.sessionPace?" · "+secFmt(v.sessionPace)+"/100 with rest":"");
 }
 
 // ---------- HOME ----------
@@ -1588,7 +2705,14 @@ function renderHome(){
   const kicker=$("#leadKicker"), title=$("#leadTitle"), meta=$("#leadMeta"), last=$("#leadLast"), btn=$("#homeStart");
   title.textContent=""; meta.textContent=""; last.textContent="";
   let btnAction=null;
-  if (todays.length){
+  const alt=$("#homeAlt"); alt.hidden=true; alt.onclick=null;
+  renderSwimResume();
+  if (R){
+    kicker.textContent=R.phase==="end"?"Swim to save":"Swim in progress";
+    setTitle(title, R.tplName);
+    meta.textContent=R.blocks.filter(B=>B.status==="done").length+" of "+R.blocks.length+" blocks done";
+    btn.textContent="Back to the swim"; btnAction=()=>showRunner();
+  } else if (todays.length){
     kicker.textContent="Logged today";
     const s=todays[0];
     setTitle(title, sessTitle(s));
@@ -1596,14 +2720,28 @@ function renderHome(){
       +(todays.length>1?" — plus "+(todays.length-1)+" more":"");
     btn.textContent="Log another session";
     btnAction=()=>{ location.hash="#log"; };
-    const sw=S.sessions.filter(x=>x.type==="swim"&&x.yards).sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
-    if (sw) last.textContent="Last swim "+Number(sw.yards).toLocaleString()+" yd · "+pace100(sw.minutes,sw.yards)+" ("+fmtDate(sw.date)+")";
+    last.textContent=lastSwimLine();
   } else {
     kicker.textContent="Up next — suggested";
-    const cands=liftData().templates.map(t=>({t, run:lastRunOf([t.name,...t.ex.map(e=>e.name)])}));
-    cands.sort((a,b)=>((a.run&&a.run.ts)||0)-((b.run&&b.run.ts)||0));
-    const pick=cands[0];
-    if (pick){
+    // The least recently run of the lift templates and the next swim in the plan.
+    const sd=swimData(), ph=phaseOf(sd.startDate,todayStr()), n=swimsSince(S.sessions,sd.startDate);
+    const ns=nextSwim(sd.templates, ph.stage, S.sessions);
+    const lifts=liftData().templates.map(t=>({ kind:"lift", t, run:lastRunOf([t.name,...t.ex.map(e=>e.name)]) }));
+    const cands=(ns?[{ kind:"swim", t:ns.t, run:ns.run }]:[]).concat(lifts);
+    const when=(c)=>(c.run&&c.run.ts)||0;
+    const order=cands.map((c,i)=>({c,i})).sort((a,b)=>(when(a.c)-when(b.c))||(a.i-b.i)).map(x=>x.c);
+    const pick=order[0];
+    const otherLift=order.find(c=>c.kind==="lift");
+    if (pick && pick.kind==="swim"){
+      const t=pick.t, ramp=tplRampOn(t,n);
+      setTitle(title, t.name);
+      meta.textContent="Swim · "+(t.stage?STAGES[t.stage]+" · ":"")+fmtRng(tplRange(t,ramp))+" "+POOLS[sd.pool].unit
+        +(pick.run?" · last swum "+fmtDate(pick.run.date):" · not swum yet");
+      last.textContent=!ph.started ? "Day 1 of the comeback. The main set is capped for the first swims; the plan builds from there."
+        : lastSwimLine();
+      btn.textContent="Start "+t.name; btnAction=()=>startSwim(t);
+      if (otherLift){ alt.hidden=false; alt.textContent="Or lift: "+otherLift.t.name; alt.onclick=()=>startLift(otherLift.t); }
+    } else if (pick){
       setTitle(title, pick.t.name);
       meta.textContent=pick.t.ex.length+" exercises · ~"+(pick.t.ex.length*10)+" min"
         +(pick.run?"":" · never run");
@@ -1618,7 +2756,8 @@ function renderHome(){
         }
       }
       btn.textContent="Start "+pick.t.name;
-      btnAction=()=>startLift(pick.t);
+      const lt=pick.t; btnAction=()=>startLift(lt);
+      if (ns){ alt.hidden=false; alt.textContent="Or swim: "+ns.t.name; alt.onclick=()=>startSwim(ns.t); }
     } else {
       setTitle(title,"Log Today");
       btn.textContent="Open the log";
@@ -1702,6 +2841,24 @@ function setTitle(el,text){
 }
 
 // ---------- session list ----------
+function logBlockLine(b, unit){
+  const line=el("div","blkline"+(b.status==="skipped"?" skipped":""));
+  line.append(el("b",null,b.name));
+  if (b.status==="skipped"){ line.append(" — skipped"); return line; }
+  const rounds=b.rounds||[], multi=rounds.length>1;
+  const dist=rounds.reduce((a,R)=>a+(R.items||[]).reduce((x,it)=>x+(it.done||0)*(it.dist||0),0),0);
+  const what=(rounds[0]&&rounds[0].items||[]).map((it,i)=>{
+    const n=rounds.reduce((a,R)=>a+((R.items[i]&&R.items[i].done)||0),0);
+    return (n>1?n+"×":"")+(it.dist||0)+(it.label?" "+it.label.replace(/^[\d,–]+ /,""):"");
+  }).join(" + ");
+  line.append(" — "+what+" · "+dist.toLocaleString()+" "+unit+(b.status==="cut"?" (cut short)":""));
+  if (b.main){
+    const ts=rounds.map((R,r)=>{ const t=(R.items||[]).flatMap(it=>(it.times||[]).map(x=>x>0?fmtRepTime(x):"—"));
+      return t.length?(multi?"R"+(r+1)+" ":"")+t.join(" "):""; }).filter(Boolean);
+    if (ts.some(x=>/\d:/.test(x))) line.append(el("div",null,"Rep times: "+ts.join(" · ")));
+  }
+  return line;
+}
 function renderSessions(){
   const ul=$("#sessList"); ul.textContent="";
   const list=[...S.sessions].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,60);
@@ -1716,7 +2873,12 @@ function renderSessions(){
     const dt=document.createElement("span"); dt.className="date"; dt.textContent=fmtDate(s.date||"");
     const meta=document.createElement("span"); meta.className="meta";
     let mt=fmtMin(s.minutes||0);
-    if (s.yards){ mt+=" · "+Number(s.yards).toLocaleString()+" yd"; const p=pace100(s.minutes,s.yards); if(p) mt+=" · "+p; }
+    if (s.type==="swim"){ const v=swimOf(s);
+      if (v.dist) mt+=" · "+v.dist.toLocaleString()+" "+v.unit;
+      if (v.mainPace) mt+=" · main set "+secFmt(v.mainPace)+"/100";
+      if (v.sessionPace) mt+=" · "+secFmt(v.sessionPace)+"/100 with rest";
+      if (s.effort) mt+=" · effort "+s.effort+"/10"; }
+    else if (s.yards){ mt+=" · "+Number(s.yards).toLocaleString()+" yd"; const p=pace100(s.minutes,s.yards); if(p) mt+=" · "+p; }
     if (s.miles){ mt+=" · "+s.miles+" mi"; const p=paceStr(s.minutes,s.miles); if(p) mt+=" · "+p; }
     if (s.meters){ mt+=" · "+Number(s.meters).toLocaleString()+" m"; const p=splitStr(s.minutes,s.meters); if(p) mt+=" · "+p; }
     if (s.spm) mt+=" · "+s.spm+" s/m";
@@ -1740,20 +2902,15 @@ function renderSessions(){
       }
       body.append(det);
     }
-    if (s.swimSets && s.swimSets.length){
-      const det=document.createElement("details");
-      const sum=document.createElement("summary");
-      sum.textContent=s.swimSets.length+" sets — show them";
-      det.append(sum);
-      for (const st of s.swimSets){
-        const line=document.createElement("div"); line.className="exline";
-        const nb=document.createElement("b"); nb.textContent=st.n; line.append(nb);
-        line.append(" — "+(st.reps? st.reps+"×"+st.each+" ("+Number(st.y).toLocaleString()+" yd)"
-                                   : Number(st.y).toLocaleString()+" yd"));
-        det.append(line);
-      }
-      body.append(det);
-    }
+    if (s.type==="swim"){ const v=swimOf(s);
+      if (v.blocks && v.blocks.length){
+        const det=document.createElement("details");
+        const sum=document.createElement("summary");
+        sum.textContent=v.blocks.length+" block"+(v.blocks.length===1?"":"s")+" — show them";
+        det.append(sum);
+        for (const b of v.blocks) det.append(logBlockLine(b, v.unit));
+        body.append(det);
+      } }
     if (s.sore && typeof s.sore==="object" && Object.keys(s.sore).length){
       const sl=document.createElement("div"); sl.className="notes";
       sl.textContent="Soreness: "+soreTxt(s.sore); body.append(sl);
@@ -1794,13 +2951,14 @@ function renderTiles(){
   const wkVol=wkSess.reduce((a,s)=>a+(s.volume||0),0);
   const fourWk=S.sessions.filter(s=>(s.ts||0)>=now-28*864e5 && s.feel);
   const avgFeel=fourWk.length?(fourWk.reduce((a,s)=>a+s.feel,0)/fourWk.length):null;
-  const swims=S.sessions.filter(s=>s.type==="swim"&&s.yards).sort((a,b)=>(b.ts||0)-(a.ts||0));
-  const lastSwim=swims[0];
+  const swims=S.sessions.filter(s=>isSwim(s)&&swimOf(s).dist).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const lastSwim=swims[0], lv=lastSwim?swimOf(lastSwim):null;
   const tiles=[
     { k:"This week", v:wkSess.length, u:" sessions", sub:fmtMin(wkMin) },
     { k:"Lift volume · wk", v:wkVol?wkVol.toLocaleString():"—", u:wkVol?" lb":"", sub:wkVol?"":"no lifts yet" },
-    { k:"Last swim", v:lastSwim?pace100(lastSwim.minutes,lastSwim.yards).replace("/100",""):"—",
-      u:lastSwim?" /100":"", sub:lastSwim?Number(lastSwim.yards).toLocaleString()+" yd · "+fmtDate(lastSwim.date):"none logged" },
+    lv&&lv.mainPace ? { k:"Last swim · main set", v:secFmt(lv.mainPace), u:" /100 "+lv.unit, sub:lv.dist.toLocaleString()+" "+lv.unit+" · "+fmtDate(lastSwim.date) }
+    : lv&&lv.sessionPace ? { k:"Last swim · session", v:secFmt(lv.sessionPace), u:" /100 "+lv.unit, sub:"rest included · "+fmtDate(lastSwim.date) }
+    : { k:"Last swim", v:"—", u:"", sub:lastSwim?lv.dist.toLocaleString()+" "+lv.unit+" · "+fmtDate(lastSwim.date):"none logged" },
     { k:"Avg feel · 4 wk", v:avgFeel?avgFeel.toFixed(1):"—", u:avgFeel?" / 5":"", sub:fourWk.length?fourWk.length+" sessions":"" },
   ];
   for (const t of tiles){
@@ -1849,14 +3007,17 @@ function renderWeekChart(){
   svg.append(sv("line",{x1:padL,x2:W-padR,y1:y(0),y2:y(0),stroke:"var(--ink)","stroke-width":1.5}));
   host.append(svg);
 }
-function lineFig(hostEl, pts, opts){
+function lineFig(hostEl, series, opts){
   hostEl.textContent="";
-  if (pts.length<2) return false;
+  if (!Array.isArray(series[0])&&!series[0].pts) series=[{pts:series, stroke:opts.stroke}];
+  else if (Array.isArray(series[0])) series=[{pts:series[0], stroke:opts.stroke}];
+  const all=series.flatMap(x=>x.pts).sort((a,b)=>a.ts-b.ts);
+  if (all.length<2) return false;
   const W=620,H=150,padL=44,padR=14,padT=12,padB=22;
-  let lo=Math.min(...pts.map(p=>p.v)), hi=Math.max(...pts.map(p=>p.v));
+  let lo=Math.min(...all.map(p=>p.v)), hi=Math.max(...all.map(p=>p.v));
   if (hi-lo<(opts.minSpan||2)){ const m=(hi+lo)/2; lo=m-(opts.minSpan||2)/2; hi=m+(opts.minSpan||2)/2; }
   lo=lo-(hi-lo)*0.1; hi=hi+(hi-lo)*0.1;
-  const t0=pts[0].ts, t1=pts[pts.length-1].ts||t0+1;
+  const t0=all[0].ts, t1=all[all.length-1].ts||t0+1;
   const svg=sv("svg",{class:"viz",viewBox:"0 0 "+W+" "+H,role:"img","aria-label":opts.aria});
   const x=(ts)=>padL+(W-padL-padR)*((ts-t0)/Math.max(t1-t0,1));
   const y=(v)=>padT+(H-padT-padB)*(1-(v-lo)/(hi-lo));
@@ -1866,17 +3027,25 @@ function lineFig(hostEl, pts, opts){
     const t=sv("text",{x:padL-6,y:y(gv)+3,"text-anchor":"end"}); t.textContent=opts.yFmt(gv); svg.append(t);
   }
   svg.append(sv("line",{x1:padL,x2:W-padR,y1:H-padB,y2:H-padB,stroke:"var(--ink)","stroke-width":1.5}));
-  const dpath=pts.map((p,i)=>(i?"L":"M")+x(p.ts).toFixed(1)+" "+y(p.v).toFixed(1)).join(" ");
-  svg.append(sv("path",{d:dpath,fill:"none",stroke:opts.stroke,"stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"}));
-  for (const p of pts){
-    const c=sv("circle",{cx:x(p.ts),cy:y(p.v),r:3.5,fill:opts.stroke,stroke:"var(--paper)","stroke-width":2});
-    tipOn(c, p.tip); svg.append(c);
+  for (const se of series){
+    const pts=[...se.pts].sort((a,b)=>a.ts-b.ts);
+    if (pts.length>1 && !se.hollow){
+      const dpath=pts.map((p,i)=>(i?"L":"M")+x(p.ts).toFixed(1)+" "+y(p.v).toFixed(1)).join(" ");
+      svg.append(sv("path",{d:dpath,fill:"none",stroke:se.stroke,"stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"}));
+    }
+    for (const p of pts){
+      const c=sv("circle",se.hollow
+        ? {cx:x(p.ts),cy:y(p.v),r:3.5,fill:"var(--paper)",stroke:se.stroke,"stroke-width":1.75}
+        : {cx:x(p.ts),cy:y(p.v),r:3.5,fill:se.stroke,stroke:"var(--paper)","stroke-width":2});
+      tipOn(c, p.tip); svg.append(c);
+    }
   }
-  const lastP=pts[pts.length-1];
+  const main=series[0].pts.length?[...series[0].pts].sort((a,b)=>a.ts-b.ts):all;
+  const lastP=main[main.length-1];
   const tl=sv("text",{x:Math.min(x(lastP.ts),W-padR-2),y:Math.max(y(lastP.v)-9,10),"text-anchor":"end","font-weight":"700"});
   tl.setAttribute("fill","var(--ink)"); tl.textContent=opts.yFmt(lastP.v); svg.append(tl);
-  const d0=sv("text",{x:padL,y:H-6}); d0.textContent=fmtDate(pts[0].date); svg.append(d0);
-  const d1=sv("text",{x:W-padR,y:H-6,"text-anchor":"end"}); d1.textContent=fmtDate(lastP.date); svg.append(d1);
+  const d0=sv("text",{x:padL,y:H-6}); d0.textContent=fmtDate(all[0].date); svg.append(d0);
+  const d1=sv("text",{x:W-padR,y:H-6,"text-anchor":"end"}); d1.textContent=fmtDate(all[all.length-1].date); svg.append(d1);
   hostEl.append(svg);
   return true;
 }
@@ -1884,25 +3053,32 @@ function renderWtChart(){
   const cut=Date.now()-182*864e5;
   const pts=[...S.weights].filter(w=>isFinite(w.lbs)&&(w.ts||0)>=cut).sort((a,b)=>(a.ts||0)-(b.ts||0))
     .map(w=>({ts:w.ts,date:w.date,v:w.lbs,tip:fmtDate(w.date)+" · "+w.lbs+" lb"}));
-  const ok=lineFig($("#wtChart"),pts,{stroke:"var(--ink)",minSpan:4,yFmt:(v)=>String(Math.round(v)),
+  const ok=lineFig($("#wtChart"),[{pts,stroke:"var(--ink)"}],{stroke:"var(--ink)",minSpan:4,yFmt:(v)=>String(Math.round(v)),
     aria:"Line chart of bodyweight over the last six months"});
   $("#wtKey").textContent=pts.length?pts[pts.length-1].v+" lb":"";
   $("#wtChartNote").textContent=ok?"Last 6 months":(S.wtReady?"Log a couple of weigh-ins and the trend shows up here.":"");
 }
 function renderPaceCharts(){
   const cut=Date.now()-182*864e5;
-  const swims=S.sessions.filter(s=>s.type==="swim"&&s.yards>0&&s.minutes>0&&(s.ts||0)>=cut)
-    .sort((a,b)=>(a.ts||0)-(b.ts||0))
-    .map(s=>({ts:s.ts,date:s.date,v:s.minutes*60/(s.yards/100),
-      tip:fmtDate(s.date)+" · "+pace100(s.minutes,s.yards)+" · "+Number(s.yards).toLocaleString()+" yd"}));
-  const okS=lineFig($("#swimPaceChart"),swims,{stroke:"var(--s-swim)",minSpan:10,yFmt:(v)=>secFmt(v),
-    aria:"Line chart of swim pace per 100 yards"});
-  $("#swimPaceNote").textContent=okS?"Seconds per 100 yd — lower is faster":"Two timed swims and this draws itself.";
+  // Main-set pace comes from rep times, rest left out. Swims without rep times show their
+  // session pace (total time over distance, rest included) as hollow dots.
+  const u=unitNow();
+  const sw=S.sessions.filter(s=>isSwim(s)&&(s.ts||0)>=cut).map(s=>({s,v:swimOf(s)})).filter(x=>x.v.dist>0&&x.v.unit===u);
+  const mainPts=sw.filter(x=>x.v.mainPace).map(({s,v})=>({ts:s.ts,date:s.date,v:v.mainPace,
+    tip:fmtDate(s.date)+" · main set "+secFmt(v.mainPace)+"/100 · "+v.dist.toLocaleString()+" "+u}));
+  const sessPts=sw.filter(x=>!x.v.mainPace&&x.v.sessionPace).map(({s,v})=>({ts:s.ts,date:s.date,v:v.sessionPace,
+    tip:fmtDate(s.date)+" · session "+secFmt(v.sessionPace)+"/100 with rest · "+v.dist.toLocaleString()+" "+u}));
+  $("#swimPaceKey").textContent="main set, per 100 "+u;
+  const okS=lineFig($("#swimPaceChart"),[{pts:mainPts,stroke:"var(--s-swim)"},{pts:sessPts,stroke:"var(--muted)",hollow:true}],
+    {minSpan:10,yFmt:(v)=>secFmt(v),aria:"Line chart of main-set swim pace per 100 "+u+", with session pace for swims without rep times"});
+  $("#swimPaceNote").textContent=okS
+    ? "Main-set pace from your rep times, lower is faster."+(sessPts.length?" Hollow dots: session pace (rest included) for swims without rep times.":"")
+    : "Two swims with main-set rep times and this draws itself.";
   const runs=S.sessions.filter(s=>s.type==="run"&&s.miles>0&&s.minutes>0&&(s.ts||0)>=cut)
     .sort((a,b)=>(a.ts||0)-(b.ts||0))
     .map(s=>({ts:s.ts,date:s.date,v:s.minutes*60/s.miles,
       tip:fmtDate(s.date)+" · "+paceStr(s.minutes,s.miles)+" · "+s.miles+" mi"+(s.kind?" · "+s.kind:"")}));
-  const okR=lineFig($("#runPaceChart"),runs,{stroke:"var(--s-run)",minSpan:20,yFmt:(v)=>secFmt(v),
+  const okR=lineFig($("#runPaceChart"),[{pts:runs,stroke:"var(--s-run)"}],{stroke:"var(--s-run)",minSpan:20,yFmt:(v)=>secFmt(v),
     aria:"Line chart of run pace per mile"});
   $("#runPaceNote").textContent=okR?"Per mile — lower is faster":"Two timed runs and this draws itself.";
 }
@@ -1953,12 +3129,33 @@ function coachErr(code){
     default: return "Something went wrong — try again.";
   }
 }
+function swimContext(){
+  const d=swimData(), ph=phaseOf(d.startDate,todayStr()), n=swimsSince(S.sessions,d.startDate);
+  const rules="Plan rules: main set capped at 6-8x100 for the first 4 swims, then 8-10; no paddles for the first 30 days; pull buoy from weeks 3-4; rest-based intervals until main-set times settle, then fixed send-offs (100s on 1:40/1:45).";
+  if (!ph.started) return "Swim comeback: not started yet (no swim logged since the plan began). Pool "+POOLS[d.pool].label+". "+rules;
+  return "Swim comeback: started "+d.startDate+" (day "+(ph.day+1)+"), now in "+ph.label+" ("+STAGE_NAMES[ph.stage]+"), "
+    +n+" swim"+(n===1?"":"s")+" since the start. Pool "+POOLS[d.pool].label+". "+rules;
+}
 function buildCoachPrompt(){
   const cut=Date.now()-56*864e5;
   const sess=[...S.sessions].filter(s=>(s.ts||0)>=cut).sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-40);
   const lines=sess.map(s=>{
     let L="- "+s.date+" "+(s.type||"?")+(s.tpl?" ("+s.tpl+")":"")+" "+fmtMin(s.minutes||0)+" feel:"+(s.feel||"?")+"/5";
-    if (s.yards){ L+=" "+s.yards+"yd"; const p=pace100(s.minutes,s.yards); if(p) L+=" "+p; }
+    if (s.type==="swim"){ const v=swimOf(s);
+      if (v.dist) L+=" "+v.dist+v.unit;
+      if (v.mainPace) L+=" main-set:"+secFmt(v.mainPace)+"/100";
+      if (v.sessionPace) L+=" session:"+secFmt(v.sessionPace)+"/100(rest incl)";
+      if (s.swim && Array.isArray(s.swim.blocks)){
+        for (const b of s.swim.blocks){
+          if (b.status==="skipped"){ L+=" skipped:"+b.name; continue; }
+          if (b.status==="cut") L+=" cut-short:"+b.name;
+          if (b.main){ const t=b.rounds.flatMap(R=>R.items.flatMap(it=>(it.times||[]).map(x=>x>0?fmtRepTime(x):"?")));
+            if (t.length) L+=" main["+b.rounds.map(R=>R.items.map(it=>it.done+"x"+it.dist).join("+")).join(" | ")+"]:"+t.join(","); }
+        }
+      }
+    }
+    else if (s.yards){ L+=" "+s.yards+"yd"; const p=pace100(s.minutes,s.yards); if(p) L+=" "+p; }
+    if (s.effort) L+=" effort:"+s.effort+"/10";
     if (s.miles){ L+=" "+s.miles+"mi"; const p=paceStr(s.minutes,s.miles); if(p) L+=" "+p; }
     if (s.meters){ L+=" "+s.meters+"m"; const p=splitStr(s.minutes,s.meters); if(p) L+=" "+p; }
     if (s.kind) L+=" ["+s.kind+"]";
@@ -1966,7 +3163,7 @@ function buildCoachPrompt(){
     if (s.volume) L+=" vol:"+s.volume+"lb";
     if (s.exercises) L+=" tops:["+s.exercises.slice(0,6).map(e=>{
       const b=bestOf(e.sets||[]); return b? e.name+" "+fmtW(b.w)+"x"+b.r : e.name; }).join(", ")+"]";
-    if (s.swimSets) L+=" sets:["+s.swimSets.map(st=>st.reps?st.reps+"x"+st.each:st.y+"yd").join(", ")+"]";
+    if (s.swimSets && !s.swim) L+=" sets:["+s.swimSets.map(st=>st.reps?st.reps+"x"+st.each:st.y+"yd").join(", ")+"]";
     if (s.sore && typeof s.sore==="object" && Object.keys(s.sore).length)
       L+=" sore:["+Object.keys(s.sore).map(a=>a+":"+s.sore[a]).join(",")+"]";
     if (s.notes) L+=' notes:"'+String(s.notes).slice(0,120)+'"';
@@ -1977,11 +3174,13 @@ function buildCoachPrompt(){
   return [
 "You are a pragmatic, no-nonsense personal trainer reviewing a client's training log. Reply in plain text (no markdown headers), under 300 words, direct and specific.",
 "",
-"Client: 38-year-old man, 6'3\", athletic build, very flexible (regular yoga). Former competitive swimmer returning to lap swimming after decades away — ramping carefully to protect shoulders (no paddles first month, main set capped early). Swims from set-by-set templates (warm-up / drills / main 100s / cool-down) about once a week, weekday mornings. Lifts on an Upper/Lower x Push/Pull split with set-by-set tracking, usually runs about a mile on the treadmill or rows before lifting (run/row entries carry pace, type easy/tempo/intervals, rowing stroke rate). Skateboards on weekends. Logs rest and stretch days, plus soreness by body area (1=mild, 2=sore, 3=very sore).",
+"Client: 38-year-old man, 6'3\", athletic build, very flexible (regular yoga). Former competitive swimmer returning to lap swimming after decades away — ramping carefully to protect shoulders. Follows a 3-phase swim plan (weeks 1–2 reacclimation, weeks 3–4 build, weeks 5+ rotating threshold / speed / IM days) on 2–3 weekday mornings a week, timing each main-set rep. Lifts on an Upper/Lower x Push/Pull split with set-by-set tracking, usually runs about a mile on the treadmill or rows before lifting (run/row entries carry pace, type easy/tempo/intervals, rowing stroke rate). Skates aggressive inline (park and street) on weekends. Logs rest and stretch days, plus soreness by body area (1=mild, 2=sore, 3=very sore).",
+"",
+swimContext(),
 "",
 "Goals (their words): " + ($("#goals").value.trim() || S.goals || "none written yet"),
 "",
-"Sessions, last 8 weeks (oldest first; 'tops' = best set per exercise, 'sets' = swim sets, 'vol' = total lb moved):",
+"Sessions, last 8 weeks (oldest first; 'tops' = best set per exercise, 'vol' = total lb moved; swims: 'main-set' = pace from main-set rep times, 'session' = total time over distance with rest, 'main[...]' = the main set's reps and their times, 'sets' = older swims logged set by set):",
 lines.length ? lines.join("\n") : "(none logged yet)",
 "",
 "Weigh-ins, last 8 weeks:",
@@ -1996,7 +3195,7 @@ const syncNote=$("#syncNote");
 let loadTimer=setTimeout(()=>{ if(!S.sessReady){ syncNote.hidden=false; syncNote.textContent="data unreachable — showing what's cached"; } },10000);
 function renderAll(){
   renderSessions(); renderHome(); renderTrends();
-  if (!LW.active && !SW.active) renderTrainHome();
+  if (!LW.active && !R) renderTrainHome();
   renderExHist();
 }
 (async ()=>{
@@ -2036,15 +3235,41 @@ function renderAll(){
   },()=>{});
   db.doc("data/users/"+uid+"/lifting").onSnapshot((snap)=>{
     if (snap.metadata.hasPendingWrites) return;
-    if (snap.exists){ const d=snap.data(); if (d && Array.isArray(d.templates)) S.lift=d; }
-    if (!LW.active && !SW.active){ renderTrainHome(); renderHome(); }
+    if (snap.exists){ const d=snap.data(); if (d && Array.isArray(d.templates)) S.lift=clone(d); }
+    if (!LW.active && !R){ renderTrainHome(); renderHome(); }
   },()=>{});
   db.doc("data/users/"+uid+"/swim").onSnapshot((snap)=>{
     if (snap.metadata.hasPendingWrites) return;
-    if (snap.exists){ const d=snap.data(); if (d && Array.isArray(d.templates)) S.swim=d; }
-    if (!LW.active && !SW.active){ renderTrainHome(); renderHome(); }
+    const raw=snap.exists?clone(snap.data()):null, key=stableStr(raw);
+    if (key===S.swimSeen) return;
+    S.swimSeen=key;
+    if (raw && key===S.swimLastWrite){ S.swimRaw=raw; return; }   // our own save coming back
+    S.swimRaw=raw; S.swim=mergeSwimDoc(raw, PLAN_SWIM);
+    if (!LW.active && !R) renderTrainHome();
+    renderHome();
   },()=>{});
+  resumeLive();
 })();
+
+// A swim in progress survives a reload: the newest of this phone's copy and the account's.
+async function resumeLive(){
+  let local=null, remote=null;
+  try { local=JSON.parse(localStorage.getItem(LIVE_KEY)||"null"); } catch(e){}
+  try { const snap=await S.db.doc("data/users/"+S.uid+"/live").get(); if (snap.exists) remote=clone(snap.data()); } catch(e){}
+  const ok=(x)=>x && x.v===1 && Array.isArray(x.blocks) && x.blocks.length && (!x.uid || x.uid===S.uid);
+  const L=[local,remote].filter(ok).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
+  if (!L || R) return;
+  if (Date.now()-(L.updatedAt||0)<LIVE_MAX_AGE){
+    R=L; try { localStorage.setItem(LIVE_KEY, JSON.stringify(R)); } catch(e){}
+    showRunner();
+  } else { S.staleLive=L; renderSwimResume(); renderHome(); }
+}
+
+if (window.__DL_TEST__) window.__DL={ PLAN_SWIM, POOLS, STAGES, rng, normRange, normItem, normBlock, normTpl, mergeSwimDoc,
+  itemRange, blockRange, tplRange, itemText, blockText, intervalText, repSpec, repLabel, groupIndex, phaseOf, swimsSince,
+  rampOn, tplRampOn, paddlesWarn, lastSwumOf, nextSwim, parseRepTime, fmtRepTime, fmtClock, newLive, runStep, swimLog,
+  logDist, mainPaceOf, swimSessionBody, swimOf, dateAdd, daysBetween, stableStr,
+  state:()=>({ R, S, swim:swimData() }) };
 
 setType("swim");
 renderAll();
