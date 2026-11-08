@@ -99,6 +99,9 @@ h2.sec small{font-family:var(--t); font-weight:500; font-size:12px; color:var(--
 .hint{font-size:13px; color:var(--muted)}
 .banner{font-size:13px; color:var(--ink); background:var(--blue-wash); border-left:4px solid var(--blue);
   border-radius:0 10px 10px 0; padding:10px 12px; margin-bottom:14px}
+.cloudbanner{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin-top:12px}
+.cloudbanner span{flex:1 1 200px; min-width:0}
+.cloudbanner .btn{width:auto}
 
 .btn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
   background:var(--ink); color:var(--paper); border:0; border-radius:13px; cursor:pointer;
@@ -508,6 +511,8 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
     <a href="#trends" data-tab="trends">Trends</a>
     <a href="#coach" data-tab="coach">Coach</a>
   </nav>
+  <!-- what's going on with the server: signed out (with Sign in), or its own words on a problem -->
+  <div class="banner cloudbanner" id="cloudBanner" role="status" hidden></div>
 
   <!-- ============ HOME ============ -->
   <section class="panel on" id="panel-home">
@@ -542,7 +547,7 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
 
   <!-- ============ LOG ============ -->
   <section class="panel" id="panel-log">
-    <div class="banner" id="signinNote" hidden>Sign in on claude.ai to save sessions — the plans still work without it.</div>
+    <div class="banner" id="signinNote" hidden>This copy isn't connected to Fitness Tracker's server, so nothing saves. The plans still work.</div>
 
     <div class="card strong">
       <form id="sessForm">
@@ -663,7 +668,7 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
   <!-- ============ TRAIN ============ -->
   <section class="panel" id="panel-train">
     <div id="trainHome">
-      <div class="banner" id="liftSignin" hidden>Sign in on claude.ai to run and save workouts.</div>
+      <div class="banner" id="liftSignin" hidden>This copy isn't connected to Fitness Tracker's server, so workouts can't be saved.</div>
 
       <h2 class="sec" style="margin-top:4px">Lift <small>Upper / Lower × Push / Pull</small></h2>
       <div id="tplList"></div>
@@ -1626,8 +1631,8 @@ $("#sessForm").addEventListener("submit", async (e)=>{
   const sore=soreMain.get(); if (Object.keys(sore).length) body.sore=sore;
   const btn=$("#sessSave"); btn.disabled=true;
   try {
-    await userCol("sessions").add(body);
-    flash(msg, TYPES[body.type].label+" logged.");
+    const r=await userCol("sessions").add(body);
+    flash(msg, TYPES[body.type].label+" logged."+keptNote(r));
     if (body.type==="swim") markComebackStart(body.date);
     $("#sessMin").value=""; $("#sessYards").value=""; $("#sessMiles").value=""; $("#sessMeters").value="";
     $("#sessSpm").value=""; $("#sessNotes").value=""; soreMain.reset(); S.pickedKind=null;
@@ -1645,8 +1650,8 @@ $("#wtForm").addEventListener("submit", async (e)=>{
   const lbs=Number($("#wtLbs").value), date=$("#wtDate").value||todayStr();
   if (!(lbs>0)) return flash(msg,"Enter a weight.",true);
   const btn=$("#wtSave"); btn.disabled=true;
-  try { await userCol("weights").add({ date, ts:toTs(date), lbs:Math.round(lbs*10)/10 });
-        flash(msg,"Logged."); $("#wtLbs").value=""; }
+  try { const r=await userCol("weights").add({ date, ts:toTs(date), lbs:Math.round(lbs*10)/10 });
+        flash(msg,"Logged."+keptNote(r)); $("#wtLbs").value=""; }
   catch(err){ flash(msg,saveErr(err),true); }
   finally { btn.disabled=false; }
 });
@@ -1823,8 +1828,8 @@ function docWriter(pathFn){
     running=true;
     while (pending){
       const job=pending; pending=null;
-      try { const ref=S.db.doc(pathFn()); if (job.op==="delete") await ref.delete(); else await ref.set(job.data);
-            job.res.forEach(r=>r[0]()); }
+      try { const ref=S.db.doc(pathFn()); const out=job.op==="delete" ? await ref.delete() : await ref.set(job.data);
+            job.res.forEach(r=>r[0](out)); }
       catch(e){ job.res.forEach(r=>r[1](e)); }
     }
     running=false;
@@ -2162,7 +2167,7 @@ function persistLive(){
   try { localStorage.setItem(LIVE_KEY, JSON.stringify(R)); rLiveState="local"; } catch(e){ rLiveState="nolocal"; }
   if (S.db && S.uid){
     const mine=R;
-    writeLiveDoc("set", clone(R)).then(()=>{ if (R===mine) { rLiveState="saved"; paintSaveNote(); } },
+    writeLiveDoc("set", clone(R)).then((r)=>{ if (R===mine) { rLiveState=r && r.kept ? "kept" : "saved"; paintSaveNote(); } },
                                        ()=>{ rLiveState="failed"; paintSaveNote(); });
   }
   paintSaveNote();
@@ -2173,8 +2178,9 @@ function clearLive(){
 }
 function paintSaveNote(){
   const n=$("#rnSaveNote"); if (!n) return;
-  n.textContent = rLiveState==="failed" ? "Saved on this phone only — your account didn't answer. It retries on your next tap."
-    : rLiveState==="nolocal" ? "Saving to your account only (this browser blocks local storage)."
+  n.textContent = rLiveState==="failed" ? "Saved on this phone only — the server turned it down. It tries again on your next tap."
+    : rLiveState==="kept" ? "Saved on this phone — it sends when there's signal. A reload picks up where you are."
+    : rLiveState==="nolocal" ? "Saving to the server only (this browser blocks local storage)."
     : "Saved as you go — a reload picks up where you are.";
   n.classList.toggle("err", rLiveState==="failed");
 }
@@ -2406,12 +2412,12 @@ $("#sfSave").addEventListener("click", async ()=>{
     notes:$("#sfNotes").value.trim(), sore:soreSwim.get(), times:out });
   const b=$("#sfSave"); if (b.disabled) return; b.disabled=true;
   try {
-    await userCol("sessions").add(body);
+    const r=await userCol("sessions").add(body);
     const name=R.tplName;
     clearLive(); endRunner(); soreSwim.reset();
     await markComebackStart(body.date);
     location.hash="#home";
-    flash($("#saveMsg"), name+" saved — "+body.swimDist.toLocaleString()+" "+body.swimUnit+(body.mainPace?", main set "+secFmt(body.mainPace)+"/100":"")+".");
+    flash($("#saveMsg"), name+" saved — "+body.swimDist.toLocaleString()+" "+body.swimUnit+(body.mainPace?", main set "+secFmt(body.mainPace)+"/100":"")+"."+keptNote(r));
   } catch(e){ flash(msg,saveErr(e),true); }
   finally { b.disabled=false; }
 });
@@ -2622,10 +2628,10 @@ $("#lfSave").addEventListener("click", async ()=>{
   const lsore=soreLift.get(); if (Object.keys(lsore).length) body.sore=lsore;
   const btn=$("#lfSave"); btn.disabled=true;
   try {
-    await userCol("sessions").add(body);
+    const r=await userCol("sessions").add(body);
     $("#lfNotes").value=""; soreLift.reset();
     endLiftUI(); location.hash="#home";
-    flash($("#saveMsg"), LW.tpl.name+" saved — "+vol.toLocaleString()+" lb moved.");
+    flash($("#saveMsg"), LW.tpl.name+" saved — "+vol.toLocaleString()+" lb moved."+keptNote(r));
   } catch(e){ flash(msg,saveErr(e),true); }
   finally { btn.disabled=false; }
 });
@@ -3103,8 +3109,8 @@ $("#goalsSave").addEventListener("click", async ()=>{
   const msg=$("#goalsMsg");
   if (!S.db || !S.uid) return flash(msg,"Still connecting — try again in a moment.",true);
   const btn=$("#goalsSave"); btn.disabled=true;
-  try { await S.db.doc("data/users/"+S.uid+"/goals").set({ text:$("#goals").value.trim(), updatedAt:todayStr() });
-        flash(msg,"Saved."); }
+  try { const r=await S.db.doc("data/users/"+S.uid+"/goals").set({ text:$("#goals").value.trim(), updatedAt:todayStr() });
+        flash(msg,"Saved."+keptNote(r)); }
   catch(e){ flash(msg,saveErr(e),true); }
   finally { btn.disabled=false; }
 });
@@ -3205,23 +3211,305 @@ wts.length ? wts.join("\n") : "(none logged)",
   ].join("\n");
 }
 
+// ---------- the server (Cloudflare) ----------
+/* The page is served by the Worker in worker/index.js, behind Cloudflare's sign-in (see
+   CLOUDFLARE.md). makeCloud() gives the rest of the app the part of the claude.ai database
+   interface it used as an artifact, so the screens didn't change:
+     db.doc("data/users/<uid>/goals" | "lifting" | "swim" | "live")
+       .get() .set(data) .delete() .onSnapshot(next)
+     db.doc("data/users/<uid>/log").collection("sessions" | "weights")
+       .add(data) .doc(id).delete() .orderBy(field, dir).limit(n).onSnapshot(next)
+   Underneath, it works like the disc golf scorecard's:
+   - Each collection is fetched when the app opens, when it comes back to the front, every 30 s
+     while it's open, and after each save. An unchanged collection costs a 304 and nothing more.
+   - The last copy of each collection is kept on the phone, and the app starts from it.
+   - Every change goes into an outbox first, kept on the phone, then sent: one at a time per
+     document, retried with backoff, and at once when the signal returns or the app comes back
+     to the front. A write resolves {sent:true} once the server has it, or {kept:true} when it
+     is still waiting on the phone (no signal, signed out, a server problem, or no answer within
+     a few seconds). It rejects only when the server turns it down for good.
+   - Screens show the phone's copy: the server's documents with waiting changes on top.
+   - A lapsed sign-in (401/403, or Cloudflare's redirect to its sign-in page) and a server that
+     answers with a problem (5xx) lose nothing either: the outbox waits, and the top bar says
+     which. */
+const API="/api", CACHE_KEY="ft-cache-v1", OUTBOX_KEY="ft-outbox-v1", POLL_MS=30000, KEEP_AFTER_MS=4000;
+const CLOUD_COLLS=["sessions","weights","state"], SINGLE_DOCS=["goals","lifting","swim","live"];
+const SERVER_SILENT="It didn't say why.";
+const CLOUD={ signedOut:false, server:"", trouble:false, pending:0 };
+function signedOutResponse(res){
+  return res.type==="opaqueredirect" || res.status===401 || res.status===403 ||
+    (res.status>=300 && res.status<400 && res.status!==304);
+}
+async function serverWords(res){
+  try { const b=await res.json(); return (b && b.message) || SERVER_SILENT; } catch(e){ return SERVER_SILENT; }
+}
+function newDocId(){
+  const a="abcdefghijklmnopqrstuvwxyz0123456789", b=crypto.getRandomValues(new Uint8Array(20));
+  return Array.from(b, x=>a[x%36]).join("");
+}
+/* the app's paths on claude.ai, as this server keeps them: one person, so the uid drops out */
+function cloudPath(path){
+  const p=String(path).split("/");
+  if (p[0]!=="data" || p[1]!=="users" || !p[2]) return null;
+  if (p.length===4 && SINGLE_DOCS.includes(p[3])) return { coll:"state", id:p[3] };
+  if (p[3]==="log" && (p[4]==="sessions" || p[4]==="weights")){
+    if (p.length===5) return { coll:p[4] };
+    if (p.length===6 && p[5]) return { coll:p[4], id:p[5] };
+  }
+  return null;
+}
+function makeCloud(onStatus){
+  const pause=(ms)=>new Promise(r=>setTimeout(r,ms));
+  const docsOf={}, etags={}, definitive={}, pulling={}, again={}, watchers={};
+  const inFlight={}, retryTimers={}, retryCount={}, waiters={};
+  let outbox={};
+  try {
+    const kept=JSON.parse(localStorage.getItem(CACHE_KEY)||"{}")||{};
+    Object.keys(kept).forEach(k=>{ if (CLOUD_COLLS.includes(k) && kept[k] && Array.isArray(kept[k].docs)){ docsOf[k]=kept[k].docs; etags[k]=kept[k].etag||null; } });
+  } catch(e){ /* nothing kept, or storage blocked */ }
+  try {
+    const o=JSON.parse(localStorage.getItem(OUTBOX_KEY)||"{}");
+    if (o && typeof o==="object" && !Array.isArray(o)) outbox=o;
+  } catch(e){ outbox={}; }
+  Object.keys(outbox).forEach(k=>{ const i=k.indexOf("/"); if (i<1 || !CLOUD_COLLS.includes(k.slice(0,i)) || !k.slice(i+1) || !outbox[k]) delete outbox[k]; });
+  function keep(){
+    try { const out={}; Object.keys(docsOf).forEach(k=>{ out[k]={ etag:etags[k], docs:docsOf[k] }; }); localStorage.setItem(CACHE_KEY, JSON.stringify(out)); }
+    catch(e){ try { localStorage.removeItem(CACHE_KEY); } catch(e2){ /* storage blocked */ } }
+  }
+  function keepOutbox(){
+    try { if (Object.keys(outbox).length) localStorage.setItem(OUTBOX_KEY, JSON.stringify(outbox)); else localStorage.removeItem(OUTBOX_KEY); }
+    catch(e){ /* storage blocked: the outbox still covers this visit */ }
+  }
+  function status(){ CLOUD.pending=Object.keys(outbox).length; if (!CLOUD.pending) CLOUD.trouble=false; onStatus(); }
+  function setSignedOut(v){ if (CLOUD.signedOut===v) return; CLOUD.signedOut=v; status(); if (!v) flushAll(); }
+  function setServer(words){ if (CLOUD.server===words) return; CLOUD.server=words; status(); }
+  function answered(){ setSignedOut(false); setServer(""); }
+
+  // a collection as this phone sees it: the server's copy with waiting changes on top
+  function view(coll){
+    const map=new Map((docsOf[coll]||[]).map(d=>[d.id, d.data])), pend=new Set();
+    Object.keys(outbox).forEach(k=>{
+      const i=k.indexOf("/"); if (k.slice(0,i)!==coll) return;
+      const id=k.slice(i+1), e=outbox[k]; pend.add(id);
+      if (e.del) map.delete(id); else map.set(id, e.data);
+    });
+    return { map, pend };
+  }
+  const meta=(coll, pending)=>({ fromCache:!definitive[coll], hasPendingWrites:pending });
+  function colSnap(coll, q){
+    const { map, pend }=view(coll);
+    let rows=[...map.entries()].map(([id,data])=>({ id, data })).sort((a,b)=>(a.id<b.id?-1:a.id>b.id?1:0));
+    if (q.order){
+      const [f,dir]=q.order, s=dir==="desc"?-1:1;
+      rows.sort((a,b)=>{ const av=a.data[f], bv=b.data[f]; if (av===bv) return 0; if (av===undefined) return 1; if (bv===undefined) return -1; return (av>bv?1:-1)*s; });
+    }
+    if (q.lim) rows=rows.slice(0, q.lim);
+    const docs=rows.map(r=>{ const body=clone(r.data); return { id:r.id, exists:true, data:()=>body }; });
+    return { docs, size:docs.length, empty:!docs.length, metadata:meta(coll, rows.some(r=>pend.has(r.id))) };
+  }
+  function docSnap(coll, id){
+    const { map, pend }=view(coll), has=map.has(id), body=has?clone(map.get(id)):undefined;
+    return { id, exists:has, data:()=>body, metadata:meta(coll, pend.has(id)) };
+  }
+  // each watcher hears only real changes: the same snapshot twice is said once
+  function watch(coll, make, next){
+    let last=null;
+    const fire=()=>{
+      const s=make(), key=stableStr([s.docs ? s.docs.map(d=>[d.id, d.data()]) : [s.exists, s.data()], s.metadata]);
+      if (key===last) return; last=key; next(s);
+    };
+    (watchers[coll]=watchers[coll]||[]).push(fire);
+    if (docsOf[coll] || Object.keys(outbox).some(k=>k.startsWith(coll+"/"))) setTimeout(fire, 0);
+    setTimeout(()=>pull(coll), 0);
+    startPolling();
+    return ()=>{ watchers[coll]=(watchers[coll]||[]).filter(f=>f!==fire); };
+  }
+  const emit=(coll)=>(watchers[coll]||[]).forEach(f=>f());
+
+  // one fetch of a collection at a time; an ask during one runs again after it
+  function pull(coll, force){
+    if (!force && !(watchers[coll]||[]).length) return Promise.resolve();
+    if (pulling[coll]){ again[coll]=true; return pulling[coll]; }
+    pulling[coll]=(async ()=>{
+      try {
+        const headers={ accept:"application/json" };
+        if (docsOf[coll] && etags[coll]) headers["if-none-match"]=etags[coll];
+        const res=await fetch(API+"/docs/"+coll, { headers, redirect:"manual", cache:"no-store" });
+        if (signedOutResponse(res)) setSignedOut(true);
+        else if (res.status===304){ answered(); if (!definitive[coll]){ definitive[coll]=true; emit(coll); } }
+        else if (res.ok){
+          const body=await res.json();
+          answered();
+          docsOf[coll]=Array.isArray(body.docs) ? body.docs : [];
+          etags[coll]=res.headers.get("etag");
+          definitive[coll]=true;
+          keep(); emit(coll);
+        }
+        else if (res.status>=500) setServer(await serverWords(res));
+      } catch(e){ /* no connection: the next round tries again */ }
+    })().finally(()=>{ pulling[coll]=null; if (again[coll]){ again[coll]=false; pull(coll, true); } });
+    return pulling[coll];
+  }
+  const pullAll=()=>Object.keys(watchers).forEach(c=>pull(c));
+  let polling=false;
+  function startPolling(){
+    if (polling) return;
+    polling=true;
+    setInterval(()=>{ if (document.visibilityState!=="hidden") pullAll(); }, POLL_MS);
+    document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible"){ pullAll(); flushAll(); } });
+    window.addEventListener("online", ()=>{ pullAll(); flushAll(); });
+  }
+
+  // ---- the outbox ----
+  function settle(key, how, err){
+    const w=waiters[key]; delete waiters[key];
+    if (w) w.forEach(([ok,bad])=> how==="refused" ? bad(err) : ok(how==="sent" ? { sent:true } : { kept:true }));
+  }
+  function queue(coll, id, entry){
+    const key=coll+"/"+id, prev=outbox[key];
+    outbox[key]=Object.assign({ v: prev ? prev.v+1 : 1 }, entry);
+    keepOutbox(); status(); emit(coll);
+    const done=new Promise((ok,bad)=>{ (waiters[key]=waiters[key]||[]).push([ok,bad]); });
+    if (!inFlight[key]){ retryCount[key]=0; flush(key); }
+    return Promise.race([done, pause(KEEP_AFTER_MS).then(()=>({ kept:true }))]);
+  }
+  async function send(method, path, body){
+    const res=await fetch(API+path, { method, body, headers: body!==undefined ? { "content-type":"application/json" } : undefined, redirect:"manual", cache:"no-store" });
+    if (signedOutResponse(res)){ setSignedOut(true); return { kind:"later" }; }
+    let out=null; try { out=await res.json(); } catch(e){ out=null; }
+    if (res.ok){ answered(); return { kind:"ok" }; }
+    if (res.status>=500){ setServer((out && out.message) || SERVER_SILENT); return { kind:"later" }; }
+    if (res.status===408 || res.status===429) return { kind:"later" };
+    answered(); // it answered, signed in and working, but it won't take this change
+    return { kind:"refused", err:{ code:(out && out.code) || ("http_"+res.status), message:(out && out.message) || "" } };
+  }
+  async function flush(key){
+    clearTimeout(retryTimers[key]); delete retryTimers[key];
+    const entry=outbox[key];
+    if (!entry || inFlight[key]) return;
+    inFlight[key]=true;
+    const i=key.indexOf("/"), coll=key.slice(0,i), at="/docs/"+coll+"/"+encodeURIComponent(key.slice(i+1));
+    let outcome;
+    try { outcome=await send(entry.del ? "DELETE" : "PUT", at, entry.del ? undefined : JSON.stringify(entry.data)); }
+    catch(e){ outcome={ kind:"later" }; }
+    inFlight[key]=false;
+    if (outcome.kind==="ok"){
+      retryCount[key]=0;
+      if (outbox[key] && outbox[key].v===entry.v){ delete outbox[key]; keepOutbox(); settle(key, "sent"); }
+      status(); pull(coll, true);           // read the list back after a save
+      if (outbox[key]) flush(key);          // changed meanwhile: send the newer version
+      return;
+    }
+    if (outcome.kind==="refused"){          // the server will never take this one: drop it, say why
+      delete outbox[key]; keepOutbox(); settle(key, "refused", outcome.err); status(); emit(coll);
+      return;
+    }
+    CLOUD.trouble=true; settle(key, "kept"); status();
+    const n=retryCount[key]=(retryCount[key]||0)+1;
+    const delay=Math.min(30000, 2000*Math.pow(2, n-1))*(0.85+Math.random()*0.3);
+    retryTimers[key]=setTimeout(()=>{ delete retryTimers[key]; flush(key); }, delay);
+  }
+  function flushAll(){ Object.keys(outbox).forEach(k=>{ if (!inFlight[k]){ retryCount[k]=0; flush(k); } }); }
+
+  // ---- the interface the app uses ----
+  function docRef(coll, id){
+    return {
+      id,
+      get: async ()=>{ await Promise.race([pull(coll, true), pause(KEEP_AFTER_MS)]); return docSnap(coll, id); },
+      set: (data)=>queue(coll, id, { data:clone(data) }),
+      delete: ()=>queue(coll, id, { del:true }),
+      onSnapshot: (next)=>watch(coll, ()=>docSnap(coll, id), next),
+    };
+  }
+  function colRef(path, q){
+    const at=cloudPath(path);
+    if (!at || at.id) throw new Error("Fitness Tracker has no collection at "+path);
+    q=q||{};
+    return {
+      doc: (id)=>docRef(at.coll, id || newDocId()),
+      add: async (data)=>{ const id=newDocId(); return Object.assign({ id }, await queue(at.coll, id, { data:clone(data) })); },
+      orderBy: (f, dir)=>colRef(path, Object.assign({}, q, { order:[f, dir||"asc"] })),
+      limit: (n)=>colRef(path, Object.assign({}, q, { lim:n })),
+      onSnapshot: (next)=>watch(at.coll, ()=>colSnap(at.coll, q), next),
+    };
+  }
+  const db={
+    doc(path){
+      const p=String(path).split("/");
+      if (p.length===4 && p[3]==="log" && p[0]==="data" && p[1]==="users") return { collection:(sub)=>colRef(path+"/"+sub) };
+      const at=cloudPath(path);
+      if (!at || !at.id) throw new Error("Fitness Tracker has no document at "+path);
+      return docRef(at.coll, at.id);
+    },
+  };
+  return {
+    db,
+    hasCache: ()=>Object.keys(docsOf).length>0 || Object.keys(outbox).length>0,
+    start: ()=>{ status(); flushAll(); },
+    signedOut: ()=>setSignedOut(true),
+  };
+}
+/* Find out whether this page has its server. A phone that has used it before starts straight
+   from its kept copy (no signal at the pool is normal). Otherwise ask once, and keep asking while
+   there's no connection. A plain web server with no API (a saved copy of the page) means there's
+   nowhere to save: the page then shows that nothing saves. */
+async function connectCloud(){
+  if (!/^https?:$/.test(location.protocol)) return null;
+  const cloud=makeCloud(paintSync);
+  if (cloud.hasCache()){ cloud.start(); return cloud; }
+  for (let wait=1500; ; wait=Math.min(wait*2, 15000)){
+    try {
+      const res=await fetch(API+"/docs/state", { headers:{ accept:"application/json" }, redirect:"manual", cache:"no-store" });
+      if (signedOutResponse(res)){ cloud.start(); cloud.signedOut(); return cloud; }
+      if (/json/.test(res.headers.get("content-type")||"") || res.status>=500){ cloud.start(); return cloud; }
+      return null;
+    } catch(e){ await new Promise(r=>setTimeout(r, wait)); }
+  }
+}
+/* the top bar and the banner under the tabs say what's going on with the server */
+function paintSync(){
+  const n=$("#syncNote"), b=$("#cloudBanner");
+  let note="";
+  if (CLOUD.signedOut) note="signed out — kept on this phone";
+  else if (CLOUD.server) note="server problem — kept on this phone";
+  else if (CLOUD.trouble && CLOUD.pending) note="no connection — kept on this phone";
+  else if (S.slowLoad && !S.sessReady) note="data unreachable — showing what's cached";
+  n.textContent=note; n.hidden=!note;
+  // a swim in progress that was waiting on the phone has now reached the server
+  if (!CLOUD.pending && rLiveState==="kept"){ rLiveState="saved"; paintSaveNote(); }
+  b.textContent="";
+  if (CLOUD.signedOut){
+    const t=document.createElement("span");
+    t.textContent="Signed out. Everything you log is kept on this phone until you sign in again.";
+    const go=document.createElement("button");
+    go.type="button"; go.className="btn sm"; go.id="cloudSignin"; go.textContent="Sign in";
+    // reloading brings up Cloudflare's sign-in page; every waiting change is in the outbox
+    go.addEventListener("click", ()=>location.reload());
+    b.append(t, go);
+  } else if (CLOUD.server){
+    b.textContent="Fitness Tracker's server has a problem. It says: “"+CLOUD.server+"” What you log is kept on this phone and saves once it's fixed.";
+  }
+  b.hidden=!b.textContent;
+}
+const keptNote=(r)=> r && r.kept ? " Kept on this phone; it sends when there's signal." : "";
+const cloudReady=connectCloud();
+
 // ---------- boot ----------
 const syncNote=$("#syncNote");
-let loadTimer=setTimeout(()=>{ if(!S.sessReady){ syncNote.hidden=false; syncNote.textContent="data unreachable — showing what's cached"; } },10000);
+let loadTimer=setTimeout(()=>{ if(!S.sessReady){ S.slowLoad=true; paintSync(); } },10000);
 function renderAll(){
   renderSessions(); renderHome(); renderTrends();
   if (!LW.active && !R) renderTrainHome();
   renderExHist();
 }
 (async ()=>{
-  let db=null, user=null, sample=null;
-  try { [db,user,sample]=await Promise.all([claude.use("db"),claude.use("user"),claude.use("sample")]); }
-  catch(e){ /* design for absence */ }
-  S.sample=sample||null;
-  if (!sample){ $("#coachGo").hidden=true;
-    $("#coachCard").querySelector(".hint").textContent="AI feedback needs the claude.ai viewer — open this page there to use it."; }
-  let uid=null;
-  try { uid=user?await user.id():null; }catch(e){}
+  // On Cloudflare there is one person (the sign-in lets only Steve in), so the uid is fixed.
+  // Claude can't be called from this page; Coach comes back as a coaching export (CLOUDFLARE.md).
+  const cloud=await cloudReady;
+  const db=cloud ? cloud.db : null, uid=cloud ? "me" : null;
+  S.sample=null;
+  $("#coachGo").hidden=true;
+  $("#coachCard").querySelector(".hint").textContent="Claude's feedback comes back in a later update, as a coaching export you take to a Claude chat. Your goals still save here.";
   if (!db || !uid){
     clearTimeout(loadTimer); syncNote.hidden=true;
     $("#signinNote").hidden=false; $("#liftSignin").hidden=false;
@@ -3233,7 +3521,7 @@ function renderAll(){
   const logDoc=db.doc("data/users/"+uid+"/log");
   logDoc.collection("sessions").orderBy("ts","desc").limit(500).onSnapshot((snap)=>{
     S.sessions=snap.docs.filter(d=>d.exists).map(d=>({id:d.id, ...d.data()}));
-    if (!snap.metadata.fromCache){ S.sessReady=true; clearTimeout(loadTimer); syncNote.hidden=true; }
+    if (!snap.metadata.fromCache){ S.sessReady=true; clearTimeout(loadTimer); paintSync(); }
     renderAll();
   },(e)=>{ S.sessReady=true; clearTimeout(loadTimer);
     syncNote.hidden=false; syncNote.textContent="couldn't load sessions"; });
@@ -3283,8 +3571,8 @@ async function resumeLive(){
 if (window.__DL_TEST__) window.__DL={ PLAN_SWIM, POOLS, STAGES, rng, normRange, normItem, normBlock, normTpl, mergeSwimDoc,
   itemRange, blockRange, tplRange, itemText, blockText, intervalText, repSpec, repLabel, groupIndex, phaseOf, swimsSince,
   rampOn, tplRampOn, paddlesWarn, lastSwumOf, nextSwim, parseRepTime, fmtRepTime, fmtClock, newLive, runStep, swimLog,
-  logDist, mainPaceOf, swimSessionBody, swimOf, dateAdd, daysBetween, stableStr,
-  state:()=>({ R, S, swim:swimData() }) };
+  logDist, mainPaceOf, swimSessionBody, swimOf, dateAdd, daysBetween, stableStr, cloudPath,
+  state:()=>({ R, S, swim:swimData(), cloud:Object.assign({}, CLOUD) }) };
 
 setType("swim");
 renderAll();

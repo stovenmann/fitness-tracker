@@ -1,1 +1,4 @@
 __pycache__/
+
+# data read from the claude.ai artifact for the move to Cloudflare (CLOUDFLARE.md): never committed
+export/

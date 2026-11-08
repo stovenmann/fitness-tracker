@@ -1,13 +1,21 @@
 # Moving Fitness Tracker to Cloudflare
 
-**Status: approved by Steve on 2026-11-08. Step 1 is done; step 2 is next. Nothing is
-deployed, and the live artifact is unchanged.**
+**Status: approved by Steve on 2026-11-08. Steps 1 and 2 are done; step 3 is next. Nothing
+is deployed, and the live artifact is unchanged.**
 - **Step 1, the data check (2026-11-08):** Claude read the artifact's data read-only, counts
   only, and threw that copy away. The sessions, weigh-ins, lifting and swim documents can all
   be read, so the move's export works as planned.
 - **Step 1, the Worker:** `worker/index.js`, its settings (`wrangler.jsonc`, with the database
   id still to come from Part 1 of the setup) and 12 checks in `tools/worker-tests.js`, run from
   `/tools/tests.html`. One check was broken on purpose to be sure it fails; it did.
+- **Step 2, the page:** `artifact/fitness-tracker.html` moved to `public/index.html` and talks to
+  the API through `makeCloud()`, with the outbox, the kept copy, and the signed-out and
+  server-problem notices. `tools/mock-api.js` replaces the old claude.ai stand-in, and
+  `tools/app-tests.js` adds 13 checks; all 25 pass, the 135 swim checks among them. The
+  offline check was broken on purpose (failed saves dropped) and failed, as it should.
+- **Not known yet:** without a service worker, iOS may not open the page at all with no signal
+  (the kept copy helps when the page loads but the API doesn't answer, as on a weak signal).
+  Disc golf is the same. Step 5's iPhone checks now include trying it in Airplane Mode.
 
 This copies the disc golf scorecard's move (`disc-golf-scorecard/CLOUDFLARE.md`, live since
 2026-11-08, its basket icon confirmed on Steve's iPhone). The method is the same. **The setup is
@@ -168,6 +176,8 @@ Claude puts the ID into `wrangler.jsonc`. The first publish (`live` at the same 
      the top of the screen.
    - Log a test session, check it on Home, then delete it. Start a short test swim, check the
      screen stays awake and the beep plays, then exit without saving.
+   - Turn on Airplane Mode, close the app fully, and open it from the Home Screen. Note whether
+     it opens. Then log a test session, turn Airplane Mode off, and check it arrives; delete it.
    - Keep using the artifact until the data has moved.
 
 ## Build order

@@ -11,11 +11,12 @@ artifact icon word `dumbbell` (claude.ai draws it; the page itself can't set one
 
 | Path | What |
 |---|---|
-| `artifact/fitness-tracker.html` | The app, one file (about 3,300 lines). It started as a snapshot of live artifact version `1793842210-54bf` (v3 + theme toggle). The swim build went live on 2026-11-07 as version `1794106828-9605`, which is what this file holds; merge against that version before the next publish. Line numbers in the findings below refer to the v3 snapshot (commit `6caba12`). |
+| `public/index.html` | The app, one file (about 3,600 lines), for Cloudflare. Until 2026-11-08 it was `artifact/fitness-tracker.html`, a snapshot of live artifact version `1793842210-54bf` (v3 + theme toggle); the swim build went live on 2026-11-07 as version `1794106828-9605`, and commit `2fd6140` holds that last artifact version. Line numbers in the findings below refer to the v3 snapshot (commit `6caba12`). |
+| `worker/index.js`, `wrangler.jsonc` | The Cloudflare Worker (the page, plus a small API for sessions, weigh-ins and the single documents) and its settings. `CLOUDFLARE.md` has the plan, the owner's setup steps, and where the move stands. |
 | `design/proto-*.html` | The three static design prototypes (Dispatch, Editorial Sport, Mission Control). Sample data only, no script. Editorial Sport is the one v3 was rebuilt around. |
 | `docs/activity-model.md` | **The proposed new session model** for swim, run, row, aggressive inline, disc golf, dog walks and stretch, plus counting rules. The owner's answers are recorded in it; not built yet. |
 | `docs/swim-plan-templates.json` | The swim plan's three phases (five workouts) in that model, with `stage` and `main` flags. Embedded in the app as the default swim templates. `tools/check-swim-templates.py` totals them. |
-| `tools/` | Local test harness: `dev_server.py` serves the app with `mock-claude.js` (a fake `db` / `user` / `sample` kept in localStorage) and `swim-tests.js` (`runSwimTests()` in the console). See "Testing locally" below. |
+| `tools/` | Local test harness: `dev_server.py` serves the app with `mock-api.js` (a stand-in for the Worker's API, kept in localStorage) and `swim-tests.js` (`runSwimTests()` in the console); `tests.html` runs the Worker's and the app's checks. See "Testing locally" below. |
 | `docs/chat-history.md` | The chat, nearly whole: swim plan, lingo, scope, v1, v2 (lifting), recovery, run/row, the design bake-off, v3, theme toggle. Two short owner messages are missing. |
 
 Artifact links:
@@ -28,10 +29,21 @@ Artifact links:
 
 ## How the app works
 
-One HTML file. All markup and CSS come first; the script starts at `artifact/fitness-tracker.html:982`.
+One HTML file. All markup and CSS come first; the script starts at `public/index.html:987`.
 
-**Runtime.** It runs inside the claude.ai artifact viewer and uses three viewer capabilities
-(`artifact/fitness-tracker.html:3203`):
+**On Cloudflare (2026-11-08 on).** `makeCloud()` (in `// ---------- the server (Cloudflare)
+----------`) gives the app the same `db.doc()` / `.collection()` calls it used on claude.ai,
+backed by the Worker's API: `sessions` and `weights` collections, and a `state` collection for
+the `goals`, `lifting`, `swim` and `live` documents. One person, so the uid is the fixed `me`.
+Every change goes into an outbox kept on the phone (`ft-outbox-v1`) and is sent when it can be;
+the last copy of each collection is kept too (`ft-cache-v1`). A write resolves `{sent:true}` or
+`{kept:true}`, and the save messages say when something is only on the phone. The top bar and
+`#cloudBanner` say when the phone has no connection, is signed out (with a Sign in button), or
+the server has a problem (in its own words). Coach's Claude button stays hidden: the coaching
+export replaces it (CLOUDFLARE.md, step 7).
+
+**As an artifact (until the switch).** The live artifact runs inside the claude.ai viewer and
+uses three viewer capabilities (`artifact/fitness-tracker.html:3203` at commit `2fd6140`):
 
 - `db`: a Firestore-like document store hosted by claude.ai. **All the owner's data lives
   here, not in the HTML.** Republishing the HTML to the same artifact URL keeps it.
@@ -211,20 +223,25 @@ What's built, beyond the findings above:
 
 ### Testing locally
 
-`tools/dev_server.py` serves the app with a fake runtime. It has been run and works.
+`tools/dev_server.py` serves `public/index.html` with a stand-in for the Worker's API
+(`tools/mock-api.js`). It has been run and works.
 
 - `preview_start` with the launch config `fitness-tracker` (port 8765), then open `/?seed=1`
-  for synthetic data or `/?clear=1` to start empty (`clear` also drops `dl-live`). Reload
-  without `?clear` when testing resume.
+  for made-up data or `/?clear=1` to start empty (`clear` also drops the app's kept copy,
+  outbox and `dl-live`). Reload without `?clear` when testing resume. Other flags make the
+  stand-in drop the signal, sign out, or answer like a server with a problem; `mock-api.js`
+  lists them.
 - `await runSwimTests()` in the console runs `tools/swim-tests.js`: 135 checks covering the five
   templates against the JSON and its `yards` labels, rep pattern labels, the ramp, the phase,
   rep-time parsing, main pace, reading old templates and sessions, the plan merge, the next swim,
   and the runner step by step.
-- The mock store lives in the test browser's localStorage (`fitness-tracker-mock-db`);
-  `window.__mock.lastPrompt()` shows the last coach prompt.
-- `/tools/tests.html` runs the Cloudflare Worker's 12 checks (`tools/worker-tests.js` against
-  `worker/index.js`, with an in-memory database and made-up sign-in tokens). Add
-  `?only=<words>` to run some. See `CLOUDFLARE.md` for the move.
+- The stand-in's database lives in the test browser's localStorage (`fitness-tracker-mock-api`);
+  `window.__mock` peeks at it and switches failures on and off.
+- `/tools/tests.html` runs every check, with the pane in front (background tabs slow timers):
+  the Worker's 12 (`tools/worker-tests.js` against `worker/index.js`, with an in-memory
+  database and made-up sign-in tokens), then the app's 13 (`tools/app-tests.js`: no signal,
+  signed out, server problem, a kept copy, a copy from another database, deletes, the swim in
+  progress, and the 135 swim checks). Add `?only=<words>` to run some. All 25 pass.
 
 ## Open questions for the owner
 
@@ -239,11 +256,8 @@ What's built, beyond the findings above:
 
 ## Working on it from Claude Code
 
-- Edit `artifact/fitness-tracker.html`, then publish it to the live URL above. The artifact may
-  have been edited in claude.ai since this snapshot, so read the live version first and
-  merge before publishing.
-- The page can't load or save anything outside the claude.ai viewer, so check data flows
-  there. Layout and pure functions (time parsing, pace, plates, e1RM, week math) can be
-  checked anywhere.
-- Don't put real session data in the repo. It lives in the artifact database; read it only
-  when the owner asks.
+- Edit `public/index.html` and run `/tools/tests.html`. Publishing to Cloudflare means moving
+  the `live` branch up to `main`, only when the owner says so (CLOUDFLARE.md). The artifact is
+  no longer published to.
+- Don't put real session data in the repo. Until the switch it lives in the artifact
+  database; read it only when the owner asks, and only into the git-ignored `export/` folder.

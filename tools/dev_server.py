@@ -1,23 +1,29 @@
-"""Serve the fitness tracker locally with a fake claude.ai runtime, for testing in a browser.
+"""Serve Fitness Tracker locally with a stand-in for its Cloudflare API, for testing in a browser.
 
     python tools/dev_server.py [port]
 
-Open http://localhost:8765/ . Add ?seed=1 for synthetic sample data, ?clear=1 to start empty.
-The page is artifact/fitness-tracker.html with two scripts injected before the app's own:
-tools/mock-claude.js (the fake runtime) and tools/swim-tests.js (logic tests, run from the
-console with runSwimTests()). The published artifact never contains either.
-Every other path is served from the repo as it is: http://localhost:8765/tools/tests.html runs
-the Cloudflare Worker's checks (tools/worker-tests.js against worker/index.js; see CLOUDFLARE.md).
+Open http://localhost:8765/ . Add ?seed=1 for made-up sample data, ?clear=1 to start empty;
+tools/mock-api.js lists the other flags (no signal, signed out, a server problem, ...).
+The page is public/index.html with three things put in before the app's own script:
+window.__DL_TEST__ (so the app exposes its pure functions on window.__DL), tools/mock-api.js
+(the stand-in API) and tools/swim-tests.js (logic tests, run from the console with
+runSwimTests()). Cloudflare serves public/ as it is and never sees any of them.
+
+Other files the page links to (the manifest, icons) are served from public/, as on Cloudflare.
+Everything else comes from the repo: http://localhost:8765/tools/tests.html runs all the checks
+(the Worker's, then the app's). Never serve export/ to anything but this machine.
 """
 import http.server
 import pathlib
 import sys
+import urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PAGE = ROOT / "artifact" / "fitness-tracker.html"
+PUBLIC = ROOT / "public"
+PAGE = PUBLIC / "index.html"
 INJECT = (
     b'<script>window.__DL_TEST__=true</script>'
-    b'<script src="/tools/mock-claude.js"></script>'
+    b'<script src="/tools/mock-api.js"></script>'
     b'<script src="/tools/swim-tests.js"></script>'
 )
 
@@ -30,9 +36,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         super().end_headers()
 
+    def translate_path(self, path):
+        # a file that Cloudflare would serve from public/ is served from there here too
+        rel = urllib.parse.unquote(urllib.parse.urlsplit(path).path).lstrip("/")
+        if rel and ".." not in rel.split("/"):
+            candidate = PUBLIC / rel
+            if candidate.is_file():
+                return str(candidate)
+        return super().translate_path(path)
+
     def do_GET(self):
         if self.path == "/" or self.path.startswith("/?") or self.path.startswith("/#"):
-            body = PAGE.read_bytes().replace(b"<body>", b"<body>" + INJECT, 1)
+            src = PAGE.read_bytes()
+            if src.count(b"<body>") != 1:
+                self.send_error(500, "public/index.html should have exactly one <body>")
+                return
+            body = src.replace(b"<body>", b"<body>" + INJECT, 1)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))

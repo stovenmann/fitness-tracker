@@ -33,9 +33,10 @@
   });
   const results = [];
   window.__results = results;
-  load("worker-tests.js").then(async () => {
+  // the Worker's checks first (no app frame needed), then the app's
+  load("worker-tests.js").then(() => load("app-tests.js")).then(async () => {
     const only = new URLSearchParams(location.search).get("only");
-    for (const c of window.workerChecks || []) {
+    for (const c of (window.workerChecks || []).concat(window.appChecks || [])) {
       if (only && !c.name.toLowerCase().includes(only.toLowerCase())) continue;
       let ok = true, msg = "";
       try { await c.fn(); } catch (e) { ok = false; msg = (e && e.message) || String(e); }
