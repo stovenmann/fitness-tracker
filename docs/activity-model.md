@@ -3,7 +3,7 @@
 Status: **draft, 2026-11-07.** The owner has answered every open question (below). Nothing
 here is built.
 
-The problem it solves: Deck Log stores swim and cardio as one time plus one distance, with a
+The problem it solves: the fitness tracker stores swim and cardio as one time plus one distance, with a
 swim set allowed to be only "N yards" or "reps × each". That can't hold the swim plan
 (HANDOFF finding 1), and it treats a dog walk, a park session on aggressive skates and a
 tempo mile as the same kind of thing. This proposal changes what a session *is*. The screens
@@ -15,7 +15,7 @@ Decided with the owner on 2026-11-07:
 - The weekend activity is **aggressive inline** (park and street). There is no skateboarding;
   the current "skate" type and the coach prompt's "skateboards" are wrong.
 - Everything is **entered by hand**: no watch, heart rate or GPS.
-- **Disc golf scores stay in the Disc Golf Scorecard artifact.** Deck Log logs the round as
+- **Disc golf scores stay in the Disc Golf Scorecard artifact.** The tracker logs the round as
   activity, not hole by hole.
 - **The swim plan keeps its sets.** The chat's yardage labels were wrong (section 5), so the
   labels are corrected and the sets stay as written.

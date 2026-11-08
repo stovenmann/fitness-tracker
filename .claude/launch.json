@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "deck-log",
+      "name": "fitness-tracker",
       "runtimeExecutable": "python",
       "runtimeArgs": ["tools/dev_server.py", "8765"],
       "port": 8765

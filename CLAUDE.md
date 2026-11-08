@@ -1,9 +1,11 @@
-# Deck Log: working rules
+# Fitness Tracker: working rules
 
 A personal training log that runs as a private claude.ai artifact, used on the owner's phone at
 the pool and gym. Read `HANDOFF.md` first: layout, data model, known issues, open questions.
 
-- The app is one file: `artifact/deck-log.html`. Live at https://claude.ai/artifact/PksoZZKoZCzwCRq54zUDtZ
+- The app is called **Fitness Tracker**. The chat named it "Deck Log"; the owner doesn't want
+  that name used anywhere (UI, docs, artifact titles, replies).
+- The app is one file: `artifact/fitness-tracker.html`. Live at https://claude.ai/artifact/PksoZZKoZCzwCRq54zUDtZ
 - Data lives in the artifact's claude.ai database (`db` capability), not in the HTML.
   Republishing to the same URL keeps it. Never put real sessions, weights or goals in the repo.
 - Before publishing, read the live artifact and merge: it may have been edited in claude.ai

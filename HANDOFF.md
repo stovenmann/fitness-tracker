@@ -1,6 +1,6 @@
-# Deck Log: handoff from the claude.ai chat
+# Fitness Tracker: handoff from the claude.ai chat
 
-Brought over 2026-11-07. Deck Log is a personal training log (swim, lift, run, row, skate,
+Brought over 2026-11-07. Fitness Tracker (called "Deck Log" in the chat; renamed at the owner's request on 2026-11-07) is a personal training log (swim, lift, run, row, skate,
 stretch, rest, bodyweight) with a Claude "coach". It was built in a claude.ai chat and lives
 as a private claude.ai artifact, which is how it gets used on the phone at the pool and gym.
 
@@ -8,7 +8,7 @@ as a private claude.ai artifact, which is how it gets used on the phone at the p
 
 | Path | What |
 |---|---|
-| `artifact/deck-log.html` | The live app, snapshot of artifact version `1793842210-54bf` (v3 + theme toggle). 2,053 lines, one file. |
+| `artifact/fitness-tracker.html` | The live app, snapshot of artifact version `1793842210-54bf` (v3 + theme toggle). 2,053 lines, one file. |
 | `design/proto-*.html` | The three static design prototypes (Dispatch, Editorial Sport, Mission Control). Sample data only, no script. Editorial Sport is the one v3 was rebuilt around. |
 | `docs/activity-model.md` | **The proposed new session model** for swim, run, row, aggressive inline, disc golf, dog walks and stretch, plus counting rules. The owner's answers are recorded in it; not built yet. |
 | `docs/swim-plan-templates.json` | The swim plan's three phases (five workouts) in that model. `tools/check-swim-templates.py` totals them. |
@@ -23,10 +23,10 @@ Artifact links:
 
 ## How the app works
 
-One HTML file. All markup and CSS come first; the script starts at `artifact/deck-log.html:767`.
+One HTML file. All markup and CSS come first; the script starts at `artifact/fitness-tracker.html:767`.
 
 **Runtime.** It runs inside the claude.ai artifact viewer and uses three viewer capabilities
-(`artifact/deck-log.html:2004`):
+(`artifact/fitness-tracker.html:2004`):
 
 - `db`: a Firestore-like document store hosted by claude.ai. **All the owner's data lives
   here, not in the HTML.** Republishing the HTML to the same artifact URL keeps it.
@@ -93,7 +93,7 @@ those claims don't hold.
 
 ## First-pass findings (from reading the code, not yet run)
 
-Ranked by how much they would hurt in real use. Line numbers are in `artifact/deck-log.html`.
+Ranked by how much they would hurt in real use. Line numbers are in `artifact/fitness-tracker.html`.
 
 1. **v3 can't track the recommended swim program, which was the last thing the owner asked
    for.** Only Base 1,700 (the weeks 1–2 workout) is seeded (:803). The plan's Build and
@@ -165,7 +165,7 @@ Ranked by how much they would hurt in real use. Line numbers are in `artifact/de
 
 ## Working on it from Claude Code
 
-- Edit `artifact/deck-log.html`, then publish it to the live URL above. The artifact may
+- Edit `artifact/fitness-tracker.html`, then publish it to the live URL above. The artifact may
   have been edited in claude.ai since this snapshot, so read the live version first and
   merge before publishing.
 - The page can't load or save anything outside the claude.ai viewer, so check data flows

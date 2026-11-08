@@ -1,11 +1,11 @@
-/* Local stand-in for the claude.ai artifact runtime, for testing Deck Log outside the viewer.
+/* Local stand-in for the claude.ai artifact runtime, for testing the fitness tracker outside the viewer.
    Implements the parts of `db`, `user` and `sample` the app uses. Data lives in this browser's
    localStorage, so a reload keeps it (that is what resume-after-reload tests need).
    URL flags: ?clear=1 empties the store, ?seed=1 loads synthetic sample data first.
    Never loaded by the published artifact. */
 (function () {
   "use strict";
-  const KEY = "deck-log-mock-db";
+  const KEY = "fitness-tracker-mock-db";
   const qs = new URLSearchParams(location.search);
   if (qs.has("clear")) { try { localStorage.removeItem(KEY); } catch (e) {} }
   let store = {};
