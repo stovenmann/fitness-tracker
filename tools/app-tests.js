@@ -336,5 +336,139 @@
     same("status bar back on Auto", rgb(a, bar(a)), page(a));
   });
 
+  /* ---------- the one-time import page (step 4) ---------- */
+  function openImport(query) {
+    return new Promise((resolve, reject) => {
+      const old = document.getElementById("app-frame");
+      if (old) old.remove();
+      const f = document.createElement("iframe");
+      f.id = "app-frame";
+      f.width = 375;
+      f.height = 667;
+      f.src = "/import.html?" + query;
+      let tries = 0;
+      const retry = setInterval(() => {
+        if (++tries > 3) { clearInterval(retry); return; }
+        f.src = "/import.html?" + query + "&reload=" + tries;
+      }, 8000);
+      const giveUp = setTimeout(() => { clearInterval(retry); reject(new Error("the import page didn't open")); }, 34000);
+      f.onload = async () => {
+        clearInterval(retry);
+        const win = f.contentWindow, doc = f.contentDocument;
+        for (let i = 0; i < 60 && !win.importReady; i++) await wait(50);
+        clearTimeout(giveUp);
+        const text = (s) => doc.querySelector(s).textContent.trim();
+        resolve({
+          win, doc, mock: win.__mock, text,
+          async choose(content) {
+            const dt = new win.DataTransfer();
+            const body = typeof content === "string" ? content : JSON.stringify(content);
+            dt.items.add(new win.File([body], "fitness-backup.json", { type: "application/json" }));
+            const input = doc.getElementById("file");
+            input.files = dt.files;
+            win.importChosen = false;
+            input.dispatchEvent(new win.Event("change"));
+            for (let i = 0; i < 60 && !win.importChosen; i++) await wait(50);
+            return text("#summary");
+          },
+          async run() {
+            win.importDone = false;
+            doc.getElementById("go").click();
+            for (let i = 0; i < 100 && !win.importDone; i++) await wait(50);
+            return text("#result");
+          },
+        });
+      };
+      document.getElementById("stage").appendChild(f);
+    });
+  }
+  // a made-up backup in the shape tools/build-backup.py writes; ids in the old 20-character shape
+  const backupFile = () => ({
+    format: "fitness-tracker-backup", version: 1, exportedAt: "2026-11-08T15:00:00+00:00",
+    sessions: [
+      { id: "a1b2c3d4e5f6g7h8i9j0", data: { date: "2026-10-27", ts: 1793203200000, type: "lift", minutes: 50, feel: 4, tpl: "Upper Pull", volume: 8400, exercises: [{ name: "Row", sets: [[135, 10], [135, 9]] }] } },
+      { id: "k1l2m3n4o5p6q7r8s9t0", data: { date: "2026-10-29", ts: 1793376000000, type: "run", minutes: 22.5, miles: 2, kind: "easy", feel: 3 } },
+      { id: "u1v2w3x4y5z6a7b8c9d0", data: { date: "2026-11-01", ts: 1793635200000, type: "swim", minutes: 35, feel: 4, yards: 1400, swimDist: 1400, swimUnit: "yd", sore: { shoulders: 1 } } },
+    ],
+    weights: [
+      { id: "e1f2g3h4i5j6k7l8m9n0", data: { date: "2026-10-26", ts: 1793116800000, lbs: 203.8 } },
+      { id: "o1p2q3r4s5t6u7v8w9x0", data: { date: "2026-11-02", ts: 1793721600000, lbs: 202.9 } },
+    ],
+    state: [
+      { id: "goals", data: { text: "Made-up goals for the import check.", updatedAt: "2026-10-20" } },
+      { id: "lifting", data: { barLbs: 45, restSec: 120, templates: [{ id: "t_x", name: "Check Day", ex: [{ name: "Row", s: 3, r: 10 }] }] } },
+      { id: "swim", data: { pool: "25m", startDate: "2026-10-30", seeded: ["p1-reacclimation"], templates: [] } },
+    ],
+  });
+  const ALL = "In this file: 3 sessions, 2 weigh-ins, your goals, your lift templates and your swim plans and settings";
+
+  check("the import page adds a whole backup and checks it on the server", async () => {
+    const a = await openImport("clear=1");
+    truly("the summary counts the file: " + (await a.choose(backupFile())), a.text("#summary").startsWith(ALL));
+    const out = await a.run();
+    truly("it says what it added: " + out, out.startsWith("Added 3 sessions, 2 weigh-ins, your goals, your lift templates and your swim plans and settings."));
+    truly("it checked everything on the server: " + out, /All 8 match the file\./.test(out));
+    same("sessions stored, ids kept", a.mock.ids("sessions"), backupFile().sessions.map((d) => d.id).sort());
+    same("the lifting doc stored exactly", a.mock.peek("state", "lifting"), backupFile().state[1].data);
+    const app = await openApp("");               // the app then shows it all
+    same("sessions in the app", app.st().S.sessions.length, 3);
+    same("weigh-ins in the app", app.st().S.weights.length, 2);
+    same("lift templates in the app", app.st().S.lift.templates.map((t) => t.name), ["Check Day"]);
+    same("the pool in the app", app.st().swim.pool, "25m");
+  });
+
+  check("run again, the import adds only what's missing and changes nothing else", async () => {
+    let a = await openImport("clear=1");
+    await a.choose(backupFile());
+    await a.run();
+    a.mock.del("sessions", "k1l2m3n4o5p6q7r8s9t0");
+    a = await openImport("");
+    await a.choose(backupFile());
+    const out = await a.run();
+    truly("it adds the one missing: " + out, out.startsWith("Added 1 session."));
+    truly("and says the rest were there: " + out, /Already here, the same: 2 sessions, 2 weigh-ins, your goals, your lift templates and your swim plans and settings\./.test(out));
+    same("sessions stored", a.mock.count("sessions"), 3);
+  });
+
+  check("the import never overwrites: a different version already here is left alone, and it says so", async () => {
+    const a = await openImport("clear=1");
+    const tested = { pool: "25yd", startDate: "2026-11-08", seeded: [], templates: [] }; // e.g. from a test swim
+    a.mock.put("state", "swim", tested);
+    await a.choose(backupFile());
+    const out = await a.run();
+    truly("it names what it left alone: " + out, /Left alone, as a different version is already here: your swim plans and settings \(swim\)/.test(out));
+    same("the swim doc on the server is untouched", a.mock.peek("state", "swim"), tested);
+    same("everything else came over", [a.mock.count("sessions"), a.mock.count("weights"), a.mock.ids("state")], [3, 2, ["goals", "lifting", "swim"]]);
+  });
+
+  check("the import turns away a file that isn't a backup, or holds a swim in progress, and sends nothing", async () => {
+    const a = await openImport("clear=1");
+    truly("not JSON", /isn't a Fitness Tracker backup/.test(await a.choose("{oops")));
+    truly("the disc golf backup", /doesn't say it is one/.test(await a.choose({ format: "disc-golf-backup", version: 1, courses: [], rounds: [] })));
+    const withLive = backupFile();
+    withLive.state.push({ id: "live", data: { v: 1, phase: "swim" } });
+    truly("a swim in progress", /doesn't know \(live\)/.test(await a.choose(withLive)));
+    const twice = backupFile();
+    twice.weights.push(twice.weights[0]);
+    truly("an id twice", /twice/.test(await a.choose(twice)));
+    truly("no Import button for a refused file", a.doc.getElementById("go").hidden);
+    same("nothing was sent", a.mock.log.filter((e) => e.method !== "GET").length, 0);
+  });
+
+  check("on the import page, signed out, no signal and a server problem each say so, and a rerun finishes", async () => {
+    const a = await openImport("clear=1");
+    await a.choose(backupFile());
+    a.mock.setSignedOut("401");
+    truly("signed out: " + (await a.run()), /^Signed out\. Reload this page to sign in again/.test(a.text("#result")));
+    a.mock.setSignedOut("");
+    a.mock.setServer("503");
+    truly("server problem: " + (await a.run()), /Sign-in isn't set up on the server yet/.test(a.text("#result")));
+    a.mock.setServer("");
+    a.mock.setOffline(true);
+    truly("no signal: " + (await a.run()), /Couldn't reach the server/.test(a.text("#result")));
+    a.mock.setOffline(false);
+    truly("then it finishes: " + (await a.run()), /All 8 match the file\./.test(a.text("#result")));
+  });
+
   window.appChecks = checks;
 })();

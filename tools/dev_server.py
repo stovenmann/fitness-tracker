@@ -9,6 +9,7 @@ window.__DL_TEST__ (so the app exposes its pure functions on window.__DL), tools
 (the stand-in API) and tools/swim-tests.js (logic tests, run from the console with
 runSwimTests()). Cloudflare serves public/ as it is and never sees any of them.
 
+/import.html is the one-time import page (public/import.html), with the same stand-in API.
 Other files the page links to (the manifest, icons) are served from public/, as on Cloudflare.
 Everything else comes from the repo: http://localhost:8765/tools/tests.html runs all the checks
 (the Worker's, then the app's). Never serve export/ to anything but this machine.
@@ -21,9 +22,11 @@ import urllib.parse
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 PAGE = PUBLIC / "index.html"
+IMPORT_PAGE = PUBLIC / "import.html"
+INJECT_API = b'<script src="/tools/mock-api.js"></script>'
 INJECT = (
     b'<script>window.__DL_TEST__=true</script>'
-    b'<script src="/tools/mock-api.js"></script>'
+    + INJECT_API +
     b'<script src="/tools/swim-tests.js"></script>'
 )
 
@@ -46,12 +49,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return super().translate_path(path)
 
     def do_GET(self):
-        if self.path == "/" or self.path.startswith("/?") or self.path.startswith("/#"):
-            src = PAGE.read_bytes()
+        route = urllib.parse.urlsplit(self.path).path
+        if route in ("/", "/import.html"):
+            # the app, or the one-time import page (which needs only the stand-in API)
+            page, inject = (PAGE, INJECT) if route == "/" else (IMPORT_PAGE, INJECT_API)
+            src = page.read_bytes()
             if src.count(b"<body>") != 1:
-                self.send_error(500, "public/index.html should have exactly one <body>")
+                self.send_error(500, "public" + route + " should have exactly one <body>")
                 return
-            body = src.replace(b"<body>", b"<body>" + INJECT, 1)
+            body = src.replace(b"<body>", b"<body>" + inject, 1)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))

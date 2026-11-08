@@ -1,7 +1,7 @@
 # Moving Fitness Tracker to Cloudflare
 
-**Status: approved by Steve on 2026-11-08. Steps 1 to 3 are done; step 4 is next. Nothing is
-deployed, and the live artifact is unchanged.**
+**Status: approved by Steve on 2026-11-08. Steps 1 to 4 are done. Step 5, Steve's dashboard
+setup, is next (below). Nothing is deployed, and the live artifact is unchanged.**
 - **Step 1, the data check (2026-11-08):** Claude read the artifact's data read-only, counts
   only, and threw that copy away. The sessions, weigh-ins, lifting and swim documents can all
   be read, so the move's export works as planned.
@@ -18,6 +18,17 @@ deployed, and the live artifact is unchanged.**
   dumbbell in `public/icons/` (180, 192 and 512, drawn by `tools/app-icon.ps1`), and a status
   bar that follows the theme in use. 3 more checks, 28 in all, passing; the name check was
   broken on purpose and failed. Only the iPhone can show the real thing, at step 5.
+- **Step 4, the move's tools:** `public/import.html`, disc golf's import page changed for this
+  app (sessions, weigh-ins, goals, lift templates, swim plans; never the swim in progress), and
+  `tools/build-backup.py`, which bundles the export into the one file the page reads and prints
+  counts only. 5 more checks, 33 in all, passing; the "never overwrites" check was broken on
+  purpose and failed. Rehearsed end to end on a made-up export (no real data read): the bundled
+  file imported and all of it matched on the server.
+- **Found at step 4:** logging a swim from the Log tab saves the comeback start date into the
+  swim plans document. A test swim logged before the import would leave a different swim
+  document on the server, and the import, which never overwrites, would skip the real one. So
+  step 5 says to log a test run, and to leave templates and settings alone until the data
+  has moved.
 - **Not known yet:** without a service worker, iOS may not open the page at all with no signal
   (the kept copy helps when the page loads but the API doesn't answer, as on a weak signal).
   Disc golf is the same. Step 5's iPhone checks now include trying it in Airplane Mode.
@@ -125,12 +136,15 @@ runner when opened from the Home Screen.
    the artifact's data, and reports counts only. If claude.ai doesn't allow that, Claude stops
    and asks: the other ways need a change to the artifact, which this plan says won't happen.
 2. **Export.** Claude reads the artifact's sessions, weigh-ins, goals, lifting and swim docs,
-   read-only, into an `export/` folder on Steve's PC that git ignores. Reading them sends that
-   data through this chat. None of it goes into the repo, a commit or a test.
+   read-only, into an `export/` folder on Steve's PC that git ignores (`export/raw/`, then
+   `python tools/build-backup.py export/raw export/fitness-backup.json`). Reading them sends
+   that data through this chat. None of it goes into the repo, a commit or a test.
    - The swim in progress (`live`) isn't moved: finish or end any swim before the switch.
-3. **Import.** A one-time import page on the new site, behind the sign-in (disc golf's from
-   commit `b0b27fa`, changed for this app). It only adds: anything already there is left alone,
-   and it says so. Run again, it adds only what's missing.
+3. **Import.** A one-time import page on the new site, behind the sign-in (`public/import.html`,
+   disc golf's from commit `b0b27fa`, changed for this app). Steve opens
+   `<address>/import.html` in a browser on his PC, signs in the same way, and chooses
+   `export/fitness-backup.json`. It only adds: anything already there is left alone, and it
+   says so. Run again, it adds only what's missing.
 4. **Check.** Count sessions and weigh-ins on both sides, compare the goals, lifting and swim
    docs, and open a few sessions and Trends on the phone. Then Steve logs only on the new
    address. The import page is taken out afterwards.
@@ -179,11 +193,15 @@ Claude puts the ID into `wrangler.jsonc`. The first publish (`live` at the same 
    - Share → Add to Home Screen. Check the dumbbell and the name "Fitness".
    - Open it from the Home Screen: full screen, no Safari bar. Try light and dark and look at
      the top of the screen.
-   - Log a test session, check it on Home, then delete it. Start a short test swim, check the
-     screen stays awake and the beep plays, then exit without saving.
+   - Log a test **run** (not a swim: a first swim saves the comeback start date, and the
+     import would then leave your real swim plans alone). Check it on Home, then delete it.
+   - Start a short test swim from Train, check the screen stays awake and the beep plays, then
+     **Exit without saving**.
    - Turn on Airplane Mode, close the app fully, and open it from the Home Screen. Note whether
-     it opens. Then log a test session, turn Airplane Mode off, and check it arrives; delete it.
-   - Keep using the artifact until the data has moved.
+     it opens. If it does, log a test run, turn Airplane Mode off, and check it arrives; delete
+     it.
+   - Don't change templates, the pool, the comeback start or goals until your data has moved.
+     Keep using the artifact until then.
 
 ## Build order
 

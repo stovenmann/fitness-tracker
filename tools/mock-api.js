@@ -78,6 +78,7 @@
     count: (coll) => Object.keys(db.docs[coll] || {}).length,
     ids: (coll) => Object.keys(db.docs[coll] || {}).sort(),
     put: (coll, id, data) => { db.docs[coll][id] = clone(data); db.versions[coll]++; persist(); },
+    del: (coll, id) => { delete db.docs[coll][id]; db.versions[coll]++; persist(); },
     setFail: (v) => { FAIL = !!v; },
     setOffline: (v) => { OFFLINE = !!v; },
     setSignedOut: (v) => { SIGNED_OUT = v ? String(v) : ""; },
