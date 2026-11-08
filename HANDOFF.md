@@ -3,12 +3,15 @@
 Brought over 2026-11-07. Fitness Tracker (called "Deck Log" in the chat; renamed at the owner's request on 2026-11-07) is a personal training log (swim, lift, run, row, skate,
 stretch, rest, bodyweight) with a Claude "coach". It was built in a claude.ai chat and lives
 as a private claude.ai artifact, which is how it gets used on the phone at the pool and gym.
+The owner's words for what it's for: tracking "general athletic endeavors through life". It is
+not mainly a swim app; the swim comeback plan is one part of it. Its home-screen icon is the
+artifact icon word `dumbbell` (claude.ai draws it; the page itself can't set one).
 
 ## Where things are
 
 | Path | What |
 |---|---|
-| `artifact/fitness-tracker.html` | The app, one file (about 3,300 lines). It started as a snapshot of live artifact version `1793842210-54bf` (v3 + theme toggle). The swim build went live on 2026-11-07 as version `1794106473-6cad`, which is what this file holds; merge against that version before the next publish. Line numbers in the findings below refer to the v3 snapshot (commit `6caba12`). |
+| `artifact/fitness-tracker.html` | The app, one file (about 3,300 lines). It started as a snapshot of live artifact version `1793842210-54bf` (v3 + theme toggle). The swim build went live on 2026-11-07 as version `1794106828-9605`, which is what this file holds; merge against that version before the next publish. Line numbers in the findings below refer to the v3 snapshot (commit `6caba12`). |
 | `design/proto-*.html` | The three static design prototypes (Dispatch, Editorial Sport, Mission Control). Sample data only, no script. Editorial Sport is the one v3 was rebuilt around. |
 | `docs/activity-model.md` | **The proposed new session model** for swim, run, row, aggressive inline, disc golf, dog walks and stretch, plus counting rules. The owner's answers are recorded in it; not built yet. |
 | `docs/swim-plan-templates.json` | The swim plan's three phases (five workouts) in that model, with `stage` and `main` flags. Embedded in the app as the default swim templates. `tools/check-swim-templates.py` totals them. |
@@ -17,7 +20,7 @@ as a private claude.ai artifact, which is how it gets used on the phone at the p
 
 Artifact links:
 
-- Live app: https://claude.ai/artifact/PksoZZKoZCzwCRq54zUDtZ (swim build, version `1794106473-6cad`)
+- Live app: https://claude.ai/artifact/PksoZZKoZCzwCRq54zUDtZ (swim build, version `1794106828-9605`)
 - Swim Preview: https://claude.ai/artifact/E4zuonHixMjjVvD1KVDLkr (the swim build on its own empty database, for trying on the phone)
 - Prototypes: Dispatch https://claude.ai/artifact/8edtMzsXW72wMXq2zgQb8t ·
   Editorial Sport https://claude.ai/artifact/SdSMmGjh1QvQLFw2gNUQer ·
@@ -128,8 +131,8 @@ for swims; lifting is a later slice.
    **Fixed for swim (2026-11-07):** the runner saves after every tap to `localStorage` and the
    `live` db doc, and a reload resumes it. A lift in progress is still memory-only.
 3. **Home only ever suggests a lift.** The "Up next" pick is built from lift templates alone
-   (:1603). Swim templates are never suggested, though swimming is why the app exists and the
-   v3 notes say "your least-recently-run template".
+   (:1603). Swim templates are never suggested, though the swim plan was the last thing built and
+   the v3 notes say "your least-recently-run template".
 
    **Fixed (2026-11-07):** Up next is the least recently run of the lift templates and the next
    swim (the current phase's workout; weeks 5+ rotate by least recently swum), with an
