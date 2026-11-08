@@ -512,7 +512,7 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
   <!-- ============ HOME ============ -->
   <section class="panel on" id="panel-home">
     <div class="mast">
-      <span class="wordmark">FITNESS TRACKER</span>
+      <span class="wordmark" id="mastIssue">THIS WEEK</span>
       <span class="wk" id="mastWk"></span>
     </div>
     <div class="lead">
@@ -1476,6 +1476,7 @@ function showTab(name){
   if (!TABS.includes(name)) name = "home";
   document.querySelectorAll("nav a[data-tab]").forEach(a=>a.classList.toggle("on",a.dataset.tab===name));
   TABS.forEach(t=>$("#panel-"+t).classList.toggle("on",t===name));
+  if (name==="home") fitTitle($("#leadTitle"));
 }
 addEventListener("hashchange",()=>showTab(location.hash.replace("#","")));
 showTab(location.hash.replace("#",""));
@@ -2692,7 +2693,9 @@ function renderHome(){
   // masthead
   const d0=new Date(thisWk), d1=new Date(thisWk+6*864e5);
   const mfmt=(d)=>d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
-  $("#mastWk").textContent="WK "+isoWeek(now)+" · "+mfmt(d0).toUpperCase()+" – "+mfmt(d1).toUpperCase();
+  // The header already names the app; the masthead names the week, like a race program's issue line.
+  $("#mastIssue").textContent="WEEK "+isoWeek(now);
+  $("#mastWk").textContent=mfmt(d0).toUpperCase()+" – "+mfmt(d1).toUpperCase();
   // bib
   const today=new Date();
   $("#bibDay").textContent=today.toLocaleDateString(undefined,{weekday:"short"}).toUpperCase();
@@ -2838,7 +2841,19 @@ function setTitle(el,text){
     el.append(document.createElement("br"));
     el.append(words.slice(mid).join(" "));
   } else el.textContent=text;
+  fitTitle(el);
 }
+// A long single word ("Reacclimation") shrinks to fit its line instead of breaking mid-word.
+function fitTitle(el){
+  el.style.fontSize="";
+  if (!el.clientWidth) return;   // Home isn't showing; showTab fits it later
+  el.style.whiteSpace="nowrap"; el.style.overflowWrap="normal";
+  const over=el.scrollWidth/el.clientWidth;
+  el.style.whiteSpace=""; el.style.overflowWrap="";
+  if (over>1) el.style.fontSize=Math.max(28,Math.floor(parseFloat(getComputedStyle(el).fontSize)/over))+"px";
+}
+addEventListener("resize",()=>fitTitle($("#leadTitle")));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(()=>fitTitle($("#leadTitle")));
 
 // ---------- session list ----------
 function logBlockLine(b, unit){
