@@ -1,0 +1,619 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Deck Log — Editorial Sport</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900&family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&display=swap">
+<style>
+/* Layout concept: a race-program spread — one centered 430px column of framed phone screens
+   over a pale-chlorine ground with a faint pool lane line running behind them. */
+:root{
+  --ground:#E7EDEA;        /* pale chlorine — page backdrop */
+  --paper:#F7F8F6;         /* chalk white — screen surface */
+  --ink:#131D24;           /* ink — cool blue-black */
+  --ink-2:#55646C;         /* secondary ink */
+  --hairline:#D4DCD8;      /* rules */
+  --swim:#0E7FA6;          /* lane blue */
+  --swim-deep:#0A617F;
+  --swim-wash:#E2EEF2;
+  --lift:#C9252D;          /* meet red */
+  --lift-deep:#A31B23;
+  --lift-wash:#F6E6E4;
+  --skate:#E3A008;         /* deck amber */
+  --run:#178A57;           /* infield green (charts) */
+  --row:#7A8BD6;           /* regatta periwinkle (charts) */
+  --stretch:#C9699C;       /* rose (charts) */
+  --display:'Archivo','Helvetica Neue',Arial,sans-serif;
+  --text:'Familjen Grotesk','Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+.deck{
+  position:relative;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:15px;
+  line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:44px 56px;
+  min-height:100%;
+}
+.lane{
+  position:absolute;top:0;bottom:0;left:50%;width:5px;margin-left:-2.5px;
+  background:repeating-linear-gradient(to bottom,rgba(14,127,166,.16) 0 34px,rgba(14,127,166,0) 34px 58px);
+}
+.col{position:relative;max-width:430px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+
+/* presentation chrome */
+.mast{padding-bottom:14px}
+.mast h1{
+  font-family:var(--display);font-stretch:125%;font-weight:800;
+  font-size:clamp(28px,8vw,34px);letter-spacing:.04em;line-height:1;text-wrap:balance;
+}
+.mast .sub{margin-top:8px;color:var(--ink-2);font-size:13px}
+.mast .sub b{color:var(--ink);font-weight:600}
+.rule2{border-top:3px solid var(--ink);position:relative;margin-top:12px}
+.rule2::after{content:"";display:block;border-top:1px solid var(--ink);margin-top:2px}
+
+.cap{display:flex;align-items:baseline;gap:10px;margin-top:26px}
+.cap span{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.cap em{font-style:normal;font-size:12px;color:var(--ink-2)}
+.cap::after{content:"";flex:1;border-top:1px solid var(--hairline);transform:translateY(-3px)}
+
+.phone{
+  border:2px solid var(--ink);border-radius:38px;background:var(--paper);
+  overflow:hidden;box-shadow:0 26px 40px -30px rgba(19,29,36,.45);
+}
+.screen{padding:16px 18px 20px;display:flex;flex-direction:column;gap:0}
+.status{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--ink);padding:2px 4px 10px;font-variant-numeric:tabular-nums}
+.status .r{color:var(--ink-2);font-weight:500;letter-spacing:.06em}
+
+/* shared screen type */
+.d{font-family:var(--display)}
+.cond{font-family:var(--display);font-stretch:62.5%}
+.exp{font-family:var(--display);font-stretch:118%}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--ink-2)}
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--ink);color:var(--paper);border:0;border-radius:14px;
+  font-family:var(--display);font-stretch:75%;font-weight:700;font-size:17px;
+  letter-spacing:.03em;padding:17px 16px;width:100%;
+}
+.btn:focus-visible,.chip:focus-visible,.step:focus-visible{outline:3px solid var(--swim);outline-offset:2px}
+.btn.swimbtn{background:var(--swim-deep)}
+
+/* ---------- HOME ---------- */
+.appmast{display:flex;justify-content:space-between;align-items:baseline;border-bottom:3px solid var(--ink);padding-bottom:7px;position:relative}
+.appmast::after{content:"";position:absolute;left:0;right:0;bottom:-6px;border-top:1px solid var(--ink)}
+.appmast .wordmark{font-family:var(--display);font-stretch:118%;font-weight:800;font-size:17px;letter-spacing:.1em}
+.appmast .wk{font-size:12px;color:var(--ink-2);font-weight:600;letter-spacing:.05em}
+.lead{display:flex;gap:14px;align-items:flex-start;margin-top:24px}
+.lead .today{flex:1;min-width:0}
+.lead .kicker{font-size:13px;color:var(--ink-2)}
+.lead h2{
+  font-family:var(--display);font-stretch:62.5%;font-weight:900;
+  font-size:76px;line-height:.86;letter-spacing:-.005em;text-transform:uppercase;
+  margin-top:6px;text-wrap:balance;
+}
+.bib{
+  border:2px solid var(--ink);border-radius:10px;min-width:64px;text-align:center;
+  padding:7px 8px 9px;background:var(--paper);
+}
+.bib .day{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--lift-deep)}
+.bib .no{font-family:var(--display);font-stretch:62.5%;font-weight:900;font-size:34px;line-height:1;margin-top:1px}
+.bib .mo{font-size:10px;letter-spacing:.18em;color:var(--ink-2);margin-top:2px}
+.leadmeta{margin-top:12px;font-size:13.5px}
+.leadmeta .lastline{color:var(--ink-2);margin-top:3px}
+.home-cta{margin-top:16px}
+.alt{margin-top:9px;text-align:center;font-size:13px;color:var(--ink-2)}
+.alt u{text-decoration-color:var(--hairline);text-underline-offset:3px}
+
+.week{margin-top:24px}
+.week h3{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--display);font-stretch:75%;font-size:15px;font-weight:800;letter-spacing:.06em;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.week h3 small{font-family:var(--text);font-weight:500;font-size:12px;color:var(--ink-2);letter-spacing:0}
+.wrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--hairline)}
+.wrow:last-child{border-bottom:0}
+.wrow .dy{width:24px;font-family:var(--display);font-stretch:62.5%;font-weight:900;font-size:16px;color:var(--ink-2)}
+.wrow .bar{width:5px;height:26px;border-radius:3px;flex:none}
+.bar.liftc{background:var(--lift)} .bar.swimc{background:var(--swim)} .bar.skatec{background:var(--skate)}
+.bar.plan{background:transparent;border:1.5px solid var(--ink-2)}
+.bar.restc{background:transparent;border:1.5px dashed var(--ink-2)}
+.wrow .what{flex:1;min-width:0;font-family:var(--display);font-stretch:70%;font-weight:800;font-size:15px;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrow .res{font-size:12.5px;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums;flex:none}
+.wrow.todayrow{background:var(--lift-wash);margin:0 -8px;padding:9px 8px;border-radius:10px;border-bottom:1px solid var(--hairline)}
+.wrow.todayrow .what{color:var(--lift-deep)}
+.next-tag{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--paper);background:var(--lift-deep);border-radius:5px;padding:2.5px 6px;flex:none}
+.wrow.plan .what{color:var(--ink-2);font-weight:700}
+
+.statband{display:grid;grid-template-columns:1fr 1fr 1.2fr;margin-top:18px;border-top:3px solid var(--ink);padding-top:12px}
+.statband>div{padding:0 10px;border-left:1px solid var(--hairline);min-width:0}
+.statband>div:first-child{padding-left:0;border-left:0}
+.statband .lbl{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.statband .big{font-family:var(--display);font-stretch:62.5%;font-weight:900;font-size:24px;line-height:1.1;margin-top:3px;font-variant-numeric:tabular-nums}
+.statband .small{font-size:11.5px;color:var(--ink-2);margin-top:2px}
+.down{color:var(--swim-deep);font-weight:700}
+.sore-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--skate);margin-right:5px;vertical-align:1px}
+
+/* ---------- QUICK LOG ---------- */
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:var(--hairline);margin:2px auto 12px}
+.sheet-head{display:flex;justify-content:space-between;align-items:baseline}
+.sheet-head h2{font-family:var(--display);font-stretch:70%;font-weight:900;font-size:30px;text-transform:uppercase;letter-spacing:.01em}
+.sheet-head .cancel{font-size:14px;color:var(--ink-2)}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.act{
+  border:2px solid var(--ink);border-radius:12px;padding:13px 6px 12px;text-align:center;
+  font-family:var(--display);font-stretch:66%;font-weight:800;font-size:17px;letter-spacing:.04em;
+  color:var(--ink);background:var(--paper);
+}
+.act.on{background:var(--swim);border-color:var(--swim);color:#FFFFFF}
+.frow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:15px 0 13px;border-bottom:1px solid var(--hairline)}
+.frow .flbl{font-size:13px;font-weight:600;color:var(--ink-2)}
+.frow .fval{font-family:var(--display);font-stretch:62.5%;font-weight:900;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.frow .funit{display:inline-flex;gap:4px;margin-left:10px;vertical-align:6px}
+.funit i{font-style:normal;font-size:12px;font-weight:700;padding:3px 8px;border-radius:7px;color:var(--ink-2);border:1.5px solid var(--hairline)}
+.funit i.on{background:var(--swim-deep);border-color:var(--swim-deep);color:#FFFFFF}
+.feel{padding:15px 0 6px;border-bottom:1px solid var(--hairline)}
+.feel .flbl{font-size:13px;font-weight:600;color:var(--ink-2)}
+.feelrow{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
+.feelrow b{
+  flex:1;height:48px;border:1.5px solid var(--hairline);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-stretch:62.5%;font-weight:900;font-size:21px;color:var(--ink-2);
+}
+.feelrow b.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.feelcap{font-size:12px;color:var(--ink-2);margin-top:7px}
+.sore{padding:15px 0 4px}
+.sore .flbl{font-size:13px;font-weight:600;color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.chip{
+  border:1.5px solid var(--hairline);border-radius:999px;background:var(--paper);
+  font-family:var(--text);font-size:13px;font-weight:600;color:var(--ink-2);padding:7px 13px;
+}
+.chip.mild{background:var(--swim-wash);border-color:var(--swim);color:var(--swim-deep)}
+.chip.soreL{background:var(--lift-wash);border-color:var(--lift);color:var(--lift-deep)}
+.chipcap{font-size:12px;color:var(--ink-2);margin-top:9px}
+.sheet .btnwrap{margin-top:18px}
+
+/* ---------- LIVE WORKOUT ---------- */
+.livehead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:7px}
+.livehead .sess{font-family:var(--display);font-stretch:75%;font-weight:800;font-size:15px;letter-spacing:.07em;color:var(--lift-deep);text-transform:uppercase}
+.livehead .elapsed{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.exname{margin-top:16px}
+.exname .pos{font-size:12.5px;color:var(--ink-2)}
+.exname h2{font-family:var(--display);font-stretch:62.5%;font-weight:900;font-size:58px;line-height:.9;text-transform:uppercase;margin-top:4px;text-wrap:balance}
+.lasttime{font-size:13.5px;color:var(--ink-2);margin-top:9px}
+.lasttime b{color:var(--ink);font-variant-numeric:tabular-nums}
+.ctrls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.ctrl{border:2px solid var(--ink);border-radius:14px;padding:10px 10px 12px;text-align:center}
+.ctrl .clbl{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.ctrl .crow{display:flex;align-items:center;justify-content:space-between;margin-top:5px}
+.step{
+  width:40px;height:40px;border:1.5px solid var(--ink);border-radius:10px;background:var(--paper);
+  font-family:var(--display);font-weight:700;font-size:21px;line-height:1;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+}
+.ctrl .cval{font-family:var(--display);font-stretch:62.5%;font-weight:900;font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.ctrl .cunit{font-size:11px;color:var(--ink-2);margin-top:3px}
+.plates{display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px 12px;border:1px solid var(--hairline);border-radius:12px}
+.plates .ptxt{font-size:13px;line-height:1.4}
+.plates .ptxt b{font-variant-numeric:tabular-nums}
+.plates .ptxt .mut2{color:var(--ink-2);font-size:12px}
+.setlist{margin-top:14px;border-top:2px solid var(--ink)}
+.set{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--hairline);font-variant-numeric:tabular-nums}
+.set .sn{width:44px;font-family:var(--display);font-stretch:70%;font-weight:800;font-size:13px;letter-spacing:.05em;color:var(--ink-2)}
+.set .sv{flex:1;font-family:var(--display);font-stretch:68%;font-weight:800;font-size:17px}
+.set .st{font-size:12px;color:var(--ink-2)}
+.set.cur{background:var(--lift-wash);margin:0 -8px;padding:8px;border-radius:9px}
+.set.cur .sn,.set.cur .sv{color:var(--lift-deep)}
+.set.todo .sv{color:var(--ink-2);font-weight:700}
+.rest{margin-top:14px;background:var(--lift-wash);border-radius:14px;padding:13px 14px 14px;border-top:3px solid var(--lift)}
+.rest .rrow{display:flex;align-items:baseline;justify-content:space-between}
+.rest .rlbl{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--lift-deep);text-transform:uppercase}
+.rest .rbtns{display:flex;gap:6px}
+.rest .rb{border:1.5px solid var(--lift-deep);color:var(--lift-deep);background:transparent;border-radius:8px;font-size:12px;font-weight:700;padding:4px 9px;font-family:var(--text)}
+.rest .rtime{font-family:var(--display);font-stretch:62.5%;font-weight:900;font-size:60px;line-height:1;color:var(--lift-deep);font-variant-numeric:tabular-nums;margin-top:2px}
+.rest .rof{font-size:13px;color:var(--ink-2);margin-left:8px;font-family:var(--text);font-weight:500}
+.rest .rtrack{height:6px;border-radius:3px;background:#E6CFCB;margin-top:10px;overflow:hidden}
+.rest .rfill{height:100%;width:39%;background:var(--lift);border-radius:3px}
+.live-cta{margin-top:14px}
+.nextup{margin-top:10px;font-size:12.5px;color:var(--ink-2);text-align:center}
+
+/* ---------- TRENDS ---------- */
+.trhead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:3px solid var(--ink);padding-bottom:7px;position:relative}
+.trhead::after{content:"";position:absolute;left:0;right:0;bottom:-6px;border-top:1px solid var(--ink)}
+.trhead h2{font-family:var(--display);font-stretch:66%;font-weight:900;font-size:28px;text-transform:uppercase}
+.trhead .range{font-size:12px;color:var(--ink-2);font-weight:600;letter-spacing:.05em}
+.fig{margin-top:22px}
+.fig .fighead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.fig h3{font-family:var(--display);font-stretch:72%;font-weight:800;font-size:16.5px;letter-spacing:.02em}
+.fig .figkey{font-size:12px;color:var(--ink-2)}
+.fig .figsub{font-size:12.5px;color:var(--ink-2);margin-top:1px}
+.fig svg{display:block;width:100%;height:auto;margin-top:10px;max-width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px}
+.legend span{font-size:12px;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.coach{margin-top:22px;border-left:4px solid var(--swim);padding:2px 0 2px 13px}
+.coach .clbl2{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--swim-deep)}
+.coach p{font-size:14.5px;margin-top:4px;line-height:1.5}
+.coach .csig{font-size:12px;color:var(--ink-2);margin-top:5px}
+
+.footer{margin-top:30px;text-align:center;font-size:12px;color:var(--ink-2)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="deck">
+  <div class="lane"></div>
+  <div class="col">
+
+    <header class="mast">
+      <h1>DECK LOG</h1>
+      <p class="sub"><b>Proposal R1 — “Editorial Sport.”</b> Four screens, phone-width. All figures are sample data.</p>
+      <div class="rule2"></div>
+    </header>
+
+    <!-- ============ 1 · HOME ============ -->
+    <div class="cap"><span>Home</span><em>the week as a race program</em></div>
+    <section class="phone">
+      <div class="screen">
+        <div class="status num"><span>5:41</span><span class="r">WED · NOV 4</span></div>
+        <div class="appmast">
+          <span class="wordmark">DECK LOG</span>
+          <span class="wk num">WK 45 · NOV 2–8</span>
+        </div>
+        <div class="lead">
+          <div class="today">
+            <p class="kicker">Today’s session</p>
+            <h2>Lower<br>Pull</h2>
+          </div>
+          <div class="bib num">
+            <div class="day">WED</div>
+            <div class="no">04</div>
+            <div class="mo">NOV</div>
+          </div>
+        </div>
+        <div class="leadmeta num">
+          <div>6 lifts · ~55 min · 1 mi run first</div>
+          <div class="lastline">Last time, Oct 29 — Deadlift <b>275 × 5·5·5</b>, RDL 185 × 10</div>
+        </div>
+        <div class="home-cta"><button class="btn" type="button">Start Lower Pull</button></div>
+        <p class="alt"><u>Quick-log something else</u></p>
+
+        <div class="week">
+          <h3>THE WEEK <small class="num">2 of 5 sessions done</small></h3>
+          <div class="wrow num">
+            <span class="dy">M</span><span class="bar liftc"></span>
+            <span class="what">Upper Push</span>
+            <span class="res">12,480 lb · felt 4</span>
+          </div>
+          <div class="wrow num">
+            <span class="dy">T</span><span class="bar swimc"></span>
+            <span class="what">Swim 1,500 yd</span>
+            <span class="res">32:14 · 2:09 /100</span>
+          </div>
+          <div class="wrow todayrow num">
+            <span class="dy">W</span><span class="bar liftc"></span>
+            <span class="what">Lower Pull + Run</span>
+            <span class="next-tag">UP NEXT</span>
+          </div>
+          <div class="wrow plan num">
+            <span class="dy">T</span><span class="bar restc"></span>
+            <span class="what">Rest · Stretch</span>
+            <span class="res">planned</span>
+          </div>
+          <div class="wrow plan num">
+            <span class="dy">F</span><span class="bar plan"></span>
+            <span class="what">Upper Pull</span>
+            <span class="res">planned</span>
+          </div>
+          <div class="wrow plan num">
+            <span class="dy">S</span><span class="bar skatec"></span>
+            <span class="what">Skate — AM</span>
+            <span class="res">planned</span>
+          </div>
+          <div class="wrow plan num">
+            <span class="dy">S</span><span class="bar plan"></span>
+            <span class="what">Open</span>
+            <span class="res">—</span>
+          </div>
+        </div>
+
+        <div class="statband">
+          <div>
+            <div class="lbl">Load, wk</div>
+            <div class="big">12,480</div>
+            <div class="small">lb · Mon so far</div>
+          </div>
+          <div>
+            <div class="lbl">Weight</div>
+            <div class="big">219.4</div>
+            <div class="small"><span class="down">▾ 1.6</span> / 4 wk</div>
+          </div>
+          <div>
+            <div class="lbl">Soreness</div>
+            <div class="big" style="font-size:17px;padding-top:5px"><span class="sore-dot"></span>Shoulders</div>
+            <div class="small">mild · else clear</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 2 · QUICK LOG ============ -->
+    <div class="cap"><span>Quick log</span><em>yesterday’s swim, four taps</em></div>
+    <section class="phone">
+      <div class="screen sheet">
+        <div class="grab"></div>
+        <div class="sheet-head">
+          <h2>Quick log</h2>
+          <span class="cancel">Cancel</span>
+        </div>
+        <div class="acts">
+          <div class="act on">SWIM</div>
+          <div class="act">LIFT</div>
+          <div class="act">RUN</div>
+          <div class="act">ROW</div>
+          <div class="act">SKATE</div>
+          <div class="act">REST</div>
+        </div>
+        <div class="frow">
+          <span class="flbl">Distance</span>
+          <span class="fval num">1,500<span class="funit"><i class="on">yd</i><i>m</i><i>mi</i></span></span>
+        </div>
+        <div class="frow">
+          <span class="flbl">Time</span>
+          <span class="fval num">32:14</span>
+        </div>
+        <div class="feel">
+          <span class="flbl">Felt</span>
+          <div class="feelrow">
+            <b>1</b><b>2</b><b class="on">3</b><b>4</b><b>5</b>
+          </div>
+          <p class="feelcap">3 — steady. Pace works out to 2:09 /100 yd.</p>
+        </div>
+        <div class="sore">
+          <span class="flbl">Soreness</span>
+          <div class="chips">
+            <span class="chip mild">Shoulders · mild</span>
+            <span class="chip soreL">Lats · sore</span>
+            <span class="chip">Chest</span>
+            <span class="chip">Back</span>
+            <span class="chip">Hips</span>
+            <span class="chip">Legs</span>
+          </div>
+          <p class="chipcap">Tap again for sore, then very sore.</p>
+        </div>
+        <div class="btnwrap"><button class="btn swimbtn" type="button">Save swim — Tue 6:12 AM</button></div>
+      </div>
+    </section>
+
+    <!-- ============ 3 · LIVE WORKOUT ============ -->
+    <div class="cap"><span>Live workout</span><em>Monday, mid-set</em></div>
+    <section class="phone">
+      <div class="screen">
+        <div class="livehead">
+          <span class="sess">Upper Push</span>
+          <span class="elapsed num">elapsed 22:41</span>
+        </div>
+        <div class="exname">
+          <p class="pos num">Lift 1 of 5 · set 3 of 4</p>
+          <h2>Bench Press</h2>
+          <p class="lasttime num">Last time, Oct 27 — <b>185 × 8 · 8 · 6</b> · est 1RM 234</p>
+        </div>
+        <div class="ctrls num">
+          <div class="ctrl">
+            <div class="clbl">Weight</div>
+            <div class="crow">
+              <button class="step" type="button">−</button>
+              <span class="cval">185</span>
+              <button class="step" type="button">+</button>
+            </div>
+            <div class="cunit">lb · ±5</div>
+          </div>
+          <div class="ctrl">
+            <div class="clbl">Reps</div>
+            <div class="crow">
+              <button class="step" type="button">−</button>
+              <span class="cval">8</span>
+              <button class="step" type="button">+</button>
+            </div>
+            <div class="cunit">target 6–8</div>
+          </div>
+        </div>
+        <div class="plates">
+          <svg width="92" height="56" viewBox="0 0 92 56" role="img" aria-label="Plate diagram: one 45 and one 25 per side">
+            <rect x="2" y="26" width="88" height="4" fill="#55646C"/>
+            <rect x="20" y="25" width="4" height="6" fill="#131D24"/>
+            <rect x="26" y="4" width="11" height="48" rx="3" fill="#C9252D"/>
+            <rect x="40" y="13" width="9" height="30" rx="3" fill="#131D24"/>
+            <text x="31.5" y="31" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-size="8" font-weight="700" fill="#F7F8F6">45</text>
+            <text x="44.5" y="31" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-size="8" font-weight="700" fill="#F7F8F6">25</text>
+          </svg>
+          <div class="ptxt num">
+            <div><b>185 lb → 45 + 25 each side</b></div>
+            <div class="mut2">45-lb bar · next jump 190 adds 2½s</div>
+          </div>
+        </div>
+        <div class="setlist num">
+          <div class="set">
+            <span class="sn">SET 1</span><span class="sv">185 × 8</span><span class="st">done · 2:30 rest</span>
+          </div>
+          <div class="set">
+            <span class="sn">SET 2</span><span class="sv">185 × 8</span><span class="st">done · 2:30 rest</span>
+          </div>
+          <div class="set cur">
+            <span class="sn">SET 3</span><span class="sv">185 × —</span><span class="st">resting now</span>
+          </div>
+          <div class="set todo">
+            <span class="sn">SET 4</span><span class="sv">185 × 6+</span><span class="st">to come</span>
+          </div>
+        </div>
+        <div class="rest">
+          <div class="rrow">
+            <span class="rlbl">Rest</span>
+            <span class="rbtns">
+              <button class="rb" type="button">+30 s</button>
+              <button class="rb" type="button">Skip</button>
+            </span>
+          </div>
+          <div class="rtime num">1:32<span class="rof">of 2:30</span></div>
+          <div class="rtrack"><div class="rfill"></div></div>
+        </div>
+        <div class="live-cta"><button class="btn" type="button">Log set 3 — 185 × 8</button></div>
+        <p class="nextup num">Next: Overhead Press — last time 115 × 8 · 8 · 7</p>
+      </div>
+    </section>
+
+    <!-- ============ 4 · TRENDS ============ -->
+    <div class="cap"><span>Trends</span><em>print-style, drawn to scale</em></div>
+    <section class="phone">
+      <div class="screen">
+        <div class="status num"><span>5:41</span><span class="r">WED · NOV 4</span></div>
+        <div class="trhead">
+          <h2>Trends</h2>
+          <span class="range num">SEP 14 – NOV 4 · 8 WK</span>
+        </div>
+
+        <!-- Fig 1: weekly minutes, stacked -->
+        <div class="fig">
+          <div class="fighead"><h3>Training time by week</h3><span class="figkey num">peak 5 h 38 m</span></div>
+          <p class="figsub">Hours per week, stacked by activity. Current week through Tue.</p>
+          <svg viewBox="0 0 360 224" role="img" aria-label="Stacked bar chart of weekly training minutes by activity over eight weeks">
+            <line x1="36" y1="18" x2="352" y2="18" stroke="#D4DCD8" stroke-width="1"/>
+            <line x1="36" y1="78" x2="352" y2="78" stroke="#D4DCD8" stroke-width="1"/>
+            <line x1="36" y1="138" x2="352" y2="138" stroke="#D4DCD8" stroke-width="1"/>
+            <line x1="36" y1="198" x2="352" y2="198" stroke="#131D24" stroke-width="1.5"/>
+            <text x="30" y="21" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">6h</text>
+            <text x="30" y="81" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">4h</text>
+            <text x="30" y="141" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">2h</text>
+            <text x="30" y="201" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">0</text>
+            <!-- stack order bottom-up: lift, swim, skate, run, row, stretch -->
+            <!-- W 9/14 -->
+            <rect x="44" y="123" width="24" height="75" fill="#C9252D" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="44" y="78" width="24" height="45" fill="#E3A008" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="44" y="65.5" width="24" height="12.5" fill="#178A57" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="44" y="58" width="24" height="7.5" fill="#C9699C" stroke="#F7F8F6" stroke-width="1.5"/>
+            <!-- W 9/21 -->
+            <rect x="83" y="118" width="24" height="80" fill="#C9252D" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="83" y="102.5" width="24" height="15.5" fill="#0E7FA6" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="83" y="93.5" width="24" height="9" fill="#178A57" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="83" y="83.5" width="24" height="10" fill="#C9699C" stroke="#F7F8F6" stroke-width="1.5"/>
+            <!-- W 9/28 -->
+            <rect x="122" y="138" width="24" height="60" fill="#C9252D" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="122" y="83" width="24" height="55" fill="#E3A008" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="122" y="70" width="24" height="13" fill="#178A57" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="122" y="64" width="24" height="6" fill="#7A8BD6" stroke="#F7F8F6" stroke-width="1.5"/>
+            <!-- W 10/5 -->
+            <rect x="161" y="115.5" width="24" height="82.5" fill="#C9252D" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="161" y="99" width="24" height="16.5" fill="#0E7FA6" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="161" y="61.5" width="24" height="37.5" fill="#E3A008" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="161" y="49.5" width="24" height="12" fill="#178A57" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="161" y="42" width="24" height="7.5" fill="#C9699C" stroke="#F7F8F6" stroke-width="1.5"/>
+            <!-- W 10/12 -->
+            <rect x="200" y="150.5" width="24" height="47.5" fill="#C9252D" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="200" y="146" width="24" height="4.5" fill="#178A57" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="200" y="141" width="24" height="5" fill="#7A8BD6" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="200" y="126" width="24" height="15" fill="#C9699C" stroke="#F7F8F6" stroke-width="1.5"/>
+            <!-- W 10/19 -->
+            <rect x="239" y="113" width="24" height="85" fill="#C9252D" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="239" y="97" width="24" height="16" fill="#0E7FA6" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="239" y="49.5" width="24" height="47.5" fill="#E3A008" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="239" y="36.5" width="24" height="13" fill="#178A57" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="239" y="29" width="24" height="7.5" fill="#C9699C" stroke="#F7F8F6" stroke-width="1.5"/>
+            <!-- W 10/26 -->
+            <rect x="278" y="119" width="24" height="79" fill="#C9252D" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="278" y="102" width="24" height="17" fill="#0E7FA6" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="278" y="62" width="24" height="40" fill="#E3A008" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="278" y="53.5" width="24" height="8.5" fill="#178A57" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="278" y="48" width="24" height="5.5" fill="#7A8BD6" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="278" y="43" width="24" height="5" fill="#C9699C" stroke="#F7F8F6" stroke-width="1.5"/>
+            <!-- W 11/2 (partial) -->
+            <rect x="317" y="172" width="24" height="26" fill="#C9252D" stroke="#F7F8F6" stroke-width="1.5"/>
+            <rect x="317" y="156" width="24" height="16" fill="#0E7FA6" stroke="#F7F8F6" stroke-width="1.5"/>
+            <text x="251" y="23" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="9.5" font-weight="700" fill="#131D24">5:38</text>
+            <text x="329" y="150" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="9" fill="#55646C">to date</text>
+            <text x="56" y="213" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">9/14</text>
+            <text x="95" y="213" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">9/21</text>
+            <text x="134" y="213" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">9/28</text>
+            <text x="173" y="213" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">10/5</text>
+            <text x="212" y="213" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">10/12</text>
+            <text x="251" y="213" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">10/19</text>
+            <text x="290" y="213" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">10/26</text>
+            <text x="329" y="213" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">11/2</text>
+          </svg>
+          <div class="legend">
+            <span><i style="background:#C9252D"></i>Lift</span>
+            <span><i style="background:#0E7FA6"></i>Swim</span>
+            <span><i style="background:#E3A008"></i>Skate</span>
+            <span><i style="background:#178A57"></i>Run</span>
+            <span><i style="background:#7A8BD6"></i>Row</span>
+            <span><i style="background:#C9699C"></i>Stretch</span>
+          </div>
+        </div>
+
+        <!-- Fig 2: bodyweight -->
+        <div class="fig">
+          <div class="fighead"><h3>Bodyweight</h3><span class="figkey num">▾ 2.4 lb over 8 wk</span></div>
+          <p class="figsub">lb, Monday morning weigh-ins.</p>
+          <svg viewBox="0 0 360 140" role="img" aria-label="Line chart of bodyweight falling from 221.8 to 219.4 pounds over eight weeks">
+            <line x1="40" y1="40" x2="344" y2="40" stroke="#D4DCD8" stroke-width="1"/>
+            <line x1="40" y1="80" x2="344" y2="80" stroke="#D4DCD8" stroke-width="1"/>
+            <line x1="40" y1="120" x2="344" y2="120" stroke="#131D24" stroke-width="1.5"/>
+            <text x="34" y="43" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">222</text>
+            <text x="34" y="83" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">220</text>
+            <text x="34" y="123" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">218</text>
+            <polyline points="48,44 88,56 128,52 168,68 208,60 248,76 288,84 328,92" fill="none" stroke="#131D24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="48" cy="44" r="2.5" fill="#131D24"/>
+            <circle cx="88" cy="56" r="2.5" fill="#131D24"/>
+            <circle cx="128" cy="52" r="2.5" fill="#131D24"/>
+            <circle cx="168" cy="68" r="2.5" fill="#131D24"/>
+            <circle cx="208" cy="60" r="2.5" fill="#131D24"/>
+            <circle cx="248" cy="76" r="2.5" fill="#131D24"/>
+            <circle cx="288" cy="84" r="2.5" fill="#131D24"/>
+            <circle cx="328" cy="92" r="5" fill="#131D24" stroke="#F7F8F6" stroke-width="2"/>
+            <text x="48" y="32" text-anchor="start" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">221.8</text>
+            <text x="334" y="86" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="11" font-weight="700" fill="#131D24">219.4</text>
+            <text x="48" y="133" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">9/14</text>
+            <text x="328" y="133" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">11/2</text>
+          </svg>
+        </div>
+
+        <!-- Fig 3: est 1RM -->
+        <div class="fig">
+          <div class="fighead"><h3>Bench press — est. 1RM</h3><span class="figkey num">234 lb</span></div>
+          <p class="figsub">Epley estimate from the best set each week.</p>
+          <svg viewBox="0 0 360 140" role="img" aria-label="Line chart of estimated bench press one-rep max rising from 221 to 234 pounds over eight weeks">
+            <line x1="40" y1="20" x2="344" y2="20" stroke="#D4DCD8" stroke-width="1"/>
+            <line x1="40" y1="60" x2="344" y2="60" stroke="#D4DCD8" stroke-width="1"/>
+            <line x1="40" y1="100" x2="344" y2="100" stroke="#D4DCD8" stroke-width="1"/>
+            <line x1="40" y1="120" x2="344" y2="120" stroke="#131D24" stroke-width="1.5"/>
+            <text x="34" y="23" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">240</text>
+            <text x="34" y="63" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">230</text>
+            <text x="34" y="103" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">220</text>
+            <polyline points="48,96 88,84 128,84 168,72 208,92 248,64 288,56 328,44" fill="none" stroke="#C9252D" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="48" cy="96" r="2.5" fill="#C9252D"/>
+            <circle cx="88" cy="84" r="2.5" fill="#C9252D"/>
+            <circle cx="128" cy="84" r="2.5" fill="#C9252D"/>
+            <circle cx="168" cy="72" r="2.5" fill="#C9252D"/>
+            <circle cx="208" cy="92" r="2.5" fill="#C9252D"/>
+            <circle cx="248" cy="64" r="2.5" fill="#C9252D"/>
+            <circle cx="288" cy="56" r="2.5" fill="#C9252D"/>
+            <circle cx="328" cy="44" r="5" fill="#C9252D" stroke="#F7F8F6" stroke-width="2"/>
+            <text x="334" y="36" text-anchor="end" font-family="Familjen Grotesk,Arial,sans-serif" font-size="11" font-weight="700" fill="#A31B23">234 lb</text>
+            <text x="208" y="108" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="9" fill="#55646C">light week</text>
+            <text x="48" y="133" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">9/14</text>
+            <text x="328" y="133" text-anchor="middle" font-family="Familjen Grotesk,Arial,sans-serif" font-size="10" fill="#55646C">11/2</text>
+          </svg>
+        </div>
+
+        <div class="coach">
+          <div class="clbl2">Coach · weekly read</div>
+          <p>Bench is climbing on 185 — take 190 for the top set Monday. Swim pace is holding at 2:09 /100 yd on one swim a week; a second short swim would move it faster than longer Tuesdays.</p>
+          <p class="csig">From goals + last 8 weeks of sessions</p>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">Deck Log · Proposal R1 · screens at phone width, sample data throughout</p>
+  </div>
+</div>
+
+</body></html>

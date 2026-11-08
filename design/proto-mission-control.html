@@ -1,0 +1,749 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Deck Log — Mission Control</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Semi+Condensed:wght@500;600;700&family=Saira:wght@400;500;600&display=swap">
+<style>
+  :root{
+    color-scheme: dark;
+    --void:#04060B;        /* page behind the phones */
+    --panel:#0A101B;       /* phone surface */
+    --raise:#0F1726;       /* raised instrument surface */
+    --inset:#070C15;       /* recessed wells */
+    --line:#1B2638;        /* hairline */
+    --line-2:#263447;      /* brighter hairline */
+    --ink:#E8F1F8;
+    --ink-2:#8CA2B8;
+    --ink-3:#55697F;
+    --cyan:#3DE1F2;        /* the one electric accent */
+    --cyan-ink:#062228;    /* text on cyan */
+    --cyan-dim:#1A5A66;
+    /* chart series (validated against #0A101B, dark band) */
+    --c-lift:#3987E5; --c-run:#C98500; --c-swim:#0FA3B8;
+    --c-skate:#D55181; --c-row:#9085E9; --c-stretch:#199E70;
+    --sore-1:#C98500; --sore-2:#E66767;
+    --disp:'Saira Semi Condensed','Avenir Next Condensed','Arial Narrow',sans-serif;
+    --text:'Saira','Segoe UI',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  .stage{
+    background:var(--void);
+    color:var(--ink);
+    font-family:var(--text);
+    font-size:15px;
+    line-height:1.45;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));
+    padding-block:48px 72px;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .rail{max-width:430px;margin-inline:auto;display:flex;flex-direction:column;gap:14px;}
+
+  /* ---- presentation chrome ---- */
+  .brief{padding:2px 6px 26px;}
+  .brief h1{
+    font-family:var(--disp);font-weight:600;font-size:22px;letter-spacing:.04em;
+    color:var(--ink);
+  }
+  .brief h1 em{font-style:normal;color:var(--cyan);}
+  .brief p{color:var(--ink-3);font-size:12.5px;margin-top:4px;letter-spacing:.02em;}
+  .cap{
+    color:var(--ink-3);font-size:12px;letter-spacing:.14em;
+    padding:26px 6px 2px;font-family:var(--disp);font-weight:500;
+  }
+  .cap b{color:var(--ink-2);font-weight:600;}
+
+  /* ---- phone shell ---- */
+  .phone{
+    width:100%;max-width:410px;margin-inline:auto;
+    background:var(--panel);
+    border:1px solid var(--line-2);
+    border-radius:50px;
+    box-shadow:0 30px 70px rgba(0,0,0,.55), inset 0 1px 0 rgba(140,170,200,.08);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .statusbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px 30px 6px;color:var(--ink-2);
+  }
+  .statusbar .clock{font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.05em;color:var(--ink);}
+  .sig{display:flex;align-items:flex-end;gap:2.5px;height:11px;}
+  .sig i{width:3px;background:var(--ink-2);border-radius:1px;display:block;}
+  .sig i:nth-child(1){height:4px}.sig i:nth-child(2){height:6px}
+  .sig i:nth-child(3){height:8px}.sig i:nth-child(4){height:11px}
+  .batt{width:22px;height:11px;border:1px solid var(--ink-3);border-radius:3px;padding:1.5px;margin-left:9px;}
+  .batt i{display:block;height:100%;width:62%;background:var(--ink-2);border-radius:1px;}
+  .sbr{display:flex;align-items:center;}
+  /* chapter-ring tick rail — the cluster signature on every screen */
+  .ticks{
+    height:7px;margin:8px 26px 0;
+    background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 9px);
+    -webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+            mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  }
+  .screen{padding:12px 20px 26px;display:flex;flex-direction:column;flex:1;}
+  .homebar{width:128px;height:5px;border-radius:3px;background:var(--line-2);margin:16px auto 10px;}
+
+  .apphead{display:flex;justify-content:space-between;align-items:baseline;padding:4px 6px 2px;}
+  .apphead .logo{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.08em;}
+  .apphead .logo i{font-style:normal;color:var(--cyan);}
+  .apphead .date{color:var(--ink-3);font-size:12.5px;}
+
+  /* ---- HOME ---- */
+  .dial{position:relative;margin:6px auto 0;width:min(100%,318px);}
+  .dial svg{display:block;width:100%;height:auto;}
+  .dial-core{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+  }
+  .dial-core .big{
+    font-family:var(--disp);font-weight:600;font-size:64px;line-height:1;
+    letter-spacing:.01em;font-variant-numeric:tabular-nums;
+  }
+  .dial-core .big span{font-size:19px;font-weight:500;color:var(--ink-2);letter-spacing:.06em;margin-left:3px;}
+  .dial-core .under{color:var(--ink-2);font-size:13px;margin-top:5px;}
+  .dial-core .under b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+  .dial-core .pace{color:var(--ink-3);font-size:12px;margin-top:2px;}
+  .weekline{
+    text-align:center;color:var(--ink-3);font-size:12.5px;margin-top:10px;
+  }
+  .weekline b{color:var(--ink-2);font-weight:500;}
+
+  /* instrument strip: one banded gauge row, not three cards */
+  .strip{
+    display:grid;grid-template-columns:1.15fr 1fr 1fr;
+    background:var(--raise);
+    border:1px solid var(--line);border-radius:18px;
+    margin-top:16px;overflow:hidden;
+  }
+  .gauge{padding:12px 11px 10px;min-width:0;}
+  .gauge + .gauge{border-left:1px solid var(--line);}
+  .gauge .lbl{color:var(--ink-3);font-size:11.5px;letter-spacing:.04em;}
+  .gauge .val{
+    font-family:var(--disp);font-weight:600;font-size:23px;line-height:1.15;
+    margin-top:3px;font-variant-numeric:tabular-nums;
+  }
+  .gauge .val small{font-size:13px;font-weight:500;color:var(--ink-2);letter-spacing:.03em;}
+  .gauge .sub{color:var(--ink-3);font-size:11px;margin-top:2px;}
+  .gauge .sub b{color:var(--cyan);font-weight:500;}
+  .gauge svg{display:block;margin-top:6px;}
+  .sorerow{display:flex;align-items:center;gap:4px;margin-top:7px;}
+  .sorerow .who{font-size:10.5px;color:var(--ink-2);width:40px;flex:none;}
+  .pips{display:flex;gap:2.5px;}
+  .pips i{width:7px;height:4px;border-radius:2px;background:var(--line-2);display:block;}
+  .sorechip .pips i{width:10px;}
+  .pips.m1 i:nth-child(1){background:var(--sore-1);}
+  .pips.m2 i:nth-child(-n+2){background:var(--sore-1);}
+  .pips.m3 i{background:var(--sore-2);}
+
+  /* the one glow on the whole page */
+  .launch{
+    display:block;width:100%;border:0;cursor:pointer;margin-top:16px;
+    background:linear-gradient(180deg,#54E7F5,#22C9DC);
+    color:var(--cyan-ink);
+    border-radius:17px;padding:15px 20px 13px;text-align:left;
+    font-family:var(--text);
+    box-shadow:0 0 34px rgba(61,225,242,.28), 0 0 90px rgba(61,225,242,.12), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  .launch .go{display:flex;justify-content:space-between;align-items:center;}
+  .launch .go b{font-family:var(--disp);font-weight:700;font-size:21px;letter-spacing:.03em;}
+  .launch .go svg{flex:none;}
+  .launch small{display:block;font-size:12.5px;color:#0B3B45;margin-top:1px;font-weight:500;}
+  .quietrow{display:flex;gap:10px;margin-top:10px;}
+  .quiet{
+    flex:1;background:none;border:1px solid var(--line);border-radius:14px;
+    color:var(--ink-2);font-family:var(--text);font-size:13.5px;font-weight:500;
+    padding:11px 10px;cursor:pointer;text-align:center;
+  }
+  button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;}
+
+  /* ---- QUICK LOG ---- */
+  .sheet-title{display:flex;justify-content:space-between;align-items:baseline;padding:2px 6px;}
+  .sheet-title h2{font-family:var(--disp);font-weight:600;font-size:21px;letter-spacing:.03em;}
+  .sheet-title span{color:var(--ink-3);font-size:12.5px;}
+  .field-lbl{color:var(--ink-3);font-size:12px;letter-spacing:.05em;padding:0 6px;margin:16px 0 7px;}
+  .field-lbl:first-of-type{margin-top:12px;}
+  .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .act{
+    border:1px solid var(--line);border-radius:13px;background:var(--raise);
+    padding:10px 8px 9px;text-align:center;color:var(--ink-2);
+    font-family:var(--text);font-size:13.5px;font-weight:500;cursor:pointer;
+    position:relative;
+  }
+  .act i{display:block;width:16px;height:3px;border-radius:2px;margin:0 auto 6px;}
+  .act.on{
+    border-color:var(--cyan);color:var(--ink);
+    background:linear-gradient(180deg,rgba(61,225,242,.13),rgba(61,225,242,.04));
+  }
+  .numwell{
+    background:var(--inset);border:1px solid var(--line);border-radius:16px;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 12px;
+  }
+  .numwell + .numwell{margin-top:8px;}
+  .numwell .num{
+    font-family:var(--disp);font-weight:600;font-size:38px;line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .numwell .num small{font-size:16px;font-weight:500;color:var(--ink-2);margin-left:4px;letter-spacing:.04em;}
+  .numwell .what{color:var(--ink-3);font-size:11.5px;margin-top:3px;}
+  .step{display:flex;gap:8px;}
+  .step button{
+    width:44px;height:44px;border-radius:12px;border:1px solid var(--line-2);
+    background:var(--raise);color:var(--cyan);font-size:21px;font-weight:500;
+    font-family:var(--disp);cursor:pointer;line-height:1;
+  }
+  .derive{color:var(--ink-3);font-size:12px;padding:7px 8px 0;}
+  .derive b{color:var(--ink-2);font-weight:500;font-variant-numeric:tabular-nums;}
+  .feel{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;}
+  .feel button{
+    height:46px;border-radius:12px;border:1px solid var(--line);background:var(--raise);
+    color:var(--ink-3);font-family:var(--disp);font-weight:600;font-size:18px;cursor:pointer;
+  }
+  .feel button.on{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink);}
+  .feel-cap{display:flex;justify-content:space-between;color:var(--ink-3);font-size:11px;padding:5px 4px 0;}
+  .soregrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .sorechip{
+    border:1px solid var(--line);border-radius:12px;background:var(--raise);
+    padding:8px 9px 7px;cursor:pointer;font-family:var(--text);text-align:left;
+    color:var(--ink-2);font-size:12.5px;font-weight:500;
+  }
+  .sorechip .pips{margin-top:5px;}
+  .sorechip.lit{border-color:#5A4718;}
+  .sorechip.lit2{border-color:#6B3540;}
+  .save{
+    display:block;width:100%;border:0;margin-top:20px;cursor:pointer;
+    background:linear-gradient(180deg,#54E7F5,#22C9DC);color:var(--cyan-ink);
+    font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:.05em;
+    border-radius:16px;padding:15px;
+  }
+  .save small{display:block;font-family:var(--text);font-weight:500;font-size:11.5px;letter-spacing:.02em;color:#0B3B45;}
+
+  /* ---- LIVE WORKOUT ---- */
+  .sesshead{display:flex;justify-content:space-between;align-items:center;padding:2px 6px;}
+  .sesshead .sess{font-family:var(--disp);font-weight:600;font-size:16px;letter-spacing:.05em;color:var(--ink-2);}
+  .sesshead .sess i{font-style:normal;color:var(--cyan);}
+  .sesshead .elapsed{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--ink-2);font-variant-numeric:tabular-nums;}
+  .exprog{display:flex;gap:5px;padding:9px 6px 0;}
+  .exprog i{height:3px;flex:1;border-radius:2px;background:var(--line-2);}
+  .exprog i.done{background:var(--cyan-dim);}
+  .exprog i.now{background:var(--cyan);}
+  .exname{
+    font-family:var(--disp);font-weight:700;font-size:44px;line-height:1.02;
+    letter-spacing:.01em;padding:16px 6px 0;
+  }
+  .exlast{color:var(--ink-3);font-size:13px;padding:6px 6px 0;}
+  .exlast b{color:var(--ink-2);font-weight:500;font-variant-numeric:tabular-nums;}
+  .loadrow{display:grid;grid-template-columns:1.25fr 1fr;gap:8px;margin-top:14px;}
+  .loadcell{
+    background:var(--inset);border:1px solid var(--line);border-radius:16px;
+    padding:10px 12px 11px;
+  }
+  .loadcell .what{color:var(--ink-3);font-size:11.5px;}
+  .loadcell .num{
+    font-family:var(--disp);font-weight:600;font-size:44px;line-height:1.05;
+    font-variant-numeric:tabular-nums;
+  }
+  .loadcell .num small{font-size:15px;font-weight:500;color:var(--ink-2);}
+  .loadcell .step{margin-top:8px;}
+  .loadcell .step button{flex:1;height:40px;}
+  .plates{
+    display:flex;align-items:center;gap:10px;margin-top:10px;
+    background:var(--raise);border:1px solid var(--line);border-radius:14px;
+    padding:9px 14px;
+  }
+  .plates .what{color:var(--ink-3);font-size:11.5px;line-height:1.3;}
+  .plates .what b{display:block;color:var(--ink);font-weight:600;font-size:14px;font-family:var(--disp);letter-spacing:.03em;}
+  .bar-art{display:flex;align-items:center;margin-left:auto;height:46px;}
+  .bar-art .sleeve{width:34px;height:4px;background:var(--line-2);border-radius:2px;}
+  .bar-art .collar{width:5px;height:12px;background:var(--ink-3);border-radius:2px;margin-left:2px;}
+  .bar-art .plate{border-radius:3px;margin-left:3px;border:1px solid var(--line-2);}
+  .bar-art .p45{width:11px;height:46px;background:#17365C;}
+  .bar-art .p25{width:9px;height:32px;background:#1C4A42;}
+  .bar-art figcaption{display:none;}
+  .setlist{margin-top:14px;border-top:1px solid var(--line);}
+  .setrow{
+    display:flex;align-items:center;gap:12px;
+    padding:9px 6px;border-bottom:1px solid var(--line);
+    font-variant-numeric:tabular-nums;
+  }
+  .setrow .n{font-family:var(--disp);font-weight:600;color:var(--ink-3);width:14px;font-size:14px;}
+  .setrow .res{font-family:var(--disp);font-weight:600;font-size:17px;letter-spacing:.02em;}
+  .setrow .res small{color:var(--ink-2);font-weight:500;font-size:13px;}
+  .setrow .tag{margin-left:auto;color:var(--ink-3);font-size:11.5px;}
+  .setrow.now .res{color:var(--ink);}
+  .setrow.now .tag{color:var(--cyan);}
+  .restdock{
+    display:flex;align-items:center;gap:16px;margin-top:14px;
+    background:var(--raise);border:1px solid var(--line);border-radius:20px;
+    padding:13px 16px;
+  }
+  .restring{position:relative;width:104px;height:104px;flex:none;}
+  .restring svg{display:block;width:104px;height:104px;}
+  .restring .t{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:var(--disp);font-weight:600;font-size:29px;letter-spacing:.02em;
+    font-variant-numeric:tabular-nums;color:var(--cyan);
+  }
+  .restinfo .what{color:var(--ink-3);font-size:12px;}
+  .restinfo .nxt{font-family:var(--disp);font-weight:600;font-size:17px;margin-top:2px;}
+  .restinfo .nxt small{color:var(--ink-2);font-weight:500;font-size:13px;}
+  .restinfo button{
+    margin-top:9px;background:none;border:1px solid var(--line-2);border-radius:10px;
+    color:var(--ink-2);font-family:var(--text);font-size:12.5px;font-weight:500;
+    padding:6px 13px;cursor:pointer;
+  }
+
+  /* ---- TRENDS ---- */
+  .chartcard{
+    background:var(--raise);border:1px solid var(--line);border-radius:18px;
+    padding:14px 14px 10px;margin-top:10px;
+  }
+  .chartcard:first-of-type{margin-top:12px;}
+  .charthead{display:flex;justify-content:space-between;align-items:baseline;}
+  .charthead h3{font-family:var(--disp);font-weight:600;font-size:15.5px;letter-spacing:.04em;}
+  .charthead span{color:var(--ink-3);font-size:11.5px;font-variant-numeric:tabular-nums;}
+  .charthead span b{color:var(--cyan);font-weight:500;}
+  .legend{display:flex;flex-wrap:wrap;gap:4px 12px;padding:7px 2px 2px;}
+  .legend li{display:flex;align-items:center;gap:5px;list-style:none;color:var(--ink-2);font-size:11px;}
+  .legend i{width:8px;height:8px;border-radius:2.5px;display:block;}
+  .chartcard svg{display:block;width:100%;height:auto;margin-top:4px;}
+  .coach{
+    display:flex;gap:11px;margin-top:10px;
+    border:1px solid var(--line);border-radius:18px;padding:13px 14px;
+    background:linear-gradient(180deg,rgba(61,225,242,.05),rgba(61,225,242,0));
+  }
+  .coach svg{flex:none;margin-top:2px;}
+  .coach p{color:var(--ink-2);font-size:12.5px;line-height:1.5;}
+  .coach p b{color:var(--ink);font-weight:600;}
+  .coach p span{display:block;color:var(--ink-3);font-size:11.5px;margin-top:3px;}
+
+  .colophon{color:var(--ink-3);font-size:11.5px;text-align:center;padding-top:34px;letter-spacing:.04em;}
+
+  @media (prefers-reduced-motion: no-preference){
+    .launch{transition:box-shadow .3s ease;}
+  }
+</style>
+
+<div class="stage">
+  <div class="rail">
+
+    <header class="brief">
+      <h1>Deck Log <em>/</em> Mission Control</h1>
+      <p>Concept R1 — four screens, populated with sample data</p>
+    </header>
+
+    <!-- ================= 1 · HOME ================= -->
+    <p class="cap"><b>Home</b> — the week dial</p>
+    <section class="phone">
+      <div class="statusbar">
+        <span class="clock">5:47</span>
+        <span class="sbr">
+          <span class="sig"><i></i><i></i><i></i><i></i></span>
+          <span class="batt"><i></i></span>
+        </span>
+      </div>
+      <div class="ticks"></div>
+      <div class="screen">
+        <div class="apphead">
+          <span class="logo">DECK<i>LOG</i></span>
+          <span class="date">Friday, Nov 6</span>
+        </div>
+
+        <div class="dial">
+          <svg viewBox="-16 -14 252 252" role="img" aria-label="Week dial: Monday lift, Tuesday swim, Wednesday run and lift, Thursday rest, Friday up next, weekend open">
+            <!-- 7 day segments, Monday at top -->
+            <path d="M 115.62 18.17 A 92 92 0 0 1 178.29 48.35" fill="none" stroke="#3987E5" stroke-width="11" stroke-linecap="round"/>
+            <path d="M 185.3 57.14 A 92 92 0 0 1 200.78 124.96" fill="none" stroke="#0FA3B8" stroke-width="11" stroke-linecap="round"/>
+            <path d="M 198.28 135.91 A 92 92 0 0 1 154.9 190.3" fill="none" stroke="#3987E5" stroke-width="11" stroke-linecap="round"/>
+            <path d="M 144.78 195.17 A 92 92 0 0 1 75.22 195.17" fill="none" stroke="#223146" stroke-width="11" stroke-linecap="round"/>
+            <path d="M 65.1 190.3 A 92 92 0 0 1 21.72 135.91" fill="none" stroke="#3DE1F2" stroke-width="11" stroke-linecap="round" stroke-dasharray="0.5 7.5" opacity="0.95"/>
+            <path d="M 19.22 124.96 A 92 92 0 0 1 34.7 57.14" fill="none" stroke="#141D2C" stroke-width="11" stroke-linecap="round"/>
+            <path d="M 41.71 48.35 A 92 92 0 0 1 104.38 18.17" fill="none" stroke="#141D2C" stroke-width="11" stroke-linecap="round"/>
+            <!-- Wednesday carried a treadmill mile too -->
+            <circle cx="170.98" cy="158.63" r="3" fill="#C98500"/>
+            <!-- day letters -->
+            <g font-family="Saira Semi Condensed, Arial Narrow, sans-serif" font-size="11" font-weight="600" text-anchor="middle" dominant-baseline="central" fill="#55697F">
+              <text x="156.0" y="14.5">M</text>
+              <text x="213.3" y="86.4">T</text>
+              <text x="192.9" y="176.1">W</text>
+              <text x="110" y="216.0">T</text>
+              <text x="27.1" y="176.1" fill="#3DE1F2">F</text>
+              <text x="6.7" y="86.4">S</text>
+              <text x="64.0" y="14.5">S</text>
+            </g>
+          </svg>
+          <div class="dial-core">
+            <div class="big">152<span>min</span></div>
+            <div class="under"><b>24,310 lb</b> lifted</div>
+            <div class="under"><b>1,500 yd</b> swum</div>
+            <div class="pace">4 of 5 sessions — Thu was rest</div>
+          </div>
+        </div>
+        <p class="weekline">Week 45 load is <b>on pace</b> with your 8-week average</p>
+
+        <div class="strip">
+          <div class="gauge">
+            <div class="lbl">Bodyweight</div>
+            <div class="val">219.4<small> lb</small></div>
+            <svg viewBox="0 0 100 32" width="100%" height="26" aria-hidden="true">
+              <polyline points="2,6.36 9.38,8.73 16.77,4 24.15,11.09 31.54,9.91 38.92,13.45 46.31,18.18 53.69,15.82 61.08,19.36 68.46,22.91 75.85,20.55 83.23,24.09 90.62,25.27 98,27.64" fill="none" stroke="#3DE1F2" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+              <circle cx="98" cy="27.64" r="3" fill="#3DE1F2" stroke="#0F1726" stroke-width="2"/>
+            </svg>
+            <div class="sub">down <b>1.8</b> in 14 days</div>
+          </div>
+          <div class="gauge">
+            <div class="lbl">Last swim</div>
+            <div class="val">1,500<small> yd</small></div>
+            <div class="sub">32:04 — 2:08 / 100</div>
+            <div class="sub">Tuesday, 5:45 am</div>
+          </div>
+          <div class="gauge">
+            <div class="lbl">Soreness</div>
+            <div class="sorerow"><span class="who">Shldrs</span><span class="pips m1"><i></i><i></i><i></i></span></div>
+            <div class="sorerow"><span class="who">Hams</span><span class="pips m2"><i></i><i></i><i></i></span></div>
+            <div class="sorerow"><span class="who">Else</span><span class="pips"><i></i><i></i><i></i></span></div>
+            <div class="sub">hams from Wed pulls</div>
+          </div>
+        </div>
+
+        <button class="launch">
+          <span class="go">
+            <b>Start Upper Pull</b>
+            <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="none" stroke="#0B3B45" stroke-width="1.6"/><path d="M10.6 8.2 L17 13 L10.6 17.8 Z" fill="#062228"/></svg>
+          </span>
+          <small>Friday session — 5 exercises, about 55 min</small>
+        </button>
+        <div class="quietrow">
+          <button class="quiet">Quick log</button>
+          <button class="quiet">Ask the coach</button>
+        </div>
+
+        <div class="homebar"></div>
+      </div>
+    </section>
+
+    <!-- ================= 2 · QUICK LOG ================= -->
+    <p class="cap"><b>Quick log</b> — one thumb, forty seconds</p>
+    <section class="phone">
+      <div class="statusbar">
+        <span class="clock">6:24</span>
+        <span class="sbr">
+          <span class="sig"><i></i><i></i><i></i><i></i></span>
+          <span class="batt"><i></i></span>
+        </span>
+      </div>
+      <div class="ticks"></div>
+      <div class="screen">
+        <div class="sheet-title">
+          <h2>Quick log</h2>
+          <span>Tue, Nov 3 — 6:24 am</span>
+        </div>
+
+        <p class="field-lbl">Activity</p>
+        <div class="acts">
+          <button class="act on"><i style="background:#0FA3B8"></i>Swim</button>
+          <button class="act"><i style="background:#3987E5"></i>Lift</button>
+          <button class="act"><i style="background:#C98500"></i>Run</button>
+          <button class="act"><i style="background:#9085E9"></i>Row</button>
+          <button class="act"><i style="background:#D55181"></i>Skate</button>
+          <button class="act"><i style="background:#199E70"></i>Rest</button>
+        </div>
+
+        <p class="field-lbl">Distance &amp; time</p>
+        <div class="numwell">
+          <div>
+            <div class="num">1,500<small>yd</small></div>
+            <div class="what">yards for swim — miles run, meters rowed</div>
+          </div>
+          <div class="step"><button>−</button><button>+</button></div>
+        </div>
+        <div class="numwell">
+          <div>
+            <div class="num">32:04</div>
+            <div class="what">duration</div>
+          </div>
+          <div class="step"><button>−</button><button>+</button></div>
+        </div>
+        <p class="derive">That's <b>2:08 / 100 yd</b> — 4 seconds quicker than your 8-week pace</p>
+
+        <p class="field-lbl">How it felt</p>
+        <div class="feel">
+          <button>1</button><button>2</button><button>3</button><button class="on">4</button><button>5</button>
+        </div>
+        <div class="feel-cap"><span>drained</span><span>strong</span></div>
+
+        <p class="field-lbl">Soreness — tap an area to cycle</p>
+        <div class="soregrid">
+          <button class="sorechip lit">Shoulders<span class="pips m1"><i></i><i></i><i></i></span></button>
+          <button class="sorechip">Chest<span class="pips"><i></i><i></i><i></i></span></button>
+          <button class="sorechip">Back<span class="pips"><i></i><i></i><i></i></span></button>
+          <button class="sorechip">Arms<span class="pips"><i></i><i></i><i></i></span></button>
+          <button class="sorechip lit2">Hamstrings<span class="pips m2"><i></i><i></i><i></i></span></button>
+          <button class="sorechip">Calves<span class="pips"><i></i><i></i><i></i></span></button>
+        </div>
+
+        <button class="save">Save swim<small>1,500 yd — 32:04 — felt 4</small></button>
+        <div class="homebar"></div>
+      </div>
+    </section>
+
+    <!-- ================= 3 · LIVE WORKOUT ================= -->
+    <p class="cap"><b>Live workout</b> — mid-set, Upper Push</p>
+    <section class="phone">
+      <div class="statusbar">
+        <span class="clock">6:18</span>
+        <span class="sbr">
+          <span class="sig"><i></i><i></i><i></i><i></i></span>
+          <span class="batt"><i></i></span>
+        </span>
+      </div>
+      <div class="ticks"></div>
+      <div class="screen">
+        <div class="sesshead">
+          <span class="sess">UPPER <i>PUSH</i></span>
+          <span class="elapsed">32:14</span>
+        </div>
+        <div class="exprog">
+          <i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i>
+        </div>
+
+        <h2 class="exname">Bench Press</h2>
+        <p class="exlast">Last time <b>185 × 8 · 8 · 6</b> &nbsp;—&nbsp; est 1RM <b>231 lb</b></p>
+
+        <div class="loadrow">
+          <div class="loadcell">
+            <div class="what">Weight</div>
+            <div class="num">185<small> lb</small></div>
+            <div class="step"><button>−5</button><button>+5</button></div>
+          </div>
+          <div class="loadcell">
+            <div class="what">Reps</div>
+            <div class="num">8</div>
+            <div class="step"><button>−</button><button>+</button></div>
+          </div>
+        </div>
+
+        <figure class="plates">
+          <span class="what"><b>45 + 25 per side</b>on the 45 lb bar</span>
+          <span class="bar-art" aria-hidden="true">
+            <span class="sleeve"></span><span class="collar"></span>
+            <span class="plate p45"></span><span class="plate p25"></span>
+          </span>
+          <figcaption>Plate loading: one 45 and one 25 each side</figcaption>
+        </figure>
+
+        <div class="setlist">
+          <div class="setrow">
+            <span class="n">1</span>
+            <span class="res">185 <small>× 8</small></span>
+            <span class="tag">logged 6:04</span>
+          </div>
+          <div class="setrow">
+            <span class="n">2</span>
+            <span class="res">185 <small>× 8</small></span>
+            <span class="tag">logged 6:11</span>
+          </div>
+          <div class="setrow now">
+            <span class="n">3</span>
+            <span class="res">185 <small>× 8</small></span>
+            <span class="tag">up next — beat 6</span>
+          </div>
+        </div>
+
+        <div class="restdock">
+          <div class="restring">
+            <svg viewBox="0 0 128 128" aria-label="Rest timer, 1 minute 23 seconds remaining of 2 minutes 30">
+              <circle cx="64" cy="64" r="56" fill="none" stroke="#1B2638" stroke-width="8"/>
+              <circle cx="64" cy="64" r="56" fill="none" stroke="#3DE1F2" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="194.58 351.86"
+                transform="rotate(-90 64 64)"/>
+            </svg>
+            <span class="t">1:23</span>
+          </div>
+          <div class="restinfo">
+            <div class="what">Rest, then set 3 of 4</div>
+            <div class="nxt">Target 185 <small>× 8</small></div>
+            <button>Skip rest</button>
+          </div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </section>
+
+    <!-- ================= 4 · TRENDS ================= -->
+    <p class="cap"><b>Trends</b> — eight weeks on the gauges</p>
+    <section class="phone">
+      <div class="statusbar">
+        <span class="clock">21:12</span>
+        <span class="sbr">
+          <span class="sig"><i></i><i></i><i></i><i></i></span>
+          <span class="batt"><i></i></span>
+        </span>
+      </div>
+      <div class="ticks"></div>
+      <div class="screen">
+        <div class="sheet-title">
+          <h2>Trends</h2>
+          <span>weeks 38–45</span>
+        </div>
+
+        <div class="chartcard">
+          <div class="charthead">
+            <h3>Training minutes, weekly</h3>
+            <span>wk 45 so far: <b>152</b></span>
+          </div>
+          <ul class="legend">
+            <li><i style="background:#3987E5"></i>Lift</li>
+            <li><i style="background:#C98500"></i>Run</li>
+            <li><i style="background:#0FA3B8"></i>Swim</li>
+            <li><i style="background:#D55181"></i>Skate</li>
+            <li><i style="background:#9085E9"></i>Row</li>
+            <li><i style="background:#199E70"></i>Stretch</li>
+          </ul>
+          <svg viewBox="0 0 358 184" role="img" aria-label="Stacked bars of weekly training minutes by activity, weeks 38 to 45, ranging roughly 150 to 250 minutes">
+            <g stroke="#1B2638" stroke-width="1">
+              <line x1="34" y1="152" x2="354" y2="152"/>
+              <line x1="34" y1="124" x2="354" y2="124"/>
+              <line x1="34" y1="96"  x2="354" y2="96"/>
+              <line x1="34" y1="68"  x2="354" y2="68"/>
+              <line x1="34" y1="40"  x2="354" y2="40"/>
+              <line x1="34" y1="12"  x2="354" y2="12"/>
+            </g>
+            <g font-family="Saira, sans-serif" font-size="9.5" fill="#55697F" text-anchor="end">
+              <text x="28" y="155">0</text>
+              <text x="28" y="127">50</text>
+              <text x="28" y="99">100</text>
+              <text x="28" y="71">150</text>
+              <text x="28" y="43">200</text>
+              <text x="28" y="15">250</text>
+            </g>
+            <!-- W38 · 163 min -->
+            <rect x="42" y="102.72" width="24" height="47.28" rx="1.5" fill="#3987E5"/>
+            <rect x="42" y="97.12" width="24" height="3.6" rx="1.5" fill="#C98500"/>
+            <rect x="42" y="66.32" width="24" height="28.8" rx="1.5" fill="#D55181"/>
+            <rect x="42" y="60.72" width="24" height="3.6" rx="1.5" fill="#199E70"/>
+            <!-- W39 · 159 min -->
+            <rect x="82" y="93.2" width="24" height="56.8" rx="1.5" fill="#3987E5"/>
+            <rect x="82" y="88.16" width="24" height="3.04" rx="1.5" fill="#C98500"/>
+            <rect x="82" y="71.36" width="24" height="14.8" rx="1.5" fill="#0FA3B8"/>
+            <rect x="82" y="62.96" width="24" height="6.4" rx="1.5" fill="#199E70"/>
+            <!-- W40 · 247 min -->
+            <rect x="122" y="89.28" width="24" height="60.72" rx="1.5" fill="#3987E5"/>
+            <rect x="122" y="83.68" width="24" height="3.6" rx="1.5" fill="#C98500"/>
+            <rect x="122" y="65.2" width="24" height="16.48" rx="1.5" fill="#0FA3B8"/>
+            <rect x="122" y="26" width="24" height="37.2" rx="1.5" fill="#D55181"/>
+            <rect x="122" y="19.28" width="24" height="4.72" rx="1.5" fill="#9085E9"/>
+            <rect x="122" y="13.68" width="24" height="3.6" rx="1.5" fill="#199E70"/>
+            <!-- W41 · 183 min -->
+            <rect x="162" y="98.8" width="24" height="51.2" rx="1.5" fill="#3987E5"/>
+            <rect x="162" y="88.72" width="24" height="8.08" rx="1.5" fill="#C98500"/>
+            <rect x="162" y="63.52" width="24" height="23.2" rx="1.5" fill="#D55181"/>
+            <rect x="162" y="57.92" width="24" height="3.6" rx="1.5" fill="#9085E9"/>
+            <rect x="162" y="49.52" width="24" height="6.4" rx="1.5" fill="#199E70"/>
+            <!-- W42 · 228 min -->
+            <rect x="202" y="85.92" width="24" height="64.08" rx="1.5" fill="#3987E5"/>
+            <rect x="202" y="80.88" width="24" height="3.04" rx="1.5" fill="#C98500"/>
+            <rect x="202" y="63.52" width="24" height="15.36" rx="1.5" fill="#0FA3B8"/>
+            <rect x="202" y="29.92" width="24" height="31.6" rx="1.5" fill="#D55181"/>
+            <rect x="202" y="24.32" width="24" height="3.6" rx="1.5" fill="#199E70"/>
+            <!-- W43 · 178 min -->
+            <rect x="242" y="96" width="24" height="54" rx="1.5" fill="#3987E5"/>
+            <rect x="242" y="90.4" width="24" height="3.6" rx="1.5" fill="#C98500"/>
+            <rect x="242" y="71.36" width="24" height="17.04" rx="1.5" fill="#0FA3B8"/>
+            <rect x="242" y="63.52" width="24" height="5.84" rx="1.5" fill="#9085E9"/>
+            <rect x="242" y="52.32" width="24" height="9.2" rx="1.5" fill="#199E70"/>
+            <!-- W44 · 241 min -->
+            <rect x="282" y="83.68" width="24" height="66.32" rx="1.5" fill="#3987E5"/>
+            <rect x="282" y="78.64" width="24" height="3.04" rx="1.5" fill="#C98500"/>
+            <rect x="282" y="61.84" width="24" height="14.8" rx="1.5" fill="#0FA3B8"/>
+            <rect x="282" y="22.64" width="24" height="37.2" rx="1.5" fill="#D55181"/>
+            <rect x="282" y="17.04" width="24" height="3.6" rx="1.5" fill="#199E70"/>
+            <!-- W45 · 152 min, week in progress -->
+            <rect x="322" y="98.24" width="24" height="51.76" rx="1.5" fill="#3987E5"/>
+            <rect x="322" y="93.2" width="24" height="3.04" rx="1.5" fill="#C98500"/>
+            <rect x="322" y="75.28" width="24" height="15.92" rx="1.5" fill="#0FA3B8"/>
+            <rect x="322" y="66.88" width="24" height="6.4" rx="1.5" fill="#199E70"/>
+            <g font-family="Saira, sans-serif" font-size="9.5" fill="#55697F" text-anchor="middle">
+              <text x="54" y="168">W38</text><text x="94" y="168">W39</text>
+              <text x="134" y="168">W40</text><text x="174" y="168">W41</text>
+              <text x="214" y="168">W42</text><text x="254" y="168">W43</text>
+              <text x="294" y="168">W44</text><text x="334" y="168" fill="#8CA2B8">W45</text>
+            </g>
+            <text x="34" y="180" font-family="Saira, sans-serif" font-size="9" fill="#55697F">minutes per week — W45 still open</text>
+          </svg>
+        </div>
+
+        <div class="chartcard">
+          <div class="charthead">
+            <h3>Bodyweight</h3>
+            <span>now <b>219.4 lb</b></span>
+          </div>
+          <svg viewBox="0 0 358 116" role="img" aria-label="Bodyweight line falling from 223.8 to 219.4 pounds over eight weeks">
+            <g stroke="#1B2638" stroke-width="1">
+              <line x1="34" y1="14" x2="354" y2="14"/>
+              <line x1="34" y1="46.8" x2="354" y2="46.8"/>
+              <line x1="34" y1="79.6" x2="354" y2="79.6"/>
+            </g>
+            <g font-family="Saira, sans-serif" font-size="9.5" fill="#55697F" text-anchor="end">
+              <text x="28" y="17">224</text>
+              <text x="28" y="49.8">222</text>
+              <text x="28" y="82.6">220</text>
+            </g>
+            <polyline points="54,17.28 94,32.04 134,40.24 174,53.36 214,63.2 254,68.12 294,81.24 334,89.44"
+              fill="none" stroke="#3DE1F2" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="334" cy="89.44" r="4" fill="#3DE1F2" stroke="#0F1726" stroke-width="2"/>
+            <text x="334" y="104.5" font-family="Saira Semi Condensed, sans-serif" font-size="11" font-weight="600" fill="#E8F1F8" text-anchor="middle">219.4</text>
+            <text x="54" y="31" font-family="Saira, sans-serif" font-size="9.5" fill="#55697F" text-anchor="middle">223.8</text>
+            <g font-family="Saira, sans-serif" font-size="9.5" fill="#55697F" text-anchor="middle">
+              <text x="54" y="113">W38</text><text x="174" y="113">W41</text><text x="294" y="113">W44</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="chartcard">
+          <div class="charthead">
+            <h3>Bench press, est 1RM</h3>
+            <span>+13 lb in 8 wk</span>
+          </div>
+          <svg viewBox="0 0 358 116" role="img" aria-label="Estimated bench press one-rep max rising from 218 to 231 pounds over eight weeks">
+            <g stroke="#1B2638" stroke-width="1">
+              <line x1="34" y1="14" x2="354" y2="14"/>
+              <line x1="34" y1="55" x2="354" y2="55"/>
+              <line x1="34" y1="96" x2="354" y2="96"/>
+            </g>
+            <g font-family="Saira, sans-serif" font-size="9.5" fill="#55697F" text-anchor="end">
+              <text x="28" y="17">235</text>
+              <text x="28" y="58">225</text>
+              <text x="28" y="99">215</text>
+            </g>
+            <polyline points="54,83.7 94,71.4 134,71.4 174,59.1 214,50.9 254,50.9 294,38.6 334,30.4"
+              fill="none" stroke="#3987E5" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="334" cy="30.4" r="4" fill="#3987E5" stroke="#0F1726" stroke-width="2"/>
+            <text x="334" y="19" font-family="Saira Semi Condensed, sans-serif" font-size="11" font-weight="600" fill="#E8F1F8" text-anchor="middle">231</text>
+            <text x="54" y="98" font-family="Saira, sans-serif" font-size="9.5" fill="#55697F" text-anchor="middle">218</text>
+            <g font-family="Saira, sans-serif" font-size="9.5" fill="#55697F" text-anchor="middle">
+              <text x="54" y="113">W38</text><text x="174" y="113">W41</text><text x="294" y="113">W44</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="coach">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="9" cy="9" r="7.5" fill="none" stroke="#3DE1F2" stroke-width="1.4"/>
+            <circle cx="9" cy="9" r="2.4" fill="#3DE1F2"/>
+          </svg>
+          <p><b>Coach read, week 45.</b> Pressing strength is climbing steadily and weight is drifting down on plan. The one gap against your goals: swim frequency is stuck at once a week — a second short swim would move your pace faster than more yards on Tuesdays.
+          <span>Reviews your goals against the last 8 weeks every Sunday night</span></p>
+        </div>
+
+        <div class="homebar"></div>
+      </div>
+    </section>
+
+    <p class="colophon">Deck Log — Mission Control, concept R1 of 1 studio submission</p>
+  </div>
+</div>
+
+</body></html>
