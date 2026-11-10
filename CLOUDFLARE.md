@@ -45,8 +45,8 @@ Cloudflare with Steve's data, and the artifact is unchanged. Left: the rest of t
   no swims and no comeback start. The artifact is unchanged.
 - **The import page is taken out (2026-11-09),** on Steve's say-so, with its bundler and its 5
   checks (31 in all now, passing). Commit `42efb4e` has them if a second import is ever
-  needed. The copy of the data stays in Steve's git-ignored `export/` folder until he deletes
-  it.
+  needed. Published: `live` at `ec44df3`, built as version `eddd9984`. The copy of the data
+  stays in Steve's git-ignored `export/` folder until he deletes it.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.
