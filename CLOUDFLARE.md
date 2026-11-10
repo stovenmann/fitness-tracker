@@ -25,6 +25,10 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
     the team domain alone, so the Worker fetched its keys from a doubled path (a 404). Step 4
     below now says exactly what goes in it. Steve set it to the team domain alone and
     deployed, and the app then worked on his iPhone. Next: the rest of the iPhone checks.
+  - First fixes from the iPhone (2026-11-09): the time boxes now open the full keyboard (the
+    number pad has no ":"), and every box is at least 16px (iOS zoomed into the 15px ones).
+    On Steve's say-so `live` moved up to `f51eefc`, and Cloudflare built it as version
+    `7c3092ee`: the first publish through `live` that built and deployed.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.
