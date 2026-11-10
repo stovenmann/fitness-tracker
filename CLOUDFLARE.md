@@ -23,7 +23,8 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
   - First sign-in on the iPhone (2026-11-09): the page loaded, but every data call failed with
     "Something went wrong on the server". `ACCESS_TEAM_DOMAIN` held the whole certs link, not
     the team domain alone, so the Worker fetched its keys from a doubled path (a 404). Step 4
-    below now says exactly what goes in it.
+    below now says exactly what goes in it. Steve set it to the team domain alone and
+    deployed, and the app then worked on his iPhone. Next: the rest of the iPhone checks.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.
