@@ -35,6 +35,13 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
     logged by it on the phone are to be deleted by Steve. Published on Steve's say-so: `live` at `a6012c7`,
     built as version `c8e03b8a`. Steve confirmed on his iPhone: done keeps 9:52 and logs
     nothing.
+- **Step 6, the data (2026-11-09):** Claude copied the artifact's data read-only into
+  `export/` (git-ignored) and bundled it with `tools/build-backup.py`: 4 sessions, 2
+  weigh-ins, the lifting and swim documents, no goals. Steve imported it on his PC: 4 sessions,
+  2 weigh-ins and the lift templates were added and all 7 matched on the server. The swim
+  document was left alone, as a different one was already there (made by a swim the old done
+  key logged in the new app). Steve chose not to bring it: it held only one old swim template,
+  no swims and no comeback start. The artifact is unchanged.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.
