@@ -2,7 +2,17 @@
 
 **Status: approved by Steve on 2026-11-08. Steps 1 to 6 are done: Fitness Tracker runs on
 Cloudflare with Steve's data, and the artifact is unchanged. Steve finished the iPhone checks
-(setup step 5) on 2026-11-09 with no issues. Step 7, Coach, is under way.**
+(setup step 5) on 2026-11-09 with no issues. Step 7, Coach, is built and checked, and waits
+for Steve's go-ahead to publish.**
+- **Step 7, Coach (2026-11-09):** the Coach tab's "Coach with Claude" card. Share to Claude
+  (the iPhone share sheet, with a text file) or Copy makes the coaching export: goals, the last
+  8 weeks, the current lift and swim workouts with their ids, and the plan-changes format.
+  Claude's reply pasted back is checked change by change and previewed before → after with
+  Claude's reason; anything that isn't a workout, or doesn't fit, is listed in red and can't be
+  applied. Apply writes only the ticked changes; Undo puts the workouts back. 4 new checks;
+  two ways of breaking it on purpose (applying without the tap, taking a non-workout change)
+  each failed them. Looking at it at phone width found the reasons drawn red on red (a class
+  name the app already used for its PR badge); renamed, and a check now catches it.
 - **Step 5, Part 1 (2026-11-09):** Steve created the new D1 database `fitness-tracker`, and its
   id is in `wrangler.jsonc` (a different database from disc golf's).
 - **First publish (2026-11-09):** on Steve's say-so, the `live` branch was made at `801c444`,

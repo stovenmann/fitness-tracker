@@ -5,6 +5,18 @@
 "use strict";
 (function () {
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  // Wait until fn() is true, checking often, and fail after ms. Fixed waits break when the
+  // browser slows timers: with the Claude window hidden, a 10 ms timer takes a second.
+  async function until(fn, label, ms) {
+    const end = performance.now() + (ms || 20000);
+    for (;;) {
+      let v = false;
+      try { v = fn(); } catch (e) { v = false; }
+      if (v) return v;
+      if (performance.now() > end) throw new Error("waited too long for " + label);
+      await wait(50);
+    }
+  }
   const same = (label, got, want) => {
     if (JSON.stringify(got) !== JSON.stringify(want)) throw new Error(`${label}: got ${JSON.stringify(got)}, wanted ${JSON.stringify(want)}`);
   };
@@ -26,16 +38,15 @@
         if (++tries > 3) { clearInterval(retry); return; }
         f.src = "/?" + query + "&reload=" + tries;
       }, 8000);
-      const giveUp = setTimeout(() => { clearInterval(retry); reject(new Error("the app didn't open: " + query)); }, 34000);
+      const giveUp = setTimeout(() => { clearInterval(retry); reject(new Error("the app didn't open: " + query)); }, 60000);
       f.onload = async () => {
         clearInterval(retry);
         const win = f.contentWindow, doc = f.contentDocument;
         // ready once the sessions list has its first real answer (or the page has no server)
-        for (let i = 0; i < 80; i++) {
+        await until(() => {
           const st = win.__DL && win.__DL.state();
-          if (st && (st.S.sessReady || !doc.getElementById("signinNote").hidden)) break;
-          await wait(50);
-        }
+          return st && (st.S.sessReady || !doc.getElementById("signinNote").hidden);
+        }, "the app to load", 20000).catch(() => { /* the check itself says what's missing */ });
         await wait(200);
         clearTimeout(giveUp);
         resolve({
@@ -84,7 +95,7 @@
   check("a session logged with signal is sent at once", async () => {
     const a = await openApp("clear=1");
     a.logRun();
-    await wait(600);
+    await until(() => storedRuns(a).length && a.text("#saveMsg") === "Run logged.", "the run to be sent");
     same("stored runs", storedRuns(a).map((s) => s.minutes), [24]);
     same("message", a.text("#saveMsg"), "Run logged.");
     same("on screen", a.st().S.sessions.length, 1);
@@ -95,14 +106,14 @@
     const a = await openApp("clear=1");
     a.mock.setFail(true);
     a.logRun();
-    await wait(600);
+    await until(() => /Kept on this phone/.test(a.text("#saveMsg")) && a.sync(), "the save to fail");
     truly("the message says it's kept: " + a.text("#saveMsg"), /Kept on this phone/.test(a.text("#saveMsg")));
     same("on screen straight away", a.st().S.sessions.length, 1);
     same("stored while there's no signal", storedRuns(a).length, 0);
     same("top bar", a.sync(), "no connection — kept on this phone");
     a.mock.setFail(false);
     a.online();
-    await wait(800);
+    await until(() => storedRuns(a).length && a.sync() === "", "the run to be sent once back");
     same("stored once back", storedRuns(a).map((s) => s.minutes), [24]);
     same("top bar once sent", a.sync(), "");
     same("still one on screen (no copy)", a.st().S.sessions.length, 1);
@@ -112,10 +123,10 @@
     let a = await openApp("clear=1");
     a.mock.setFail(true);
     a.logWeight(190.2);
-    await wait(500);
+    await until(() => a.st().cloud.trouble && a.st().cloud.pending === 1, "the save to fail");
     same("stored while there's no signal", a.mock.count("weights"), 0);
     a = await openApp("");                       // closed and opened again, with signal
-    await wait(800);
+    await until(() => a.mock.count("weights") === 1 && a.st().cloud.pending === 0, "the weigh-in to be sent");
     same("stored after reopening", a.mock.ids("weights").map((id) => a.mock.peek("weights", id).lbs), [190.2]);
     same("on screen once", a.st().S.weights.length, 1);
   });
@@ -124,9 +135,9 @@
     const a = await openApp("clear=1");
     a.mock.setFail(true);
     a.logRun();
-    await wait(400);
+    await until(() => a.st().cloud.trouble, "the save to fail");
     a.mock.setFail(false);                       // the signal comes back, with no event to say so
-    await wait(3500);                            // the first retry comes about 2 s after the failure
+    await until(() => storedRuns(a).length === 1, "the retry, about 2 s after the failure");
     same("stored by the retry", storedRuns(a).length, 1);
   });
 
@@ -134,14 +145,14 @@
     const a = await openApp("clear=1");
     a.mock.setSignedOut("401");                  // Cloudflare's sign-in has run out
     a.logWeight(191.6);
-    await wait(600);
+    await until(() => a.sync() === "signed out — kept on this phone", "the signed-out note");
     same("top bar", a.sync(), "signed out — kept on this phone");
     truly("a Sign in button is offered", a.$("#cloudBanner:not([hidden]) #cloudSignin"));
     same("stored while signed out", a.mock.count("weights"), 0);
     same("on screen", a.st().S.weights.length, 1);
     a.mock.setSignedOut("");                     // signed in again
     a.online();
-    await wait(800);
+    await until(() => a.mock.count("weights") === 1 && a.sync() === "", "the weigh-in to be sent once signed in");
     same("stored once signed in", a.mock.count("weights"), 1);
     same("top bar once signed in", a.sync(), "");
     truly("the banner is gone", a.$("#cloudBanner").hidden);
@@ -151,7 +162,7 @@
     const a = await openApp("clear=1");
     a.mock.setSignedOut("redirect");
     a.logRun();
-    await wait(600);
+    await until(() => a.sync() === "signed out — kept on this phone", "the signed-out note");
     same("top bar", a.sync(), "signed out — kept on this phone");
     same("stored", storedRuns(a).length, 0);
   });
@@ -160,12 +171,12 @@
     const a = await openApp("clear=1");
     a.mock.setServer("503");
     a.logRun();
-    await wait(600);
+    await until(() => a.sync() === "server problem — kept on this phone", "the server-problem note");
     same("top bar", a.sync(), "server problem — kept on this phone");
     truly("the banner gives the server's words", /Sign-in isn't set up on the server yet/.test(a.text("#cloudBanner")));
     truly("the message doesn't blame the signal: " + a.text("#saveMsg"), !/no connection/i.test(a.text("#saveMsg")));
     a.mock.setServer("");                        // fixed in the dashboard
-    await wait(3500);
+    await until(() => storedRuns(a).length === 1 && a.sync() === "", "the retry once the server is fixed");
     same("stored once fixed", storedRuns(a).length, 1);
     same("top bar once fixed", a.sync(), "");
     truly("the banner is gone", a.$("#cloudBanner").hidden);
@@ -185,23 +196,23 @@
     let a = await openApp("clear=1&seed=1");     // this phone keeps a copy with four sessions
     same("sessions on the first database", a.st().S.sessions.length, 4);
     a = await openApp("newdb=1");                // the database recreated, empty
-    await wait(400);
+    await until(() => a.st().S.sessions.length === 0, "the new database's empty list");
     same("sessions from the new database", a.st().S.sessions.length, 0);
   });
 
   check("a session deleted with no signal stays deleted, and is deleted on the server later", async () => {
     let a = await openApp("clear=1");
     a.logRun();
-    await wait(600);
+    await until(() => storedRuns(a).length === 1 && a.$('#sessList li button[aria-label="Delete entry"]'), "the run to be sent and listed");
     same("stored", storedRuns(a).length, 1);
     a.mock.setFail(true);
     a.click('#sessList li button[aria-label="Delete entry"]');
     a.click('#sessList li button[aria-label="Delete entry"]');   // the second tap confirms
-    await wait(500);
+    await until(() => a.st().cloud.trouble && a.st().S.sessions.length === 0, "the delete to fail");
     same("gone from the screen", a.st().S.sessions.length, 0);
     same("still on the server for now", storedRuns(a).length, 1);
     a = await openApp("");                       // reopened, with signal
-    await wait(800);
+    await until(() => storedRuns(a).length === 0, "the delete to be sent");
     same("deleted on the server", storedRuns(a).length, 0);
     same("still gone from the screen", a.st().S.sessions.length, 0);
   });
@@ -209,19 +220,18 @@
   check("a swim in progress is saved after each tap, and kept when there's no signal", async () => {
     const a = await openApp("clear=1");
     a.click("#homeStart");                       // "Start Reacclimation"
-    await wait(400);
+    await until(() => !a.$("#swimRun").hidden && a.mock.peek("state", "live"), "the runner to open and save");
     truly("the runner is open", !a.$("#swimRun").hidden);
-    await wait(300);
     same("starting it saved it, ready to go", (a.mock.peek("state", "live") || {}).phase, "ready");
     a.mock.setFail(true);
     await wait(1300);                            // a tap right after the screen changes is ignored
     a.click("#rnGo");
-    await wait(500);
+    await until(() => /Saved on this phone/.test(a.text("#rnSaveNote")), "the tap's save to fail");
     truly("the note says it's kept: " + a.text("#rnSaveNote"), /Saved on this phone — it sends when there's signal/.test(a.text("#rnSaveNote")));
     same("the tap isn't on the server yet", a.mock.peek("state", "live").phase, "ready");
     a.mock.setFail(false);
     a.online();
-    await wait(800);
+    await until(() => (a.mock.peek("state", "live") || {}).phase === "swim" && /^Saved as you go/.test(a.text("#rnSaveNote")), "the tap to be sent");
     const live = a.mock.peek("state", "live");
     truly("on the server once back", live && live.phase === "swim");
     same("the note once sent", a.text("#rnSaveNote"), "Saved as you go — a reload picks up where you are.");
@@ -286,6 +296,122 @@
     const shrink = rules.filter((r) => /px$/.test(r.style.fontSize) && parseFloat(r.style.fontSize) < 16)
       .map((r) => r.selectorText + " → " + r.style.fontSize);
     same("styles that make a box smaller than 16px", shrink, []);
+  });
+
+  /* ---------- Coach: the export, and Claude's plan changes (step 7) ---------- */
+  // a reply as Claude might write it: advice, then the block
+  const reply = (changes, bare) => {
+    const body = JSON.stringify({ format: "fitness-plan-changes", version: 1, changes }, null, 1);
+    return "Good start. Shoulders look fine, so build slowly.\n\n" + (bare ? body : "```fitness-plan-changes\n" + body + "\n```") + "\n";
+  };
+  const upAfter = { id: "up", name: "Upper Push", ex: [
+    { name: "Bench Press", s: 5, r: 5 }, { name: "Overhead Press", s: 3, r: 8 }, { name: "Incline DB Press", s: 3, r: 10 },
+    { name: "Dips", s: 3, r: 10 }, { name: "Triceps Pushdown", s: 3, r: 12 }, { name: "Face Pull", s: 3, r: 15 }] };
+  async function paste(a, text) {
+    a.$("#planPaste").value = text;
+    a.click("#planCheck");
+    await wait(200);
+    return [...a.doc.querySelectorAll("#planPreview .pchg")].map((c) => ({
+      ok: !c.classList.contains("bad"),
+      title: c.querySelector(".pc-title").textContent,
+      lines: [...c.querySelectorAll("li")].map((l) => l.textContent),
+      reason: (c.querySelector(".pc-reason") || {}).textContent || "",
+    }));
+  }
+
+  check("the coaching export holds the log, every workout with its id, and the change format", async () => {
+    const a = await openApp("clear=1&seed=1#coach");
+    a.$("#goals").value = "Made-up goal: bench 200 for five.";
+    a.$("#coachPeek").open = true;
+    a.$("#coachPeek").dispatchEvent(new a.win.Event("toggle"));
+    const text = a.$("#coachExport").value;
+    for (const want of ["Sessions, last 8 weeks", "Lower Pull", "Made-up goal: bench 200 for five.",
+      '"id":"up"', '"name":"Upper Push"', '"id":"p1-reacclimation"', '"restSec":90', "```fitness-plan-changes",
+      '"kind":"lift"', '"kind":"swim"', "never sessions, weigh-ins, goals or a schedule"]) {
+      truly("the export has " + want, text.includes(want));
+    }
+    truly("Share and Copy are offered", a.$("#coachShare") && a.$("#coachCopy"));
+  });
+
+  check("Claude's changes are previewed, change nothing until Apply, and Undo puts them back", async () => {
+    const a = await openApp("clear=1&seed=1#coach");
+    const before = a.mock.peek("state", "lifting");
+    const rows = await paste(a, reply([
+      { kind: "lift", template: upAfter, why: "Top sets moved easily: go heavier." },
+      { kind: "lift-settings", restSec: 120, why: "Longer rest for the heavier sets." }]));
+    same("rows", rows.map((r) => [r.ok, r.title]), [[true, "Lift: Upper Push"], [true, "Lift settings"]]);
+    truly("the bench change is shown: " + rows[0].lines, rows[0].lines.includes("Bench Press 4×8 → 5×5"));
+    truly("the new exercise is shown", rows[0].lines.includes("+ Face Pull 3×15"));
+    same("the rest change is shown", rows[1].lines, ["Rest between sets: 90 s → 120 s"]);
+    truly("Claude's reason is shown", a.text("#planPreview").includes("Top sets moved easily: go heavier."));
+    same("the Apply button", a.text("#planApply"), "Apply 2 changes");
+    same("nothing saved by checking", a.mock.peek("state", "lifting"), before);
+    a.click("#planApply");
+    await until(() => /^Applied/.test(a.text("#planNote")), "the changes to be applied");
+    const saved = a.mock.peek("state", "lifting");
+    same("bench on the server", saved.templates.find((t) => t.id === "up").ex[0], { name: "Bench Press", s: 5, r: 5 });
+    same("rest on the server", saved.restSec, 120);
+    same("the other workouts untouched", saved.templates.map((t) => t.id), ["up", "upl", "lp", "lpl", "core"]);
+    truly("it says so: " + a.text("#planNote"), /^Applied 2 changes\./.test(a.text("#planNote")));
+    truly("Undo is offered", !a.$("#planUndoRow").hidden);
+    a.click("#planUndo");
+    await until(() => /^Undone/.test(a.text("#planNote")), "the undo");
+    const undone = a.mock.peek("state", "lifting");
+    same("bench back", undone.templates.find((t) => t.id === "up").ex[0], { name: "Bench Press", s: 4, r: 8 });
+    same("rest back", undone.restSec, 90);
+    truly("Undo is gone once used", a.$("#planUndoRow").hidden);
+  });
+
+  check("only workout changes can be applied; anything else, or anything wrong, is explained", async () => {
+    const a = await openApp("clear=1&seed=1#coach");
+    const rows = await paste(a, reply([
+      { kind: "session", date: "2026-11-09", type: "run" },
+      { kind: "goals", text: "new goals" },
+      { kind: "lift", template: { id: "up", name: "Upper Push", ex: [{ name: "Bench Press", s: 0, r: 8 }] } },
+      { kind: "lift-remove", id: "nope" },
+      { kind: "swim", template: { id: "p1-reacclimation", name: "Reacclimation", blocks: [{ name: "Main", main: true, items: [{ reps: 6, dist: 100, what: "sprint" }] }] } },
+      { kind: "lift", template: upAfter }, { kind: "lift", template: upAfter },
+    ]));
+    same("which can be used", rows.map((r) => r.ok), [false, false, false, false, false, true, false]);
+    truly("not a workout: " + rows[0].reason, /^Only workouts change here/.test(rows[0].reason));
+    truly("goals too: " + rows[1].reason, /^Only workouts change here/.test(rows[1].reason));
+    truly("bad sets: " + rows[2].reason, /sets must be a whole number from 1 to 10/.test(rows[2].reason));
+    truly("unknown workout: " + rows[3].reason, /no lift workout with the id "nope"/.test(rows[3].reason));
+    truly("unknown swim word: " + rows[4].reason, /"sprint" isn't swim, kick, pull or drill/.test(rows[4].reason));
+    truly("twice the same workout: " + rows[6].reason, /another change to the same thing/.test(rows[6].reason));
+    same("the Apply button counts only what can be used", a.text("#planApply"), "Apply 1 change");
+    // every line of the preview can be read: no text on a background of its own colour (a class
+    // named like one of the app's own styles once painted the reasons red on red)
+    for (const n of a.doc.querySelectorAll("#planPreview .pchg *")) {
+      const cs = a.win.getComputedStyle(n);
+      if (n.childNodes.length && [...n.childNodes].some((x) => x.nodeType === 3 && x.textContent.trim())) {
+        truly("readable: \"" + n.textContent.slice(0, 40) + "\"", cs.backgroundColor === "rgba(0, 0, 0, 0)" || cs.backgroundColor !== cs.color);
+      }
+    }
+    const none = await paste(a, "Looks good, keep going. No changes this time.");
+    same("no block, no rows", none.length, 0);
+    truly("it says there are none: " + a.text("#planNote"), /^There are no plan changes in what you pasted/.test(a.text("#planNote")));
+    truly("no Apply without changes", a.$("#planActs").hidden);
+    same("nothing saved", a.mock.peek("state", "lifting"), null);
+  });
+
+  check("a swim workout change applies, the block works pasted bare, and an unticked change is left out", async () => {
+    const a = await openApp("clear=1&seed=1#coach");
+    const p1 = JSON.parse(JSON.stringify(a.win.__DL.coachWorkouts().swim.templates.find((t) => t.id === "p1-reacclimation")));
+    const main = p1.blocks.find((b) => b.main);
+    main.items[0].reps = 5;                      // a made-up change: one fewer rep in the main set
+    const rows = await paste(a, reply([
+      { kind: "swim", template: p1, why: "Ease in." },
+      { kind: "lift-settings", barLbs: 35 }], true));
+    same("both can be used", rows.map((r) => r.ok), [true, true]);
+    truly("the swim change is shown: " + rows[0].lines, rows[0].lines.some((l) => /^\+ Main set \(main\): 5×100/.test(l)));
+    a.$('#planPreview input[aria-label="Apply: Lift settings"]').click();   // untick the bar change
+    same("the Apply button follows the ticks", a.text("#planApply"), "Apply 1 change");
+    a.click("#planApply");
+    await until(() => /^Applied/.test(a.text("#planNote")), "the change to be applied");
+    const swim = a.mock.peek("state", "swim");
+    same("the main set on the server", swim.templates.find((t) => t.id === "p1-reacclimation").blocks.find((b) => b.main).items[0].reps, 5);
+    same("the unticked bar change wasn't applied", a.mock.peek("state", "lifting"), null);
   });
 
   /* ---------- the Home Screen and full screen (step 3) ---------- */

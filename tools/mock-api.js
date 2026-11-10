@@ -8,7 +8,8 @@
    needs that). All data is made up.
    URL flags:
      clear=1             empty database, and the app's own copies on this phone dropped too
-                         (its kept copy, outbox and swim in progress; theme and beep stay)
+                         (its kept copy, outbox, swim in progress and Coach undo; theme and
+                         beep stay)
      seed=1              made-up sample data, when the database is empty
      newdb=1             a new, empty database, as if it had been recreated, but the app's copies
                          on this phone are left as they are
@@ -26,7 +27,7 @@
 (function () {
   "use strict";
   const KEY = "fitness-tracker-mock-api";
-  const APP_KEYS = ["ft-cache-v1", "ft-outbox-v1", "dl-live"];
+  const APP_KEYS = ["ft-cache-v1", "ft-outbox-v1", "dl-live", "ft-coach-undo"];
   const q = new URLSearchParams(location.search);
   const LAT = Number(q.get("lat") || 60);
   const READ = Number(q.get("read") || 20);

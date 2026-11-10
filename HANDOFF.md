@@ -82,8 +82,17 @@ Theme and beep preferences are in `localStorage` per device (`dl-theme`, `dl-bee
   comeback start, sound).
 - **Trends** (:1788): tiles, minutes per week stacked by activity (8 weeks), bodyweight,
   swim pace per 100 and run pace per mile (6 months). Hand-built SVG.
-- **Coach** (:1922): goals text, then sends the last 8 weeks to Claude with a fixed trainer
-  prompt (:1956). The owner's profile is written into that prompt.
+- **Coach**: goals text, then "Coach with Claude" (built 2026-11-09, CLOUDFLARE.md step 7; the
+  page can't call Claude itself on Cloudflare). **Share to Claude** / **Copy** make the coaching
+  export (`buildCoachExport()`): the trainer prompt (`buildCoachPrompt()`, with the owner's
+  profile, goals and the last 8 weeks), the current workouts as JSON with their ids
+  (`coachWorkouts()`), and `PLAN_HELP`, which asks Claude to end with one fenced
+  ```fitness-plan-changes block. Pasted back, `parsePlanChanges()` finds the block (fenced or
+  bare), `checkPlanChanges()` checks every change against the real workouts and builds the
+  before → after preview, and Apply writes only the ticked ones (`applyPlanChanges()`). Undo
+  restores the workouts from before the last Apply (`ft-coach-undo` on the phone). Changes are
+  workouts only: `lift` / `lift-remove` / `lift-settings` (rest, bar) and `swim` /
+  `swim-remove`, whole templates by id; anything else is listed in red and left out.
 
 ## How it got here
 
@@ -239,13 +248,16 @@ What's built, beyond the findings above:
   and the runner step by step.
 - The stand-in's database lives in the test browser's localStorage (`fitness-tracker-mock-api`);
   `window.__mock` peeks at it and switches failures on and off.
-- `/tools/tests.html` runs every check, with the pane in front (background tabs slow timers):
-  the Worker's 12 (`tools/worker-tests.js` against `worker/index.js`, with an in-memory
-  database and made-up sign-in tokens), then the app's 19 (`tools/app-tests.js`: no signal,
-  signed out, server problem, a kept copy, a copy from another database, deletes, the swim in
-  progress, the 135 swim checks, the time boxes' keyboard and its done key, the 16px floor for
-  every box, and the Home Screen icon, manifest and status bar). Add `?only=<words>` to run
-  some. All 31 pass. A check that sets a box's value doesn't press the keyboard's keys: after
+- `/tools/tests.html` runs every check: the Worker's 12 (`tools/worker-tests.js` against
+  `worker/index.js`, with an in-memory database and made-up sign-in tokens), then the app's 23
+  (`tools/app-tests.js`: no signal, signed out, server problem, a kept copy, a copy from another
+  database, deletes, the swim in progress, the 135 swim checks, the time boxes' keyboard and its
+  done key, the 16px floor for every box, Coach's export, preview, apply, undo and refusals, and
+  the Home Screen icon, manifest and status bar). Add `?only=<words>` to run some. All 35 pass.
+- When the Claude window is hidden (the owner working from his phone), the browser slows every
+  timer: a 10 ms timer takes a second, later a minute. The checks wait for what they expect
+  (`until()`), not a fixed time, so they still pass, only slowly (a full run took about 7
+  minutes). `document.visibilityState` says which it is. Don't add fixed waits. A check that sets a box's value doesn't press the keyboard's keys: after
   changing a box's keyboard, also press its keys for real in the preview (`computer` type and
   key).
 - The one-time import page, its bundler (`tools/build-backup.py`) and their 5 checks were

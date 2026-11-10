@@ -337,10 +337,26 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
 
 /* ---------- COACH ---------- */
 #goals{min-height:88px}
-#coachOut{white-space:pre-wrap; font-size:14.5px; margin-top:14px; border-top:2px solid var(--ink); padding-top:12px}
-#coachOut:empty{display:none}
 .coachrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px}
-#coachNote{font-size:13px; color:var(--muted)}
+.coachpeek{margin-top:12px}
+.coachpeek summary{font-size:13px; color:var(--ink2); cursor:pointer}
+#coachExport{margin-top:8px; min-height:180px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:16px}
+#planPaste{margin-top:10px; min-height:120px}
+#planPreview:empty{display:none}
+#planPreview{display:flex; flex-direction:column; gap:10px; margin-top:12px}
+.pchg{border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; background:var(--paper2)}
+.pchg.bad{border-color:var(--red)}
+.pchg label{display:flex; gap:10px; align-items:flex-start; cursor:pointer}
+.pchg input[type=checkbox]{width:20px; height:20px; margin-top:1px; flex:0 0 auto; accent-color:var(--blue-deep)}
+.pchg .pc-title{font-weight:700}
+.pchg .pc-why{font-size:13px; color:var(--ink2); font-style:italic; margin-top:2px}
+.pchg .pc-reason{font-size:13px; color:var(--bad); margin-top:2px}
+.pchg ul{list-style:none; margin:6px 0 0; padding:0; font-size:13.5px; display:flex; flex-direction:column; gap:2px; min-width:0}
+.pchg li{overflow-wrap:anywhere}
+.pchg li.add{color:var(--good)}
+.pchg li.del{color:var(--bad); text-decoration:line-through}
+.pchg li.chg{color:var(--ink); font-weight:600}
+.pchg li.same{color:var(--muted)}
 .formrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px}
 
 /* ---------- SWIM: plan cards and editor ---------- */
@@ -970,15 +986,36 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
       </div>
     </div>
 
-    <h2 class="sec">AI feedback</h2>
+    <h2 class="sec">Coach with Claude</h2>
+    <!-- CLOUDFLARE.md step 7, as Steve decided on 2026-11-07: no API key. The export goes into a
+         Claude chat; Claude's plan changes come back here, are checked and previewed, and change
+         workouts only, on a tap, with undo. -->
     <div class="card" id="coachCard">
-      <p class="hint" style="margin:0">Sends your goals plus the last 8 weeks of sessions — top sets, paces, soreness, weigh-ins — to Claude for a coach's read. Uses your own Claude usage; you'll be asked to allow it the first time.</p>
+      <div class="flabel">1 · Send your log to Claude</div>
+      <p class="hint" style="margin:0">Your goals, the last 8 weeks and your current lift and swim workouts, as a file for a Claude chat. It asks Claude to end with any workout changes in a form this app reads back.</p>
       <div class="coachrow">
-        <button class="btn sm" id="coachGo" type="button">Get feedback</button>
-        <button class="btn ghost" id="coachStop" type="button" hidden>Stop</button>
-        <span id="coachNote" role="status"></span>
+        <button class="btn sm" id="coachShare" type="button">Share to Claude</button>
+        <button class="btn ghost" id="coachCopy" type="button">Copy</button>
+        <span id="coachNote" class="statusmsg" role="status"></span>
       </div>
-      <div id="coachOut"></div>
+      <details class="coachpeek" id="coachPeek"><summary>See what's in it</summary>
+        <textarea id="coachExport" readonly aria-label="The coaching export"></textarea></details>
+
+      <div class="flabel" style="margin-top:20px">2 · Bring Claude's changes back</div>
+      <p class="hint" style="margin:0">Paste Claude's whole reply. You see every change first; nothing changes until you tap Apply, and Undo puts it back.</p>
+      <textarea id="planPaste" placeholder="Paste Claude's reply here" aria-label="Claude's reply" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+      <div class="coachrow">
+        <button class="btn sm" id="planCheck" type="button">Check changes</button>
+        <span id="planNote" class="statusmsg" role="status"></span>
+      </div>
+      <div id="planPreview"></div>
+      <div class="coachrow" id="planActs" hidden>
+        <button class="btn sm" id="planApply" type="button">Apply</button>
+      </div>
+      <div class="coachrow" id="planUndoRow" hidden>
+        <button class="btn ghost" id="planUndo" type="button">Undo the last changes</button>
+        <span id="planUndoNote" class="hint"></span>
+      </div>
     </div>
   </section>
 </div>
@@ -3142,42 +3179,335 @@ $("#goalsSave").addEventListener("click", async ()=>{
   catch(e){ flash(msg,saveErr(e),true); }
   finally { btn.disabled=false; }
 });
-let coachCtl=null;
-$("#coachStop").addEventListener("click",()=>coachCtl && coachCtl.abort());
-$("#coachGo").addEventListener("click", async ()=>{
-  const out=$("#coachOut"), note=$("#coachNote"), go=$("#coachGo"), stop=$("#coachStop");
-  if (!S.sample){ note.textContent="Claude isn't available in this view."; return; }
-  coachCtl=new AbortController();
-  go.disabled=true; stop.hidden=false; note.textContent="Thinking…"; out.textContent="";
-  try {
-    const { text, truncated } = await S.sample(buildCoachPrompt(), {
-      modelTier:"default", cache:false, signal:coachCtl.signal,
-      onText:({text})=>{ note.textContent=""; out.textContent=text; }
-    });
-    out.textContent=text;
-    note.textContent=truncated?"Cut short — ask again for the rest.":"";
-  } catch(e){
-    out.textContent=(e && e.text)||"";
-    note.textContent=coachErr(e && e.code);
-    if (e && (e.code==="not_granted"||e.code==="sampling_disabled"||e.code==="not_declared"||e.code==="capability_disabled")){
-      go.hidden=true; stop.hidden=true;
-    }
-  } finally {
-    go.disabled=false; stop.hidden=true; coachCtl=null;
-    if (note.textContent==="Thinking…") note.textContent="";
+// ---------- coach: the export for a Claude chat, and the plan changes that come back ----------
+/* CLOUDFLARE.md step 7. The export is the coach prompt plus the current workouts (with their
+   ids) and the format below. Claude's reply ends with one ```fitness-plan-changes block. Pasted
+   back, every change is checked against the real workouts and previewed; nothing changes until
+   Apply, and Undo puts the workouts back. Workouts only: lift and swim templates, rest and bar. */
+const PLAN_FORMAT="fitness-plan-changes";
+const PLAN_ID=/^[A-Za-z0-9_-]{1,40}$/;
+const UNDO_KEY="ft-coach-undo";
+const PLAN_HELP=[
+"How to send workout changes back: only if your advice changes these workouts, end your reply with ONE fenced code block whose first line is ```fitness-plan-changes and whose body is JSON like this:",
+'{"format":"fitness-plan-changes","version":1,"changes":[ ... ]}',
+"Each change is one of:",
+'- {"kind":"lift","template":{"id":"up","name":"Upper Push","ex":[{"name":"Bench Press","s":4,"r":6}]},"why":"..."}: the whole lift workout as it should be (s = sets 1-10, r = reps 1-50, exercises in order). Keep its id to change a workout; a new id adds one.',
+'- {"kind":"lift-remove","id":"lpl","why":"..."}',
+'- {"kind":"lift-settings","restSec":120,"barLbs":45,"why":"..."}: rest between sets in seconds (15-600) and/or the bar\'s weight in lb.',
+'- {"kind":"swim","template":{"id":"p1-reacclimation","name":"...","stage":1,"blocks":[...]},"why":"..."}: the whole swim workout as it should be, in the same shape as above. Blocks have name, rounds, items, and main:true on the one main set. Items have reps (a number, or [low, high]) and dist (in the pool\'s own unit), and may have what (swim|kick|pull|drill), stroke (free|back|breast|fly|IM|choice), gear (board|buoy|fins|paddles|snorkel), effort (easy|moderate|steady|strong|threshold|fast|sprint|build), interval ({"rest":seconds or [low, high]} or {"sendoff":seconds}), ramp ({"swims":4,"reps":6}: fewer reps for the first swims of the comeback), pattern and note. Keep its id to change a workout; a new id adds one.',
+'- {"kind":"swim-remove","id":"...","why":"..."}',
+"Only workouts change this way: never sessions, weigh-ins, goals or a schedule. Leave out every workout you wouldn't change. \"why\" is one short sentence; the owner sees it beside each change, previews it, and applies it with a tap.",
+].join("\n");
+
+function coachWorkouts(){
+  const L=liftData(), W=swimData();
+  return {
+    lift:{ barLbs:L.barLbs, restSec:L.restSec, templates:L.templates.map(t=>({ id:t.id, name:t.name, ex:t.ex.map(e=>({ name:e.name, s:e.s, r:e.r })) })) },
+    swim:{ pool:W.pool, unit:POOLS[W.pool].unit, templates:W.templates.map(t=>{ const o={ id:t.id, name:t.name }; if (t.stage) o.stage=t.stage; o.blocks=t.blocks; return o; }) },
+  };
+}
+function buildCoachExport(){
+  return [
+    buildCoachPrompt(),
+    "",
+    "This came from the owner's Fitness Tracker app as a coaching export on "+todayStr()+". Answer here as their trainer. Keep the advice itself under 300 words; the plan-changes block, if any, comes after it.",
+    "",
+    "Their current workouts, as the app stores them (JSON):",
+    JSON.stringify(coachWorkouts()),
+    "",
+    PLAN_HELP,
+  ].join("\n");
+}
+
+/* ---- reading Claude's reply ---- */
+// the balanced {...} starting at s[i], strings respected
+function jsonObjectAt(s, i){
+  let depth=0, str=false, esc=false;
+  for (let j=i;j<s.length;j++){
+    const c=s[j];
+    if (str){ if (esc) esc=false; else if (c==="\\") esc=true; else if (c==='"') str=false; continue; }
+    if (c==='"') str=true;
+    else if (c==="{") depth++;
+    else if (c==="}"){ depth--; if (!depth) return s.slice(i,j+1); }
   }
-});
-function coachErr(code){
-  switch(code){
-    case "cancelled": return "Stopped.";
-    case "rate_limited": return "Hit a usage limit — try again in a bit.";
-    case "not_granted": case "sampling_disabled": case "not_declared": case "capability_disabled":
-      return "Claude access isn't allowed for this page.";
-    case "refused": return "Claude declined that one — tweak the goals text and retry.";
-    case undefined: case null: return "";
-    default: return "Something went wrong — try again.";
+  return null;
+}
+function parsePlanChanges(text){
+  text=String(text||"").replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/ /g," ");
+  const fence=new RegExp("```[ \\t]*"+PLAN_FORMAT+"[^\\n]*\\n([\\s\\S]*?)```","i").exec(text);
+  let bad="";
+  if (fence){
+    const body=fence[1].trim();
+    try { const p=JSON.parse(body); if (p && p.format===PLAN_FORMAT) return check(p); bad="it doesn't say it's plan changes"; }
+    catch(e){ bad="it isn't valid JSON"; }
+  }
+  // a block pasted without its fence, or fenced as json
+  for (let i=text.indexOf("{"); i>=0; i=text.indexOf("{", i+1)){
+    const s=jsonObjectAt(text, i); if (!s || s.indexOf(PLAN_FORMAT)<0) continue;
+    try { const p=JSON.parse(s); if (p && p.format===PLAN_FORMAT) return check(p); } catch(e){ /* not this one */ }
+  }
+  if (bad) return { error:"The plan-changes block in what you pasted can't be read: "+bad+". Ask Claude to send it again." };
+  return { error:"There are no plan changes in what you pasted. Paste Claude's whole reply, or the block that starts with ```"+PLAN_FORMAT+". If Claude didn't suggest any changes, there's nothing to do." };
+  function check(p){
+    if (p.version!==1) return { error:"Those plan changes are in a version this app doesn't read ("+p.version+"). Ask Claude to use version 1." };
+    if (!Array.isArray(p.changes)) return { error:"The plan-changes block has no list of changes. Ask Claude to send it again." };
+    if (!p.changes.length) return { error:"Claude's plan-changes block is empty: no workout changes." };
+    return { plan:p };
   }
 }
+
+/* ---- checking each change against the real workouts ---- */
+const isInt=(v,a,b)=>Number.isInteger(v) && v>=a && v<=b;
+const isRange=(v,a,b)=>isInt(v,a,b) || (Array.isArray(v) && v.length===2 && isInt(v[0],a,b) && isInt(v[1],a,b) && v[0]<=v[1]);
+const nameOk=(s)=>typeof s==="string" && s.trim().length>0 && s.trim().length<=60;
+function cleanLiftTpl(t){
+  if (!t || typeof t!=="object") return { err:"it has no workout in it" };
+  if (typeof t.id!=="string" || !PLAN_ID.test(t.id)) return { err:"its id isn't one the app can use" };
+  if (!nameOk(t.name)) return { err:"its name is missing or too long" };
+  if (!Array.isArray(t.ex) || !t.ex.length || t.ex.length>20) return { err:"it needs 1 to 20 exercises" };
+  const ex=[];
+  for (const e of t.ex){
+    if (!e || !nameOk(e.name)) return { err:"an exercise has no name" };
+    if (!isInt(e.s,1,10)) return { err:e.name+": sets must be a whole number from 1 to 10" };
+    if (!isInt(e.r,1,50)) return { err:e.name+": reps must be a whole number from 1 to 50" };
+    ex.push({ name:e.name.trim(), s:e.s, r:e.r });
+  }
+  return { tpl:{ id:t.id, name:t.name.trim(), ex } };
+}
+function checkSwimItem(it, where){
+  if (!it || typeof it!=="object") return where+" isn't an item";
+  if (!isRange(it.reps,1,30)) return where+": reps must be 1 to 30, or [low, high]";
+  if (!isRange(it.dist,1,10000)) return where+": the distance must be a whole number, or [low, high]";
+  if (it.what!=null && !WHATS.includes(it.what)) return where+": \""+it.what+"\" isn't swim, kick, pull or drill";
+  if (it.stroke!=null && !STROKES.includes(it.stroke)) return where+": \""+it.stroke+"\" isn't a stroke the app knows";
+  if (it.effort!=null && !EFFORTS.includes(it.effort)) return where+": \""+it.effort+"\" isn't an effort the app knows";
+  if (it.gear!=null && !(Array.isArray(it.gear) && it.gear.every(g=>GEARS.includes(g)))) return where+": gear can only be board, buoy, fins, paddles or snorkel";
+  const iv=it.interval;
+  if (iv!=null){
+    if (typeof iv!=="object") return where+": the interval isn't readable";
+    if (iv.sendoff!=null ? !isInt(iv.sendoff,10,600) : !isRange(iv.rest,0,600)) return where+": the interval must be {\"rest\": seconds} or {\"sendoff\": seconds}";
+  }
+  if (it.ramp!=null && !(it.ramp && isInt(it.ramp.swims,1,20) && isRange(it.ramp.reps,1,30))) return where+": the ramp must be {\"swims\": n, \"reps\": n}";
+  return "";
+}
+function cleanSwimTpl(t){
+  if (!t || typeof t!=="object") return { err:"it has no workout in it" };
+  if (typeof t.id!=="string" || !PLAN_ID.test(t.id)) return { err:"its id isn't one the app can use" };
+  if (!nameOk(t.name)) return { err:"its name is missing or too long" };
+  if (t.stage!=null && ![1,2,3].includes(t.stage)) return { err:"its stage must be 1, 2 or 3" };
+  if (!Array.isArray(t.blocks) || !t.blocks.length || t.blocks.length>12) return { err:"it needs 1 to 12 blocks" };
+  let mains=0;
+  for (let i=0;i<t.blocks.length;i++){
+    const b=t.blocks[i], where="block "+(i+1);
+    if (!b || typeof b!=="object" || !nameOk(b.name)) return { err:where+" has no name" };
+    if (b.rounds!=null && !isRange(b.rounds,1,20)) return { err:b.name+": rounds must be 1 to 20" };
+    if (b.main) mains++;
+    if (!Array.isArray(b.items) || !b.items.length || b.items.length>12) return { err:b.name+" needs 1 to 12 items" };
+    for (let j=0;j<b.items.length;j++){ const e=checkSwimItem(b.items[j], b.name+", item "+(j+1)); if (e) return { err:e }; }
+  }
+  if (mains>1) return { err:"it has "+mains+" main sets; it can have one" };
+  return { tpl:normTpl(t) };
+}
+const fmtSR=(e)=>e.s+"×"+e.r;
+function liftLines(before, after){
+  const out=[];
+  if (before && before.name!==after.name) out.push(["chg","Name: "+before.name+" → "+after.name]);
+  const B=new Map((before?before.ex:[]).map(e=>[e.name.toLowerCase(),e])), seen=new Set();
+  for (const e of after.ex){
+    const k=e.name.toLowerCase(), b=B.get(k); seen.add(k);
+    if (!b) out.push(["add","+ "+e.name+" "+fmtSR(e)]);
+    else if (b.s!==e.s || b.r!==e.r) out.push(["chg",e.name+" "+fmtSR(b)+" → "+fmtSR(e)]);
+    else out.push(["same",e.name+" "+fmtSR(e)]);
+  }
+  for (const b of (before?before.ex:[])) if (!seen.has(b.name.toLowerCase())) out.push(["del",b.name+" "+fmtSR(b)]);
+  const order=(t)=>t.ex.map(e=>e.name.toLowerCase()).filter(n=>B.has(n)&&seen.has(n)).join("|");
+  if (before && order(before)!==order(after)) out.push(["chg","New order: "+after.ex.map(e=>e.name).join(", ")]);
+  return out;
+}
+function swimLines(before, after, unit){
+  const out=[];
+  if (before && before.name!==after.name) out.push(["chg","Name: "+before.name+" → "+after.name]);
+  if (before && (before.stage||0)!==(after.stage||0)) out.push(["chg","Phase: "+(STAGES[before.stage]||"none")+" → "+(STAGES[after.stage]||"none")]);
+  const tot=(t)=>fmtRng(tplRange(t))+" "+unit;
+  if (before && tot(before)!==tot(after)) out.push(["chg","Total: "+tot(before)+" → "+tot(after)]);
+  const txt=(b)=>b.name+(b.main?" (main)":"")+": "+blockText(b);
+  const bt=(before?before.blocks:[]).map(txt), at=after.blocks.map(txt);
+  for (const l of at) out.push([bt.includes(l)?"same":"add",(bt.includes(l)?"":"+ ")+l]);
+  for (const l of bt) if (!at.includes(l)) out.push(["del",l]);
+  if (before && out.every(x=>x[0]==="same")) out.push(["chg","Details change (notes, ramp or patterns)"]);
+  return out;
+}
+/* rows: one per change, {ok, title, why, lines, reason, apply(draft)}. lift and swim are copies of
+   the workouts as they are now. */
+function checkPlanChanges(plan, lift, swim){
+  const rows=[], touched=new Set(), unit=POOLS[swim.pool].unit;
+  plan.changes.forEach((c,n)=>{
+    const row={ ok:false, n, why:(c && typeof c.why==="string") ? c.why.trim().slice(0,240) : "", lines:[] };
+    rows.push(row);
+    const kind=c && c.kind;
+    const once=(key,label)=>{ if (touched.has(key)){ row.title=label; row.reason="There's another change to the same thing. Ask Claude to put them in one."; return false; } touched.add(key); return true; };
+    if (kind==="lift"){
+      const r=cleanLiftTpl(c.template);
+      const label="Lift: "+((c.template && c.template.name) || "a workout");
+      if (r.err){ row.title=label; row.reason="Can't use it: "+r.err+"."; return; }
+      if (!once("lift/"+r.tpl.id, label)) return;
+      const before=lift.templates.find(t=>t.id===r.tpl.id);
+      row.title=before ? "Lift: "+before.name : "Lift: new workout, "+r.tpl.name;
+      if (before && stableStr(before)===stableStr(r.tpl)){ row.reason="Same as now: nothing to change."; return; }
+      row.lines=liftLines(before, r.tpl); row.ok=true;
+      row.apply=(d)=>{ const i=d.lift.templates.findIndex(t=>t.id===r.tpl.id); if (i>=0) d.lift.templates[i]=clone(r.tpl); else d.lift.templates.push(clone(r.tpl)); };
+    } else if (kind==="lift-remove"){
+      const t=lift.templates.find(x=>x.id===c.id);
+      row.title="Lift: remove "+(t ? t.name : (c.id || "a workout"));
+      if (!t){ row.reason="There's no lift workout with the id \""+c.id+"\"."; return; }
+      if (!once("lift/"+t.id, row.title)) return;
+      row.lines=t.ex.map(e=>["del",e.name+" "+fmtSR(e)]); row.ok=true;
+      row.apply=(d)=>{ d.lift.templates=d.lift.templates.filter(x=>x.id!==t.id); };
+    } else if (kind==="lift-settings"){
+      row.title="Lift settings";
+      const hasR=c.restSec!=null, hasB=c.barLbs!=null;
+      if (!hasR && !hasB){ row.reason="It changes neither the rest nor the bar."; return; }
+      if (hasR && !isInt(c.restSec,15,600)){ row.reason="Rest must be a whole number of seconds from 15 to 600."; return; }
+      if (hasB && !(typeof c.barLbs==="number" && c.barLbs>=0 && c.barLbs<=100)){ row.reason="The bar must weigh 0 to 100 lb."; return; }
+      if (!once("lift-settings", row.title)) return;
+      if (hasR && c.restSec!==lift.restSec) row.lines.push(["chg","Rest between sets: "+lift.restSec+" s → "+c.restSec+" s"]);
+      if (hasB && c.barLbs!==lift.barLbs) row.lines.push(["chg","Bar: "+lift.barLbs+" lb → "+c.barLbs+" lb"]);
+      if (!row.lines.length){ row.reason="Same as now: nothing to change."; return; }
+      row.ok=true;
+      row.apply=(d)=>{ if (hasR) d.lift.restSec=c.restSec; if (hasB) d.lift.barLbs=c.barLbs; };
+    } else if (kind==="swim"){
+      const r=cleanSwimTpl(c.template);
+      const label="Swim: "+((c.template && c.template.name) || "a workout");
+      if (r.err){ row.title=label; row.reason="Can't use it: "+r.err+"."; return; }
+      if (!once("swim/"+r.tpl.id, label)) return;
+      const before=swim.templates.find(t=>t.id===r.tpl.id);
+      row.title=before ? "Swim: "+before.name : "Swim: new workout, "+r.tpl.name;
+      if (before && stableStr(normTpl(before))===stableStr(r.tpl)){ row.reason="Same as now: nothing to change."; return; }
+      row.lines=swimLines(before, r.tpl, unit); row.ok=true;
+      row.apply=(d)=>{ const i=d.swim.templates.findIndex(t=>t.id===r.tpl.id); if (i>=0) d.swim.templates[i]=clone(r.tpl); else d.swim.templates.push(clone(r.tpl)); };
+    } else if (kind==="swim-remove"){
+      const t=swim.templates.find(x=>x.id===c.id);
+      row.title="Swim: remove "+(t ? t.name : (c.id || "a workout"));
+      if (!t){ row.reason="There's no swim workout with the id \""+c.id+"\"."; return; }
+      if (!once("swim/"+t.id, row.title)) return;
+      row.lines=t.blocks.map(b=>["del",b.name+": "+blockText(b)]); row.ok=true;
+      row.apply=(d)=>{ d.swim.templates=d.swim.templates.filter(x=>x.id!==t.id); };
+    } else {
+      row.title=kind ? "\""+String(kind).slice(0,40)+"\"" : "A change with no kind";
+      row.reason="Only workouts change here: lift and swim workouts, rest and the bar. Left out.";
+    }
+  });
+  return rows;
+}
+// the workouts after the chosen rows, from copies; at least one lift workout must stay
+function applyPlanChanges(rows, lift, swim){
+  const d={ lift:clone(lift), swim:clone(swim) };
+  for (const r of rows) if (r.ok && r.apply) r.apply(d);
+  if (!d.lift.templates.length) return { error:"That would leave no lift workouts. Untick a removal." };
+  return d;
+}
+
+/* ---- the screen ---- */
+let planRows=[];
+let memUndo=null;   // the undo, when this browser won't keep it in storage
+// the note under Check changes stays until the next action (flash() would clear it)
+const planSay=(m,err)=>{ const n=$("#planNote"); n.textContent=m; n.classList.toggle("err",!!err); };
+function paintPlanPreview(){
+  const box=$("#planPreview"); box.textContent="";
+  planRows.forEach((r,i)=>{
+    const card=el("div","pchg"+(r.ok?"":" bad"));
+    const head=el(r.ok?"label":"div");
+    if (r.ok){ const cb=el("input"); cb.type="checkbox"; cb.checked=r.on!==false; cb.dataset.i=i;
+      cb.setAttribute("aria-label","Apply: "+r.title);
+      cb.addEventListener("change",()=>{ r.on=cb.checked; paintPlanActs(); }); head.append(cb); }
+    const txt=el("div"); txt.style.minWidth="0";
+    txt.append(el("div","pc-title",r.title));
+    if (r.why) txt.append(el("div","pc-why",r.why));
+    if (r.reason) txt.append(el("div","pc-reason",r.reason));
+    if (r.lines.length){ const ul=el("ul"); for (const [k,t] of r.lines) ul.append(el("li",k,t)); txt.append(ul); }
+    head.append(txt); card.append(head); box.append(card);
+  });
+  paintPlanActs();
+}
+function paintPlanActs(){
+  const n=planRows.filter(r=>r.ok && r.on!==false).length;
+  $("#planActs").hidden=!planRows.some(r=>r.ok);
+  const b=$("#planApply"); b.disabled=!n; b.textContent=n ? "Apply "+n+" change"+(n===1?"":"s") : "Nothing ticked to apply";
+}
+function readUndo(){ try { const u=JSON.parse(localStorage.getItem(UNDO_KEY)||"null"); if (u && u.lift && u.swim) return u; } catch(e){ /* storage blocked */ } return memUndo; }
+function paintUndo(){
+  const u=readUndo(); $("#planUndoRow").hidden=!u;
+  if (u) $("#planUndoNote").textContent="Puts your workouts back as they were before the changes applied "+new Date(u.at).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})+".";
+}
+async function saveWorkouts(lift, swim, liftChanged, swimChanged){
+  S.lift=lift; S.swim=swim;
+  let ok=true;
+  if (liftChanged) ok=(await saveLiftDoc($("#planNote")))!==false && ok;
+  if (swimChanged) ok=(await saveSwimDoc($("#planNote")))!==false && ok;
+  if (!LW.active && !R) renderTrainHome();
+  renderHome();
+  return ok;
+}
+$("#coachPeek").addEventListener("toggle",()=>{ if ($("#coachPeek").open) $("#coachExport").value=buildCoachExport(); });
+$("#coachCopy").addEventListener("click",()=>{
+  const text=buildCoachExport(), note=$("#coachNote");
+  $("#coachExport").value=text;
+  const fallback=()=>{ $("#coachPeek").open=true; const t=$("#coachExport"); t.focus(); t.select(); flash(note,"Selected below: copy it from there."); };
+  try { navigator.clipboard.writeText(text).then(()=>flash(note,"Copied. Paste it into a Claude chat."), fallback); }
+  catch(e){ fallback(); }
+});
+$("#coachShare").addEventListener("click", async ()=>{
+  const text=buildCoachExport(), name="fitness-coaching-"+todayStr()+".txt", note=$("#coachNote");
+  $("#coachExport").value=text;
+  try {
+    const file=new File([text], name, { type:"text/plain" });
+    if (navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], title:"Fitness Tracker coaching export" }); flash(note,"Shared."); return; }
+    if (navigator.share){ await navigator.share({ title:"Fitness Tracker coaching export", text }); flash(note,"Shared."); return; }
+  } catch(e){ if (e && e.name==="AbortError") return; }
+  // no share sheet here (a computer, say): save the file instead
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{ type:"text/plain" })); a.download=name;
+  document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),10000);
+  flash(note,"Saved as "+name+". Drop it into a Claude chat.");
+});
+$("#planCheck").addEventListener("click",()=>{
+  const note=$("#planNote"); planRows=[];
+  const p=parsePlanChanges($("#planPaste").value);
+  if (p.error){ paintPlanPreview(); planSay(p.error,true); return; }
+  planRows=checkPlanChanges(p.plan, clone(liftData()), clone(swimData()));
+  paintPlanPreview();
+  const ok=planRows.filter(r=>r.ok).length, left=planRows.length-ok;
+  planSay(ok ? ok+" change"+(ok===1?"":"s")+" to look over"+(left?"; "+left+" can't be used (in red)":"")+". Nothing has changed yet."
+    : "None of these can be used; the reasons are in red. Nothing has changed.", !ok);
+});
+$("#planApply").addEventListener("click", async ()=>{
+  const note=$("#planNote");
+  if (!S.db || !S.uid) return flash(note,"Still connecting — try again in a moment.",true);
+  if (LW.active || R) return flash(note,"Finish or end the workout in progress first.",true);
+  const chosen=planRows.filter(r=>r.ok && r.on!==false);
+  if (!chosen.length) return;
+  const before={ lift:clone(liftData()), swim:clone(swimData()) };
+  const after=applyPlanChanges(chosen, before.lift, before.swim);
+  if (after.error) return flash(note,after.error,true);
+  const b=$("#planApply"); b.disabled=true;
+  try { localStorage.setItem(UNDO_KEY, JSON.stringify({ at:Date.now(), lift:before.lift, swim:before.swim })); } catch(e){ /* undo lasts this visit only */ }
+  memUndo={ at:Date.now(), lift:before.lift, swim:before.swim };
+  const ok=await saveWorkouts(after.lift, after.swim, stableStr(after.lift)!==stableStr(before.lift), stableStr(after.swim)!==stableStr(before.swim));
+  planRows=[]; paintPlanPreview(); $("#planPaste").value="";
+  paintUndo();
+  if (ok) planSay("Applied "+chosen.length+" change"+(chosen.length===1?"":"s")+". Train shows the new workouts; Undo puts them back.");
+});
+$("#planUndo").addEventListener("click", async ()=>{
+  const note=$("#planNote"), u=readUndo();
+  if (!u) return paintUndo();
+  if (!S.db || !S.uid) return flash(note,"Still connecting — try again in a moment.",true);
+  if (LW.active || R) return flash(note,"Finish or end the workout in progress first.",true);
+  const ok=await saveWorkouts(clone(u.lift), clone(u.swim), true, true);
+  try { localStorage.removeItem(UNDO_KEY); } catch(e){ /* storage blocked */ }
+  memUndo=null;
+  paintUndo();
+  if (ok) planSay("Undone: your workouts are back as they were.");
+});
+paintUndo();
 function swimContext(){
   const d=swimData(), ph=phaseOf(d.startDate,todayStr()), n=swimsSince(S.sessions,d.startDate);
   const rules="Plan rules: main set capped at 6-8x100 for the first 4 swims, then 8-10; no paddles for the first 30 days; pull buoy from weeks 3-4; rest-based intervals until main-set times settle, then fixed send-offs (100s on 1:40/1:45).";
@@ -3532,12 +3862,10 @@ function renderAll(){
 }
 (async ()=>{
   // On Cloudflare there is one person (the sign-in lets only Steve in), so the uid is fixed.
-  // Claude can't be called from this page; Coach comes back as a coaching export (CLOUDFLARE.md).
+  // Claude can't be called from this page: Coach is the coaching export and plan changes.
   const cloud=await cloudReady;
   const db=cloud ? cloud.db : null, uid=cloud ? "me" : null;
   S.sample=null;
-  $("#coachGo").hidden=true;
-  $("#coachCard").querySelector(".hint").textContent="Claude's feedback comes back in a later update, as a coaching export you take to a Claude chat. Your goals still save here.";
   if (!db || !uid){
     clearTimeout(loadTimer); syncNote.hidden=true;
     $("#signinNote").hidden=false; $("#liftSignin").hidden=false;
@@ -3600,6 +3928,7 @@ if (window.__DL_TEST__) window.__DL={ PLAN_SWIM, POOLS, STAGES, rng, normRange, 
   itemRange, blockRange, tplRange, itemText, blockText, intervalText, repSpec, repLabel, groupIndex, phaseOf, swimsSince,
   rampOn, tplRampOn, paddlesWarn, lastSwumOf, nextSwim, parseRepTime, fmtRepTime, fmtClock, newLive, runStep, swimLog,
   logDist, mainPaceOf, swimSessionBody, swimOf, dateAdd, daysBetween, stableStr, cloudPath,
+  buildCoachExport, coachWorkouts, parsePlanChanges, checkPlanChanges, applyPlanChanges, liftData,
   state:()=>({ R, S, swim:swimData(), cloud:Object.assign({}, CLOUD) }) };
 
 setType("swim");
