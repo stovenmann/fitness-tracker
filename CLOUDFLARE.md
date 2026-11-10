@@ -6,7 +6,19 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
   id is in `wrangler.jsonc` (a different database from disc golf's).
 - **First publish (2026-11-09):** on Steve's say-so, the `live` branch was made at `801c444`,
   the same commit as `main`. Nothing deploys from it until Part 2 links the new Worker to this
-  repo. Next: Part 2.
+  repo.
+- **Part 2 (2026-11-09):** Steve made the new Worker `fitness-tracker` from this repo, put it
+  behind a new Access app (its own AUD tag, on the account's team domain), and added the three
+  settings under Variables and Secrets (they made a new deployed version, which build settings
+  don't). Two things needed fixing by hand, now done:
+  - the `workers.dev` address started **Disabled** ("No URLs enabled"), although
+    `wrangler.jsonc` asks for it; Steve enabled it under Settings → Domains & Routes;
+  - the import made `main` the production branch again, as at disc golf; Steve set it to
+    `live`, with builds for other branches off.
+  From outside, every address (the page, the API, the icons, the manifest, the import page)
+  sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
+  address isn't written here: it contains the account's name, and this repo is public.
+  Next: the iPhone checks (setup step 5).
 - **Step 1, the data check (2026-11-08):** Claude read the artifact's data read-only, counts
   only, and threw that copy away. The sessions, weigh-ins, lifting and swim documents can all
   be read, so the move's export works as planned.
@@ -178,7 +190,9 @@ Claude puts the ID into `wrangler.jsonc`. The first publish (`live` at the same 
    - Project name: `fitness-tracker`. Build command: empty. Deploy command: `npx wrangler deploy`.
    - Deploy. Then check the Worker's **Settings → Build → Branch control**: production branch
      `live`, and builds for non-production branches **off**. The import form may set `main`;
-     at disc golf it did, and every push to `main` deployed.
+     at disc golf and here it did, and every push to `main` would deploy.
+   - Check **Settings → Domains & Routes**: the `workers.dev` row must say Enabled. Here it
+     started Disabled, and the Overview said "No URLs enabled".
 3. **Sign-in.** In the new Worker: the Access tab → Protect this Worker behind Access → All
    traffic. This makes a **new** Access app for Fitness Tracker.
    - Copy the new **AUD tag**. It is not disc golf's.
