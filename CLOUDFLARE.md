@@ -1,8 +1,8 @@
 # Moving Fitness Tracker to Cloudflare
 
 **Status: approved by Steve on 2026-11-08. Steps 1 to 6 are done: Fitness Tracker runs on
-Cloudflare with Steve's data, and the artifact is unchanged. Left: the rest of the iPhone checks
-(setup step 5), and step 7, Coach.**
+Cloudflare with Steve's data, and the artifact is unchanged. Steve finished the iPhone checks
+(setup step 5) on 2026-11-09 with no issues. Step 7, Coach, is under way.**
 - **Step 5, Part 1 (2026-11-09):** Steve created the new D1 database `fitness-tracker`, and its
   id is in `wrangler.jsonc` (a different database from disc golf's).
 - **First publish (2026-11-09):** on Steve's say-so, the `live` branch was made at `801c444`,
