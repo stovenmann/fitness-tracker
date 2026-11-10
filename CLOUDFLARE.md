@@ -13,8 +13,11 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
   don't). Two things needed fixing by hand, now done:
   - the `workers.dev` address started **Disabled** ("No URLs enabled"), although
     `wrangler.jsonc` asks for it; Steve enabled it under Settings → Domains & Routes;
-  - the import made `main` the production branch again, as at disc golf; Steve set it to
-    `live`, with builds for other branches off.
+  - the import made `main` the production branch again, as at disc golf. A test push of notes
+    to `main` (`b58e691`) went live as version `b0ba1895`: harmless, since only this file
+    differed from `live`, but proof the setting hadn't held. Steve set it to `live` again
+    (screenshot checked) and a second test push followed. The dashboard has no switch to turn
+    off builds for other branches; those make a version that isn't deployed.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.
@@ -188,9 +191,11 @@ Claude puts the ID into `wrangler.jsonc`. The first publish (`live` at the same 
 2. **The app.** Workers & Pages → Create application → import a repository from GitHub → pick
    `stovenmann/fitness-tracker`.
    - Project name: `fitness-tracker`. Build command: empty. Deploy command: `npx wrangler deploy`.
-   - Deploy. Then check the Worker's **Settings → Build → Branch control**: production branch
-     `live`, and builds for non-production branches **off**. The import form may set `main`;
-     at disc golf and here it did, and every push to `main` would deploy.
+   - Deploy. Then check the Worker's **Settings → Build**: **Production branch** `live`, and
+     save it. The import form may set `main`; at disc golf and here it did, and every push to
+     `main` deployed. (There may be no switch for builds of other branches: they only make a
+     version that isn't deployed.) Prove it with a push to `main`: the Deployments tab's active
+     version must not change.
    - Check **Settings → Domains & Routes**: the `workers.dev` row must say Enabled. Here it
      started Disabled, and the Overview said "No URLs enabled".
 3. **Sign-in.** In the new Worker: the Access tab → Protect this Worker behind Access → All
