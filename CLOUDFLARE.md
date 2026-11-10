@@ -20,6 +20,10 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
     version, as disc golf's `main` does, and the active version stayed `b0ba1895` (Steve's
     screenshot): `main` no longer deploys. The dashboard has no switch to turn off builds for
     other branches, so each push to `main` shows a red ✗ on GitHub; it publishes nothing.
+  - First sign-in on the iPhone (2026-11-09): the page loaded, but every data call failed with
+    "Something went wrong on the server". `ACCESS_TEAM_DOMAIN` held the whole certs link, not
+    the team domain alone, so the Worker fetched its keys from a doubled path (a 404). Step 4
+    below now says exactly what goes in it.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.
@@ -210,7 +214,10 @@ Claude puts the ID into `wrangler.jsonc`. The first publish (`live` at the same 
 4. **The Worker's settings.** In the Worker: **Settings → Variables and Secrets** → Add, three
    times, type Text. **Not** "Build variables and secrets": the running app never sees those.
    This panel has a Deploy button; the build one only has Save.
-   - `ACCESS_TEAM_DOMAIN`: the team domain;
+   - `ACCESS_TEAM_DOMAIN`: the team domain alone, like `yourteam.cloudflareaccess.com`: no
+     `https://` and nothing after `.com`. The whole certs link here broke every data call
+     ("Something went wrong on the server"), because the server then looked for its keys at a
+     doubled path;
    - `ACCESS_AUD`: the new AUD tag;
    - `ALLOWED_EMAILS`: your email.
    Then deploy.
