@@ -33,7 +33,8 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
     Log form it sent the form, logging the session and emptying the boxes. The time boxes now
     keep what's typed and close the keyboard on that key; the Log button still logs. Sessions
     logged by it on the phone are to be deleted by Steve. Published on Steve's say-so: `live` at `a6012c7`,
-    built as version `c8e03b8a`.
+    built as version `c8e03b8a`. Steve confirmed on his iPhone: done keeps 9:52 and logs
+    nothing.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.
