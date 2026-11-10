@@ -18,7 +18,8 @@
     "run_worker_first": ["/api/*"]
   },
   "d1_databases": [
-    // a new database Steve creates at Part 1 of the setup in CLOUDFLARE.md; its id goes here then
-    { "binding": "DB", "database_name": "fitness-tracker", "database_id": "set-at-setup-part-1" }
+    // created new by Steve in the dashboard at Part 1 of the setup in CLOUDFLARE.md (2026-11-09);
+    // the id isn't a secret
+    { "binding": "DB", "database_name": "fitness-tracker", "database_id": "475280d1-b259-4964-a69d-3bb8222875d7" }
   ]
 }

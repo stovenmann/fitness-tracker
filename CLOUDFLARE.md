@@ -1,7 +1,10 @@
 # Moving Fitness Tracker to Cloudflare
 
 **Status: approved by Steve on 2026-11-08. Steps 1 to 4 are done. Step 5, Steve's dashboard
-setup, is next (below). Nothing is deployed, and the live artifact is unchanged.**
+setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is unchanged.**
+- **Step 5, Part 1 (2026-11-09):** Steve created the new D1 database `fitness-tracker`, and its
+  id is in `wrangler.jsonc` (a different database from disc golf's). Next: the first publish,
+  when Steve says so, then Part 2.
 - **Step 1, the data check (2026-11-08):** Claude read the artifact's data read-only, counts
   only, and threw that copy away. The sessions, weigh-ins, lifting and swim documents can all
   be read, so the move's export works as planned.
