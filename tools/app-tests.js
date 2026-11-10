@@ -250,6 +250,27 @@
     same("9:52 over a mile", a.text("#paceHint"), "Pace works out to 9:52/mi");
   });
 
+  check("the keyboard's done key in a time box keeps what's typed and logs nothing", async () => {
+    const a = await openApp("clear=1");
+    a.click('#typeChips [data-type="run"]');
+    for (const id of ["sessMin", "sfTime"]) {
+      const el = a.$("#" + id);
+      el.focus();
+      el.value = "9:52";
+      // what a press of the key does: a keydown for Enter, and unless the page stops it, the
+      // browser then sends the form the box is in (a script's keydown can't do that part itself)
+      const ev = new a.win.KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+      const sent = el.dispatchEvent(ev);
+      if (sent && el.form) el.form.requestSubmit();
+      await wait(500);
+      truly(id + ": the page stops the key", ev.defaultPrevented);
+      same(id + ": what's typed stays", el.value, "9:52");
+      truly(id + ": the keyboard closes", a.doc.activeElement !== el);
+    }
+    same("nothing logged", a.mock.count("sessions"), 0);
+    same("no message", a.text("#saveMsg"), "");
+  });
+
   check("every place to type is at least 16px, so the iPhone doesn't zoom in on a tap", async () => {
     const a = await openApp("clear=1&seed=1");
     // the boxes on the page now (each tab's, hidden ones too)

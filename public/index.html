@@ -1536,6 +1536,12 @@ if (themeMode!=="auto") applyTheme(); else { paintThemeBtn(); paintStatusBar(); 
 // ---------- quick log ----------
 $("#sessDate").value = todayStr();
 $("#wtDate").value = todayStr();
+// The keyboard's done key in a time box closes the keyboard and keeps what's typed. In the Log
+// form it would otherwise send the form, logging the session and emptying the boxes (Steve, on
+// his iPhone, 2026-11-09). Logging stays on the Log button.
+["sessMin","sfTime"].forEach(id=>$("#"+id).addEventListener("keydown",(e)=>{
+  if (e.key==="Enter"){ e.preventDefault(); e.target.blur(); }
+}));
 
 $("#typeChips").addEventListener("click",(e)=>{
   const b=e.target.closest("button[data-type]"); if(!b) return; setType(b.dataset.type);
