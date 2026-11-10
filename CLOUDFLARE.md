@@ -1,7 +1,8 @@
 # Moving Fitness Tracker to Cloudflare
 
-**Status: approved by Steve on 2026-11-08. Steps 1 to 4 are done. Step 5, Steve's dashboard
-setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is unchanged.**
+**Status: approved by Steve on 2026-11-08. Steps 1 to 6 are done: Fitness Tracker runs on
+Cloudflare with Steve's data, and the artifact is unchanged. Left: the rest of the iPhone checks
+(setup step 5), and step 7, Coach.**
 - **Step 5, Part 1 (2026-11-09):** Steve created the new D1 database `fitness-tracker`, and its
   id is in `wrangler.jsonc` (a different database from disc golf's).
 - **First publish (2026-11-09):** on Steve's say-so, the `live` branch was made at `801c444`,
@@ -42,6 +43,10 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
   document was left alone, as a different one was already there (made by a swim the old done
   key logged in the new app). Steve chose not to bring it: it held only one old swim template,
   no swims and no comeback start. The artifact is unchanged.
+- **The import page is taken out (2026-11-09),** on Steve's say-so, with its bundler and its 5
+  checks (31 in all now, passing). Commit `42efb4e` has them if a second import is ever
+  needed. The copy of the data stays in Steve's git-ignored `export/` folder until he deletes
+  it.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.

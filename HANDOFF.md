@@ -241,15 +241,16 @@ What's built, beyond the findings above:
   `window.__mock` peeks at it and switches failures on and off.
 - `/tools/tests.html` runs every check, with the pane in front (background tabs slow timers):
   the Worker's 12 (`tools/worker-tests.js` against `worker/index.js`, with an in-memory
-  database and made-up sign-in tokens), then the app's 24 (`tools/app-tests.js`: no signal,
+  database and made-up sign-in tokens), then the app's 19 (`tools/app-tests.js`: no signal,
   signed out, server problem, a kept copy, a copy from another database, deletes, the swim in
-  progress, the 135 swim checks, the time boxes' keyboard and its done key, the 16px floor for every box, the
-  Home Screen icon, manifest and status bar, and the one-time import page at
-  `/import.html`). Add `?only=<words>` to run some. All 36 pass. A check that sets a
-  box's value doesn't press the keyboard's keys: after changing a box's keyboard, also press
-  its keys for real in the preview (`computer` type and key).
-- `tools/build-backup.py` bundles an export of the artifact's data (`export/raw/`) into the
-  file the import page reads. It prints counts only. `export/` is git-ignored.
+  progress, the 135 swim checks, the time boxes' keyboard and its done key, the 16px floor for
+  every box, and the Home Screen icon, manifest and status bar). Add `?only=<words>` to run
+  some. All 31 pass. A check that sets a box's value doesn't press the keyboard's keys: after
+  changing a box's keyboard, also press its keys for real in the preview (`computer` type and
+  key).
+- The one-time import page, its bundler (`tools/build-backup.py`) and their 5 checks were
+  taken out after the data moved (2026-11-09). Commit `42efb4e` has them, if a second import
+  is ever needed.
 
 ## Open questions for the owner
 
