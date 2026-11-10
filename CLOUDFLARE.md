@@ -16,8 +16,10 @@ setup, has begun: Part 1 is done. Nothing is deployed, and the live artifact is 
   - the import made `main` the production branch again, as at disc golf. A test push of notes
     to `main` (`b58e691`) went live as version `b0ba1895`: harmless, since only this file
     differed from `live`, but proof the setting hadn't held. Steve set it to `live` again
-    (screenshot checked) and a second test push followed. The dashboard has no switch to turn
-    off builds for other branches; those make a version that isn't deployed.
+    (screenshot checked). The second test push (`45adbff`) got a failed build that made no
+    version, as disc golf's `main` does, and the active version stayed `b0ba1895` (Steve's
+    screenshot): `main` no longer deploys. The dashboard has no switch to turn off builds for
+    other branches, so each push to `main` shows a red ✗ on GitHub; it publishes nothing.
   From outside, every address (the page, the API, the icons, the manifest, the import page)
   sends a stranger to the sign-in page, and a made-up sign-in token is turned away too. The
   address isn't written here: it contains the account's name, and this repo is public.
