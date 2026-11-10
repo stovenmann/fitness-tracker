@@ -241,10 +241,11 @@ What's built, beyond the findings above:
   `window.__mock` peeks at it and switches failures on and off.
 - `/tools/tests.html` runs every check, with the pane in front (background tabs slow timers):
   the Worker's 12 (`tools/worker-tests.js` against `worker/index.js`, with an in-memory
-  database and made-up sign-in tokens), then the app's 21 (`tools/app-tests.js`: no signal,
+  database and made-up sign-in tokens), then the app's 23 (`tools/app-tests.js`: no signal,
   signed out, server problem, a kept copy, a copy from another database, deletes, the swim in
-  progress, the 135 swim checks, the Home Screen icon, manifest and status bar, and the
-  one-time import page at `/import.html`). Add `?only=<words>` to run some. All 33 pass.
+  progress, the 135 swim checks, the time boxes' keyboard, the 16px floor for every box, the
+  Home Screen icon, manifest and status bar, and the one-time import page at
+  `/import.html`). Add `?only=<words>` to run some. All 35 pass.
 - `tools/build-backup.py` bundles an export of the artifact's data (`export/raw/`) into the
   file the import page reads. It prints counts only. `export/` is git-ignored.
 

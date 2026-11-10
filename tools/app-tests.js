@@ -233,6 +233,40 @@
     truly("it doesn't mention claude.ai", !/claude/i.test(a.text("#signinNote")));
   });
 
+  check("the time boxes open the full keyboard, so mm:ss can be typed on an iPhone", async () => {
+    const a = await openApp("clear=1");
+    for (const id of ["sessMin", "sfTime"]) {
+      const el = a.$("#" + id);
+      // an iPhone's number pad (numeric, decimal, tel) has no ":" key
+      truly(id + " doesn't ask for a number pad: " + el.getAttribute("inputmode"), !/numeric|decimal|tel/.test(el.getAttribute("inputmode") || ""));
+      same(id + " is a text box", el.type, "text");
+      same(id + " isn't autocorrected", [el.getAttribute("autocorrect"), el.getAttribute("autocapitalize"), el.getAttribute("spellcheck")], ["off", "off", "false"]);
+    }
+    a.click('#typeChips [data-type="run"]');
+    a.$("#sessMin").value = "9:52";
+    a.$("#sessMiles").value = "1";
+    a.$("#sessMiles").dispatchEvent(new a.win.Event("input", { bubbles: true }));
+    a.$("#sessMin").dispatchEvent(new a.win.Event("input", { bubbles: true }));
+    same("9:52 over a mile", a.text("#paceHint"), "Pace works out to 9:52/mi");
+  });
+
+  check("every place to type is at least 16px, so the iPhone doesn't zoom in on a tap", async () => {
+    const a = await openApp("clear=1&seed=1");
+    // the boxes on the page now (each tab's, hidden ones too)
+    const typed = (el) => el.tagName !== "INPUT" || !/^(checkbox|radio|range|button|submit|reset|file|hidden|color)$/.test(el.type);
+    const boxes = [...a.doc.querySelectorAll("input,select,textarea")].filter(typed);
+    truly("there are boxes to measure", boxes.length >= 15);
+    const small = boxes.filter((el) => parseFloat(a.win.getComputedStyle(el).fontSize) < 16)
+      .map((el) => (el.id || el.className || el.tagName) + " " + a.win.getComputedStyle(el).fontSize);
+    same("boxes under 16px", small, []);
+    // and the ones built later (the swim and lift editors): no style may set a box under 16px
+    const rules = [...a.doc.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch (e) { return []; } })
+      .filter((r) => r.selectorText && /(^|[\s,>+~(])(input|select|textarea)\b/.test(r.selectorText) && r.style.fontSize);
+    const shrink = rules.filter((r) => /px$/.test(r.style.fontSize) && parseFloat(r.style.fontSize) < 16)
+      .map((r) => r.selectorText + " → " + r.style.fontSize);
+    same("styles that make a box smaller than 16px", shrink, []);
+  });
+
   /* ---------- the Home Screen and full screen (step 3) ---------- */
   // dev_server.py serves public/'s manifest and icons at the same addresses Cloudflare will
   function loadImage(url) {

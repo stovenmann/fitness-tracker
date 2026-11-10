@@ -189,8 +189,10 @@ form#sessForm{display:flex; flex-direction:column; gap:15px}
   padding:7px 13px; font-size:13px; font-weight:600; cursor:pointer}
 .presets button[aria-pressed="true"]{border-color:var(--ink); background:var(--ink); color:var(--paper)}
 .presets input{flex:0 1 96px; min-width:0}
+/* every place to type is at least 16px: iOS zooms into a smaller box when it's tapped and stays
+   zoomed (Steve, 2026-11-09). Rules below may go bigger, never smaller. */
 input[type=date],input[type=number],input[type=text],textarea{
-  box-sizing:border-box; font:inherit; color:var(--ink);
+  box-sizing:border-box; font:inherit; font-size:16px; color:var(--ink);
   background:var(--paper2); border:1.5px solid var(--line); border-radius:10px; padding:9px 11px}
 textarea{resize:vertical; min-height:62px; width:100%}
 .feelseg{display:grid; grid-template-columns:repeat(5,1fr); gap:7px}
@@ -248,7 +250,7 @@ ul.sess li{background:var(--paper); border:1.5px solid var(--line); border-left:
 .exrow{display:flex; gap:6px; align-items:center}
 .exrow input.exn{flex:1 1 auto; min-width:0; padding:7px 9px}
 .exrow input.exs,.exrow input.exr{flex:0 0 52px; min-width:0; padding:7px 4px; text-align:center}
-.exrow input.exd{flex:1.2 1 0; min-width:0; padding:7px 9px; font-size:13px}
+.exrow input.exd{flex:1.2 1 0; min-width:0; padding:7px 9px; font-size:16px}
 .exrow .mini{border:1.5px solid var(--line); background:var(--paper2); color:var(--ink2); border-radius:8px;
   font:inherit; font-size:13px; cursor:pointer; padding:7px 9px; flex:0 0 auto}
 .exrow .mini.x{color:var(--bad)}
@@ -360,7 +362,7 @@ dl.blk dd{margin:0; color:var(--ink2); overflow-wrap:anywhere; min-width:0}
 dl.blk dd.main{color:var(--ink); font-weight:700}
 .rampnote{display:block; font-weight:500; font-size:12px; color:var(--blue-deep)}
 .sed{margin-top:12px; border-top:1.5px solid var(--line); padding-top:12px; display:flex; flex-direction:column; gap:10px}
-.sed select,.sed input[type=text],.sed input[type=number]{font:inherit; font-size:14px; color:var(--ink); background:var(--paper2);
+.sed select,.sed input[type=text],.sed input[type=number]{font:inherit; font-size:16px; color:var(--ink); background:var(--paper2);
   border:1.5px solid var(--line); border-radius:9px; padding:7px 8px; min-width:0; box-sizing:border-box}
 .sed .sblock input[type=text],.sed .sblock input[type=number],.sed .sblock select{background:var(--paper)}
 .srow{display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap}
@@ -586,7 +588,8 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
             <button type="button" data-v="45">45</button>
             <button type="button" data-v="60">60</button>
             <button type="button" data-v="90">90</button>
-            <input type="text" id="sessMin" inputmode="numeric" placeholder="32:10" aria-label="Time, minutes or mm:ss">
+            <!-- the full keyboard, on purpose: an iPhone's number pad has no ":" for mm:ss (Steve, 2026-11-09) -->
+            <input type="text" id="sessMin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="32:10" aria-label="Time, minutes or mm:ss">
           </div>
         </div>
         <div id="yardsField">
@@ -891,7 +894,8 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
         <div id="sfTimes"></div>
       </div>
       <div class="flabel" style="margin-top:16px">Total time · mm:ss</div>
-      <input type="text" id="sfTime" inputmode="numeric" placeholder="42:10" aria-label="Total time" style="width:140px">
+      <!-- the full keyboard, on purpose: an iPhone's number pad has no ":" for mm:ss -->
+      <input type="text" id="sfTime" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="42:10" aria-label="Total time" style="width:140px">
       <p class="hint" id="sfPace" style="margin-top:6px"></p>
       <div class="flabel" style="margin-top:14px">Effort<span id="sfEffWord"></span></div>
       <div class="effseg" id="sfEffort" role="group" aria-label="Effort, 1 easy to 10 all out"></div>
