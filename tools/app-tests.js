@@ -325,12 +325,54 @@
     a.$("#coachPeek").open = true;
     a.$("#coachPeek").dispatchEvent(new a.win.Event("toggle"));
     const text = a.$("#coachExport").value;
-    for (const want of ["Sessions, last 8 weeks", "Lower Pull", "Made-up goal: bench 200 for five.",
+    for (const want of ["Every session logged", "Lower Pull", "Made-up goal: bench 200 for five.",
       '"id":"up"', '"name":"Upper Push"', '"id":"p1-reacclimation"', '"restSec":90', "```fitness-plan-changes",
       '"kind":"lift"', '"kind":"swim"', "never sessions, weigh-ins, goals or a schedule"]) {
       truly("the export has " + want, text.includes(want));
     }
     truly("Share and Copy are offered", a.$("#coachShare") && a.$("#coachCopy"));
+  });
+
+  check("the coaching export sends the whole log: every kind, every set, swim block and note, however old", async () => {
+    // all made up: 45 sessions back to 300 days ago, 25 weigh-ins back to 200 days ago
+    const day = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+    const at = (n) => Date.parse(day(n) + "T12:00:00");
+    const a0 = await openApp("clear=1#coach");
+    const note = "Made-up long note. " + "Easy pace, shoulders fine. ".repeat(14) + "END-OF-NOTE";
+    const ex = Array.from({ length: 8 }, (_, i) => ({ name: "Made-up Lift " + (i + 1), sets: [[100 + i, 10], [110 + i, 8], [120 + i, 6], [0, 12]] }));
+    a0.mock.put("sessions", "old-lift", { date: day(300), ts: at(300), type: "lift", minutes: 50, feel: 3, tpl: "Made-up Day", exercises: ex, volume: 1, notes: "oldest one" });
+    a0.mock.put("sessions", "skate", { date: day(90), ts: at(90), type: "skate", minutes: 75, feel: 5, notes: "park session" });
+    a0.mock.put("sessions", "stretch", { date: day(80), ts: at(80), type: "yoga", minutes: 30, feel: 4, sore: { shoulders: 2 } });
+    a0.mock.put("sessions", "rest", { date: day(70), ts: at(70), type: "rest", minutes: 0, feel: 3, notes: note });
+    a0.mock.put("sessions", "other", { date: day(60), ts: at(60), type: "other", minutes: 40, feel: 3, notes: "hike", heartRate: 152 });
+    a0.mock.put("sessions", "swim", { date: day(58), ts: at(58), type: "swim", minutes: 40, feel: 4, effort: 6, swimDist: 900, swimUnit: "yd", yards: 900,
+      pool: "25yd", stage: 1, tpl: "Made-up Swim", mainPace: 103,
+      swim: { blocks: [
+        { name: "Warm-up", main: false, status: "done", rounds: [{ items: [{ label: "100 kick easy (board)", what: "kick", dist: 100, target: 1, done: 1, times: [null] }] }] },
+        { name: "Main", main: true, status: "cut", rounds: [{ items: [{ label: "100 free threshold", what: "swim", stroke: "free", dist: 100, target: 8, done: 6, times: [102, 104, 101, 103, 105, null] }] }] },
+        { name: "Cool-down", main: false, status: "skipped", rounds: [{ items: [{ label: "100 easy", what: "swim", dist: 100, target: 1, done: 0, times: [] }] }] }] } });
+    for (let i = 0; i < 39; i++) a0.mock.put("sessions", "run" + i, { date: day(50 - i), ts: at(50 - i), type: "run", minutes: 9.5, miles: 1, feel: 3 });
+    for (let i = 0; i < 25; i++) a0.mock.put("weights", "w" + i, { date: day(200 - i * 8), ts: at(200 - i * 8), lbs: 210 - i / 2 });
+    const a = await openApp("again=1#coach");
+    const text = () => a.win.__DL.buildCoachExport();
+    await until(() => text().includes("all 45") && text().includes("all 25"), "the export to count 45 sessions and 25 weigh-ins");
+    const t = text();
+    for (const want of [
+      "- " + day(300) + " Lift (Made-up Day) 50′",               // older than 8 weeks
+      "Made-up Lift 8: 107×10, 117×8, 127×6, BW×12",             // the 8th exercise, every set
+      "- " + day(90) + " Skate 75′", 'notes: "park session"',
+      "- " + day(80) + " Stretch 30′", "sore:[shoulders:2]",
+      "- " + day(70) + " Rest feel:3/5", "END-OF-NOTE",          // a long note, whole
+      "- " + day(60) + " Other 40′", "also stored: heartRate=152", // a field the export doesn't know
+      "Swim (Made-up Swim) 40′ feel:4/5 effort:6/10 900yd pool:25 yd stage:Reacclimation main-set:1:43/100",
+      "Warm-up: 1×100 kick easy (board)",
+      "Main (main set) (cut short): 6×100 free threshold (of 8 planned) times 1:42,1:44,1:41,1:43,1:45,?",
+      "Cool-down: skipped",
+      "- " + day(200) + " 210lb", "- " + day(8) + " 198lb"]) {
+      truly("the export has " + want, t.includes(want));
+    }
+    same("sessions listed", (t.match(/^- \d{4}-\d\d-\d\d (Lift|Skate|Stretch|Rest|Other|Swim|Run) /gm) || []).length, 45);
+    same("weigh-ins listed", (t.match(/^- \d{4}-\d\d-\d\d [\d.]+lb$/gm) || []).length, 25);
   });
 
   check("Claude's changes are previewed, change nothing until Apply, and Undo puts them back", async () => {

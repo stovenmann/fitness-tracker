@@ -992,7 +992,7 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
          workouts only, on a tap, with undo. -->
     <div class="card" id="coachCard">
       <div class="flabel">1 · Send your log to Claude</div>
-      <p class="hint" style="margin:0">Your goals, the last 8 weeks and your current lift and swim workouts, as a file for a Claude chat. It asks Claude to end with any workout changes in a form this app reads back.</p>
+      <p class="hint" style="margin:0">Your goals, everything you've logged (every session of every kind, every set, swim and note, every weigh-in) and your current lift and swim workouts, as a file for a Claude chat. It asks Claude to end with any workout changes in a form this app reads back.</p>
       <div class="coachrow">
         <button class="btn sm" id="coachShare" type="button">Share to Claude</button>
         <button class="btn ghost" id="coachCopy" type="button">Copy</button>
@@ -3453,7 +3453,7 @@ $("#coachCopy").addEventListener("click",()=>{
   const text=buildCoachExport(), note=$("#coachNote");
   $("#coachExport").value=text;
   const fallback=()=>{ $("#coachPeek").open=true; const t=$("#coachExport"); t.focus(); t.select(); flash(note,"Selected below: copy it from there."); };
-  try { navigator.clipboard.writeText(text).then(()=>flash(note,"Copied. Paste it into a Claude chat."), fallback); }
+  try { navigator.clipboard.writeText(text).then(()=>flash(note,"Copied: "+coachCounts()+". Paste it into a Claude chat."), fallback); }
   catch(e){ fallback(); }
 });
 $("#coachShare").addEventListener("click", async ()=>{
@@ -3461,13 +3461,13 @@ $("#coachShare").addEventListener("click", async ()=>{
   $("#coachExport").value=text;
   try {
     const file=new File([text], name, { type:"text/plain" });
-    if (navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], title:"Fitness Tracker coaching export" }); flash(note,"Shared."); return; }
-    if (navigator.share){ await navigator.share({ title:"Fitness Tracker coaching export", text }); flash(note,"Shared."); return; }
+    if (navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], title:"Fitness Tracker coaching export" }); flash(note,"Shared: "+coachCounts()+"."); return; }
+    if (navigator.share){ await navigator.share({ title:"Fitness Tracker coaching export", text }); flash(note,"Shared: "+coachCounts()+"."); return; }
   } catch(e){ if (e && e.name==="AbortError") return; }
   // no share sheet here (a computer, say): save the file instead
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{ type:"text/plain" })); a.download=name;
   document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),10000);
-  flash(note,"Saved as "+name+". Drop it into a Claude chat.");
+  flash(note,"Saved as "+name+" ("+coachCounts()+"). Drop it into a Claude chat.");
 });
 $("#planCheck").addEventListener("click",()=>{
   const note=$("#planNote"); planRows=[];
@@ -3515,41 +3515,64 @@ function swimContext(){
   return "Swim comeback: started "+d.startDate+" (day "+(ph.day+1)+"), now in "+ph.label+" ("+STAGE_NAMES[ph.stage]+"), "
     +n+" swim"+(n===1?"":"s")+" since the start. Pool "+POOLS[d.pool].label+". "+rules;
 }
+/* The whole log goes to Claude: every session of every type since the first one, every set,
+   every swim block, full notes, every weigh-in. (The old in-app feedback kept to 8 weeks, the
+   top set and short notes to fit its request; a file in a Claude chat has no such limit.) */
+const byTs=(a,b)=>(a.ts||0)-(b.ts||0) || String(a.date).localeCompare(String(b.date));
+function coachSwimBlock(b){
+  const head=(b.name||"Set")+(b.main?" (main set)":"");
+  if (b.status==="skipped") return head+": skipped";
+  const rounds=(b.rounds||[]).map(R=>(R.items||[]).map(it=>{
+    const done=Number(it.done)||0, tgt=Number(it.target)||0, times=it.times||[];
+    let t=done+"×"+(it.label || ((it.dist||"?")+(it.what?" "+it.what:"")));
+    if (tgt && done<tgt) t+=" (of "+tgt+" planned)";
+    if (times.some(x=>x>0)) t+=" times "+times.map(x=>x>0?fmtRepTime(x):"?").join(",");
+    return t; }).join(" + "));
+  const body=rounds.length>1 ? rounds.map((r,i)=>"round "+(i+1)+": "+r).join(" | ") : (rounds[0]||"nothing done");
+  return head+(b.status==="cut"?" (cut short)":"")+": "+body;
+}
+// One session, a head line and indented detail lines. A field this doesn't know (one an older
+// version saved, say) still goes in as it is stored, so nothing logged is left out.
+function coachSession(s){
+  const used=new Set(["id","ts","tplId"]), take=(k)=>{ used.add(k); return s[k]; };
+  const T=take("type"), min=Number(take("minutes"))||0, sub=[];
+  let L="- "+take("date")+" "+(TYPES[T]?TYPES[T].label:(T||"?"));
+  const tpl=take("tpl"); if (tpl) L+=" ("+tpl+")";
+  if (min>0 || T!=="rest") L+=" "+fmtMin(min);
+  L+=" feel:"+(take("feel")||"?")+"/5";
+  const effort=take("effort"); if (effort) L+=" effort:"+effort+"/10";
+  if (T==="swim"){
+    const v=swimOf(s); ["swimDist","swimUnit","yards","mainPace","sessionPace","swim","swimSets"].forEach(k=>used.add(k));
+    if (v.dist) L+=" "+v.dist+v.unit;
+    const pool=take("pool"); if (pool) L+=" pool:"+(POOLS[pool]?POOLS[pool].label:pool);
+    const stage=take("stage"); if (stage) L+=" stage:"+(STAGE_NAMES[stage]||stage);
+    if (v.mainPace) L+=" main-set:"+secFmt(v.mainPace)+"/100";
+    if (v.sessionPace) L+=" session:"+secFmt(v.sessionPace)+"/100(rest incl)";
+    for (const b of v.blocks||[]) sub.push(coachSwimBlock(b));
+  }
+  else if (s.yards){ used.add("yards"); L+=" "+s.yards+"yd"; const p=pace100(min,s.yards); if(p) L+=" "+p; }
+  const mi=take("miles"); if (mi){ L+=" "+mi+"mi"; const p=paceStr(min,mi); if(p) L+=" "+p; }
+  const m=take("meters"); if (m){ L+=" "+m+"m"; const p=splitStr(min,m); if(p) L+=" "+p; }
+  const kind=take("kind"); if (kind) L+=" ["+kind+"]";
+  const spm=take("spm"); if (spm) L+=" "+spm+"spm";
+  const vol=take("volume"); if (vol) L+=" vol:"+vol+"lb";
+  const sore=take("sore");
+  if (sore && typeof sore==="object" && Object.keys(sore).length)
+    L+=" sore:["+Object.keys(sore).map(a=>a+":"+sore[a]).join(",")+"]";
+  const ex=take("exercises");
+  if (Array.isArray(ex)) for (const e of ex)
+    sub.push((e.name||"?")+": "+((Array.isArray(e.sets)&&e.sets.length) ? e.sets.map(setStr).join(", ") : "no sets"));
+  const notes=take("notes"); if (notes) sub.push("notes: "+JSON.stringify(String(notes)));
+  const rest=Object.keys(s).filter(k=>!used.has(k) && s[k]!=null && s[k]!=="");
+  if (rest.length) sub.push("also stored: "+rest.map(k=>k+"="+JSON.stringify(s[k])).join(", "));
+  return [L, ...sub.map(x=>"    "+x)].join("\n");
+}
+const plural=(n,w)=>n+" "+w+(n===1?"":"s");
+const coachCounts=()=>plural(S.sessions.length,"session")+" and "+plural(S.weights.length,"weigh-in");
 function buildCoachPrompt(){
-  const cut=Date.now()-56*864e5;
-  const sess=[...S.sessions].filter(s=>(s.ts||0)>=cut).sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-40);
-  const lines=sess.map(s=>{
-    let L="- "+s.date+" "+(s.type||"?")+(s.tpl?" ("+s.tpl+")":"")+" "+fmtMin(s.minutes||0)+" feel:"+(s.feel||"?")+"/5";
-    if (s.type==="swim"){ const v=swimOf(s);
-      if (v.dist) L+=" "+v.dist+v.unit;
-      if (v.mainPace) L+=" main-set:"+secFmt(v.mainPace)+"/100";
-      if (v.sessionPace) L+=" session:"+secFmt(v.sessionPace)+"/100(rest incl)";
-      if (s.swim && Array.isArray(s.swim.blocks)){
-        for (const b of s.swim.blocks){
-          if (b.status==="skipped"){ L+=" skipped:"+b.name; continue; }
-          if (b.status==="cut") L+=" cut-short:"+b.name;
-          if (b.main){ const t=b.rounds.flatMap(R=>R.items.flatMap(it=>(it.times||[]).map(x=>x>0?fmtRepTime(x):"?")));
-            if (t.length) L+=" main["+b.rounds.map(R=>R.items.map(it=>it.done+"x"+it.dist).join("+")).join(" | ")+"]:"+t.join(","); }
-        }
-      }
-    }
-    else if (s.yards){ L+=" "+s.yards+"yd"; const p=pace100(s.minutes,s.yards); if(p) L+=" "+p; }
-    if (s.effort) L+=" effort:"+s.effort+"/10";
-    if (s.miles){ L+=" "+s.miles+"mi"; const p=paceStr(s.minutes,s.miles); if(p) L+=" "+p; }
-    if (s.meters){ L+=" "+s.meters+"m"; const p=splitStr(s.minutes,s.meters); if(p) L+=" "+p; }
-    if (s.kind) L+=" ["+s.kind+"]";
-    if (s.spm) L+=" "+s.spm+"spm";
-    if (s.volume) L+=" vol:"+s.volume+"lb";
-    if (s.exercises) L+=" tops:["+s.exercises.slice(0,6).map(e=>{
-      const b=bestOf(e.sets||[]); return b? e.name+" "+fmtW(b.w)+"x"+b.r : e.name; }).join(", ")+"]";
-    if (s.swimSets && !s.swim) L+=" sets:["+s.swimSets.map(st=>st.reps?st.reps+"x"+st.each:st.y+"yd").join(", ")+"]";
-    if (s.sore && typeof s.sore==="object" && Object.keys(s.sore).length)
-      L+=" sore:["+Object.keys(s.sore).map(a=>a+":"+s.sore[a]).join(",")+"]";
-    if (s.notes) L+=' notes:"'+String(s.notes).slice(0,120)+'"';
-    return L;
-  });
-  const wts=[...S.weights].filter(w=>(w.ts||0)>=cut).sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-20)
-      .map(w=>"- "+w.date+" "+w.lbs+"lb");
+  const sess=[...S.sessions].sort(byTs), lines=sess.map(coachSession);
+  const wsorted=[...S.weights].sort(byTs), wts=wsorted.map(w=>"- "+w.date+" "+w.lbs+"lb");
+  const span=(a)=>a.length ? ", "+a[0].date+" to "+a[a.length-1].date : "";
   return [
 "You are a pragmatic, no-nonsense personal trainer reviewing a client's training log. Reply in plain text (no markdown headers), under 300 words, direct and specific.",
 "",
@@ -3559,10 +3582,10 @@ swimContext(),
 "",
 "Goals (their words): " + ($("#goals").value.trim() || S.goals || "none written yet"),
 "",
-"Sessions, last 8 weeks (oldest first; 'tops' = best set per exercise, 'vol' = total lb moved; swims: 'main-set' = pace from main-set rep times, 'session' = total time over distance with rest, 'main[...]' = the main set's reps and their times, 'sets' = older swims logged set by set):",
+"Every session logged, all "+sess.length+span(sess)+", oldest first, nothing left out. Time: 48′ = 48 minutes, 9:36 = 9 min 36 s; feel is 1-5, effort 1-10, soreness 1-3. Lifts list every set as weight×reps (BW = bodyweight), 'vol' = total lb moved. Swims: 'main-set' = pace from the main set's rep times, 'session' = total time over distance with rest; then each block as reps×distance with its rep times, 'of N planned' where it was cut short. Notes are the owner's own words.",
 lines.length ? lines.join("\n") : "(none logged yet)",
 "",
-"Weigh-ins, last 8 weeks:",
+"Every weigh-in, all "+wts.length+span(wsorted)+":",
 wts.length ? wts.join("\n") : "(none logged)",
 "",
 "Give: 1) a one-sentence read on how training is actually going vs the goals, 2) two or three concrete adjustments for the next two weeks — lifting progression where the top sets support it, swim/cardio pacing or volume moves where the paces support them, and recovery moves (a rest day, stretch session, or load reduction) where the soreness pattern warrants it, 3) one thing to watch out for, weighing recurring or worsening soreness heavily (shoulders especially, given the swim return). If the data is thin, say what to log so the next check-in is useful. Don't invent data that isn't there."

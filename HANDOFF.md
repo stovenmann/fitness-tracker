@@ -85,8 +85,10 @@ Theme and beep preferences are in `localStorage` per device (`dl-theme`, `dl-bee
 - **Coach**: goals text, then "Coach with Claude" (built 2026-11-09, CLOUDFLARE.md step 7; the
   page can't call Claude itself on Cloudflare). **Share to Claude** / **Copy** make the coaching
   export (`buildCoachExport()`): the trainer prompt (`buildCoachPrompt()`, with the owner's
-  profile, goals and the last 8 weeks), the current workouts as JSON with their ids
-  (`coachWorkouts()`), and `PLAN_HELP`, which asks Claude to end with one fenced
+  profile, goals and the whole log: every session of every kind since the first, every set,
+  swim block and note in full, every weigh-in, and any field it doesn't know as stored,
+  `coachSession()`), the current workouts as JSON with their ids (`coachWorkouts()`), and
+  `PLAN_HELP`, which asks Claude to end with one fenced
   ```fitness-plan-changes block. Pasted back, `parsePlanChanges()` finds the block (fenced or
   bare), `checkPlanChanges()` checks every change against the real workouts and builds the
   before → after preview, and Apply writes only the ticked ones (`applyPlanChanges()`). Undo
@@ -249,11 +251,12 @@ What's built, beyond the findings above:
 - The stand-in's database lives in the test browser's localStorage (`fitness-tracker-mock-api`);
   `window.__mock` peeks at it and switches failures on and off.
 - `/tools/tests.html` runs every check: the Worker's 12 (`tools/worker-tests.js` against
-  `worker/index.js`, with an in-memory database and made-up sign-in tokens), then the app's 23
+  `worker/index.js`, with an in-memory database and made-up sign-in tokens), then the app's 24
   (`tools/app-tests.js`: no signal, signed out, server problem, a kept copy, a copy from another
   database, deletes, the swim in progress, the 135 swim checks, the time boxes' keyboard and its
-  done key, the 16px floor for every box, Coach's export, preview, apply, undo and refusals, and
-  the Home Screen icon, manifest and status bar). Add `?only=<words>` to run some. All 35 pass.
+  done key, the 16px floor for every box, Coach's export (the whole log in it), preview, apply,
+  undo and refusals, and the Home Screen icon, manifest and status bar). Add `?only=<words>` to
+  run some. All 36 pass.
 - When the Claude window is hidden (the owner working from his phone), the browser slows every
   timer: a 10 ms timer takes a second, later a minute. The checks wait for what they expect
   (`until()`), not a fixed time, so they still pass, only slowly (a full run took about 7
