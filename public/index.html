@@ -223,6 +223,15 @@ ul.sess li{background:var(--paper); border:1.5px solid var(--line); border-left:
 .sess .type{font-family:var(--d); font-stretch:70%; font-weight:800; font-size:14.5px; letter-spacing:.02em; text-transform:uppercase}
 .sess .date{font-size:12px; color:var(--muted)}
 .sess .meta{font-size:12.5px; color:var(--ink2)}
+.sess .datebtn{background:none; border:0; padding:3px 0; font:inherit; font-size:12px; color:var(--blue-deep); cursor:pointer;
+  text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:3px}
+.sess .dateedit{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px}
+.sess .dateedit input{flex:0 1 180px; min-width:0}
+/* the day and length of a finished lift or swim, for logging one from an earlier day (Steve,
+   2026-11-11: yesterday's lift saved as today's) */
+.whenrow{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:12px}
+.whenrow label{display:flex; flex-direction:column; min-width:0}
+.whenrow input{display:block; width:100%; min-width:0}
 .sess .notes{font-size:13.5px; color:var(--ink2); overflow-wrap:anywhere; margin-top:3px}
 .sess details{margin-top:4px}
 .sess details summary{cursor:pointer; font-size:12.5px; color:var(--blue-deep); font-weight:600; list-style:none}
@@ -296,14 +305,20 @@ dl.gloss dd{margin:2px 0 0; color:var(--ink2)}
 .lastline2{font-size:13px; color:var(--ink2); margin-top:7px}
 .lastline2 b{color:var(--ink)}
 .woDetail{font-size:15px; color:var(--ink); margin-top:8px; white-space:pre-line}
-.ctrls{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:14px}
-.ctrl{border:2px solid var(--ink); border-radius:13px; padding:9px 10px 11px; text-align:center}
+/* minmax(0,1fr) and width:0 below: a number box is as wide as 20 digits by default, which pushed
+   the weight and reps boxes off a phone's screen (Steve, 2026-11-11) */
+.ctrls{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:14px}
+.ctrl{min-width:0; border:2px solid var(--ink); border-radius:13px; padding:9px 10px 11px; text-align:center}
 .ctrl .clbl{font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink2)}
-.ctrl .crow{display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:5px}
+/* the number across the whole box, − and + side by side under it: between the buttons a phone
+   had room for 2 digits, not 137.5 */
+.ctrl .crow{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-top:5px}
+.ctrl .crow input{grid-row:1; grid-column:1 / -1}
+.ctrl .crow .stepb{grid-row:2; width:auto}
 .stepb{width:42px; height:42px; border:1.5px solid var(--ink); border-radius:10px; background:var(--paper);
   font-family:var(--d); font-weight:700; font-size:20px; color:var(--ink); cursor:pointer; flex:none;
   display:flex; align-items:center; justify-content:center}
-.ctrl input{flex:1 1 auto; min-width:0; text-align:center; border:0; background:transparent; padding:0;
+.ctrl input{width:100%; min-width:0; text-align:center; border:0; background:transparent; padding:0;
   font-family:var(--d); font-stretch:62.5%; font-weight:900; font-size:36px; color:var(--ink)}
 .ctrl .cunit{font-size:11px; color:var(--muted); margin-top:3px}
 #lwPlates{font-size:12.5px; color:var(--ink2); margin-top:9px; min-height:16px}
@@ -593,7 +608,7 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
             <button type="button" data-type="rest" style="--dotc:var(--s-rest)" aria-pressed="false"><span class="dot"></span>Rest</button>
             <button type="button" data-type="other" style="--dotc:var(--s-other)" aria-pressed="false"><span class="dot"></span>Other</button>
           </div>
-          <p class="hint" id="liftHint" hidden style="margin:7px 0 0">Tracking sets and weights? <a href="#train">Train</a> logs lifts exercise by exercise.</p>
+          <p class="hint" id="liftHint" hidden style="margin:7px 0 0">Tracking sets and weights? <a href="#train">Train</a> logs lifts exercise by exercise, for today or an earlier day.</p>
           <p class="hint" id="swimHint" style="margin:7px 0 0">Running the full workout? <a href="#train">Train</a> logs it set by set.</p>
         </div>
         <div id="minField">
@@ -692,6 +707,7 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
     </div>
 
     <h2 class="sec">Recent sessions</h2>
+    <p class="statusmsg" id="sessListMsg" role="status" style="margin:0 0 6px"></p>
     <ul class="sess" id="sessList"></ul>
     <div class="empty" id="sessEmpty">No sessions yet — log your first one above and it shows up here.</div>
   </section>
@@ -848,7 +864,13 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
 
     <div class="card wo" id="liftFinish" hidden>
       <h2 class="sec" style="margin-top:0;border:0;padding:0">Workout done <small id="lfSummary"></small></h2>
-      <div class="flabel">How it felt</div>
+      <div class="whenrow">
+        <label><span class="flabel">Date</span><input type="date" id="lfDate" aria-label="Date of this workout"></label>
+        <!-- the full keyboard, on purpose: an iPhone's number pad has no ":" for mm:ss -->
+        <label><span class="flabel">Time · mm:ss</span><input type="text" id="lfTime" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="48:00" aria-label="Total time"></label>
+      </div>
+      <p class="hint" style="margin:6px 0 0">Logging an earlier day? Set its date and how long it took.</p>
+      <div class="flabel" style="margin-top:14px">How it felt</div>
       <div class="feelseg" id="lfFeel" role="group" aria-label="How it felt">
         <button type="button" data-f="1" aria-pressed="false"><span class="n">1</span><span class="t">rough</span></button>
         <button type="button" data-f="2" aria-pressed="false"><span class="n">2</span><span class="t">&nbsp;</span></button>
@@ -909,9 +931,11 @@ table.sfblocks{width:100%; border-collapse:collapse; font-size:13.5px; margin-to
         <p class="hint" style="margin:0">From your taps. Fix any you mis-tapped; leave one blank if you don't know it.</p>
         <div id="sfTimes"></div>
       </div>
-      <div class="flabel" style="margin-top:16px">Total time · mm:ss</div>
-      <!-- the full keyboard, on purpose: an iPhone's number pad has no ":" for mm:ss -->
-      <input type="text" id="sfTime" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="42:10" aria-label="Total time" style="width:140px">
+      <div class="whenrow" style="margin-top:16px">
+        <label><span class="flabel">Date</span><input type="date" id="sfDate" aria-label="Date of this swim"></label>
+        <!-- the full keyboard, on purpose: an iPhone's number pad has no ":" for mm:ss -->
+        <label><span class="flabel">Total time · mm:ss</span><input type="text" id="sfTime" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="42:10" aria-label="Total time"></label>
+      </div>
       <p class="hint" id="sfPace" style="margin-top:6px"></p>
       <div class="flabel" style="margin-top:14px">Effort<span id="sfEffWord"></span></div>
       <div class="effseg" id="sfEffort" role="group" aria-label="Effort, 1 easy to 10 all out"></div>
@@ -1111,6 +1135,9 @@ const PLAN_SWIM = [
 const pad = (n) => String(n).padStart(2,"0");
 const todayStr = () => { const d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
 const toTs = (dateStr) => Date.parse(dateStr + "T12:00:00");
+const isDay = (v) => /^\d{4}-\d\d-\d\d$/.test(String(v||"")) && isFinite(toTs(v));
+// " for Tue, Nov 10" when a session is saved for another day than today
+const onDay = (d) => d===todayStr() ? "" : " for "+fmtDate(d);
 const fmtDate = (dateStr) => { const t=toTs(dateStr); if(!isFinite(t)) return dateStr;
   return new Date(t).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}); };
 const weekStart = (ts) => { const d=new Date(ts); d.setHours(12,0,0,0);
@@ -1576,7 +1603,7 @@ $("#wtDate").value = todayStr();
 // The keyboard's done key in a time box closes the keyboard and keeps what's typed. In the Log
 // form it would otherwise send the form, logging the session and emptying the boxes (Steve, on
 // his iPhone, 2026-11-09). Logging stays on the Log button.
-["sessMin","sfTime"].forEach(id=>$("#"+id).addEventListener("keydown",(e)=>{
+["sessMin","sfTime","lfTime"].forEach(id=>$("#"+id).addEventListener("keydown",(e)=>{
   if (e.key==="Enter"){ e.preventDefault(); e.target.blur(); }
 }));
 
@@ -2424,6 +2451,7 @@ function renderSwimFinish(){
     })); });
   $("#sfTimesWrap").hidden=!any;
   $("#sfTime").value=f.time!=null?f.time:(elapsedSec?fmtDur(elapsedSec):"");
+  $("#sfDate").value=f.date||dateOf(L.startedAt||L.createdAt);
   paintEffort(); paintFeel("#sfFeel", f.feel||3);
   soreSwim.set(f.sore||{});
   $("#sfNotes").value=f.notes||"";
@@ -2457,6 +2485,7 @@ function paintEffort(){
 }
 function paintFeel(sel, v){ document.querySelectorAll(sel+" button").forEach(c=>c.setAttribute("aria-pressed",String(Number(c.dataset.f)===v))); }
 $("#sfTime").addEventListener("input",()=>{ finDraft().time=$("#sfTime").value; updSfPace(); saveFinDraft(); });
+["input","change"].forEach(ev=>$("#sfDate").addEventListener(ev,()=>{ if (!R) return; finDraft().date=$("#sfDate").value; saveFinDraft(); }));
 $("#sfNotes").addEventListener("input",()=>{ finDraft().notes=$("#sfNotes").value; saveFinDraft(); });
 $("#sfFeel").addEventListener("click",(e)=>{
   const b=e.target.closest("button[data-f]"); if (!b||!R) return;
@@ -2470,10 +2499,12 @@ $("#sfSave").addEventListener("click", async ()=>{
   if (!S.db || !S.uid) return flash(msg,"Still connecting — try again in a moment.",true);
   const { out, bad }=finTimes();
   if (bad.length){ bad[0].focus(); return flash(msg,"Check the rep times marked in red: m:ss, like 1:42.",true); }
+  const date=$("#sfDate").value;
+  if (!isDay(date)) return flash(msg,"Pick the day you swam.",true);
   const min=parseTime($("#sfTime").value);
   if (!(min>0)) return flash(msg,"Enter the total time, like 42:10.",true);
   const f=finDraft();
-  const body=swimSessionBody(R,{ date:dateOf(R.startedAt||R.createdAt), minutes:min, effort:f.effort||5, feel:f.feel||3,
+  const body=swimSessionBody(R,{ date, minutes:min, effort:f.effort||5, feel:f.feel||3,
     notes:$("#sfNotes").value.trim(), sore:soreSwim.get(), times:out });
   const b=$("#sfSave"); if (b.disabled) return; b.disabled=true;
   try {
@@ -2482,7 +2513,7 @@ $("#sfSave").addEventListener("click", async ()=>{
     clearLive(); endRunner(); soreSwim.reset();
     await markComebackStart(body.date);
     location.hash="#home";
-    flash($("#saveMsg"), name+" saved — "+body.swimDist.toLocaleString()+" "+body.swimUnit+(body.mainPace?", main set "+secFmt(body.mainPace)+"/100":"")+"."+keptNote(r));
+    flash($("#saveMsg"), name+" saved"+onDay(date)+" — "+body.swimDist.toLocaleString()+" "+body.swimUnit+(body.mainPace?", main set "+secFmt(body.mainPace)+"/100":"")+"."+keptNote(r));
   } catch(e){ flash(msg,saveErr(e),true); }
   finally { b.disabled=false; }
 });
@@ -2605,7 +2636,7 @@ function updPlates(){ const p=plates(Number($("#lwW").value)||0);
 
 function startLift(t){
   if (!S.db || !S.uid){ flash($("#tplMsg"),"Sign in to run a workout.",true); return; }
-  LW.active=true; LW.tpl=t; LW.idx=0; LW.startTs=Date.now(); LW.feel=3;
+  LW.active=true; LW.tpl=t; LW.idx=0; LW.startTs=Date.now(); LW.feel=3; LW.dateSet=false; LW.timeSet=false;
   LW.log=t.ex.map(e=>({name:e.name, target:e.s+"×"+e.r, tr:e.r, sets:[]}));
   $("#trainHome").hidden=true; $("#liftFinish").hidden=true; $("#swimRun").hidden=true; $("#swimFinish").hidden=true;
   $("#liftWo").hidden=false; $("#lwSess").textContent=t.name;
@@ -2667,10 +2698,16 @@ function showLiftFinish(){
     setTimeout(()=>b.textContent="Finish workout",2500); return;
   }
   const vol=done.reduce((a,e)=>a+e.sets.reduce((x,st)=>x+st[0]*st[1],0),0);
-  const mins=Math.max(1,Math.round((Date.now()-LW.startTs)/60000));
-  $("#lfSummary").textContent=done.length+" exercises · "+vol.toLocaleString()+" lb · "+mins+" min";
+  $("#lfSummary").textContent=done.length+" exercise"+(done.length===1?"":"s")+" · "+vol.toLocaleString()+" lb";
+  // today and the time since Start, unless already changed here
+  if (!LW.dateSet) $("#lfDate").value=dateOf(LW.startTs);
+  if (!LW.timeSet) $("#lfTime").value=fmtDur(Math.max(60,(Date.now()-LW.startTs)/1000));
   $("#liftWo").hidden=true; $("#liftFinish").hidden=false;
 }
+["input","change"].forEach(ev=>{
+  $("#lfDate").addEventListener(ev,()=>{ LW.dateSet=true; });
+  $("#lfTime").addEventListener(ev,()=>{ LW.timeSet=true; });
+});
 $("#lwFinish").addEventListener("click",()=>{
   const done=LW.log.filter(e=>e.sets.length);
   if (!done.length){ endLiftUI(); return; }
@@ -2687,8 +2724,10 @@ $("#lfSave").addEventListener("click", async ()=>{
   if (!S.db || !S.uid) return flash(msg,"Still connecting — try again in a moment.",true);
   const done=LW.log.filter(e=>e.sets.length).map(e=>({name:e.name, sets:e.sets}));
   const vol=done.reduce((a,e)=>a+e.sets.reduce((x,st)=>x+st[0]*st[1],0),0);
-  const mins=Math.max(1,Math.round((Date.now()-LW.startTs)/60000));
-  const body={ date:todayStr(), ts:toTs(todayStr()), type:"lift", minutes:mins, feel:LW.feel,
+  const date=$("#lfDate").value, min=parseTime($("#lfTime").value);
+  if (!isDay(date)) return flash(msg,"Pick the day you lifted.",true);
+  if (!(min>0)) return flash(msg,"Enter how long it took, like 48:00.",true);
+  const body={ date, ts:toTs(date), type:"lift", minutes:Math.round(min*100)/100, feel:LW.feel,
                notes:$("#lfNotes").value.trim(), tpl:LW.tpl.name, exercises:done, volume:vol };
   const lsore=soreLift.get(); if (Object.keys(lsore).length) body.sore=lsore;
   const btn=$("#lfSave"); btn.disabled=true;
@@ -2696,7 +2735,7 @@ $("#lfSave").addEventListener("click", async ()=>{
     const r=await userCol("sessions").add(body);
     $("#lfNotes").value=""; soreLift.reset();
     endLiftUI(); location.hash="#home";
-    flash($("#saveMsg"), LW.tpl.name+" saved — "+vol.toLocaleString()+" lb moved."+keptNote(r));
+    flash($("#saveMsg"), LW.tpl.name+" saved"+onDay(date)+" — "+vol.toLocaleString()+" lb moved."+keptNote(r));
   } catch(e){ flash(msg,saveErr(e),true); }
   finally { btn.disabled=false; }
 });
@@ -2945,6 +2984,29 @@ function logBlockLine(b, unit){
   }
   return line;
 }
+function toggleRedate(body, s){
+  const open=body.querySelector(".dateedit"); if (open){ open.remove(); return; }
+  const row=document.createElement("div"); row.className="dateedit";
+  const inp=document.createElement("input"); inp.type="date"; inp.value=s.date||todayStr(); inp.setAttribute("aria-label","New date");
+  const go=document.createElement("button"); go.type="button"; go.className="btn sm"; go.textContent="Move";
+  const no=document.createElement("button"); no.type="button"; no.className="linklike"; no.textContent="cancel";
+  const m=document.createElement("span"); m.className="statusmsg"; m.setAttribute("role","status");
+  no.addEventListener("click",()=>row.remove());
+  go.addEventListener("click", async ()=>{
+    const v=inp.value;
+    if (!isDay(v)) return flash(m,"Pick a date.",true);
+    if (v===s.date){ row.remove(); return; }
+    if (!S.db || !S.uid) return flash(m,"Still connecting — try again in a moment.",true);
+    const data=Object.assign({}, s); delete data.id; data.date=v; data.ts=toTs(v);
+    go.disabled=true;
+    try {
+      const r=await userCol("sessions").doc(s.id).set(data);
+      row.remove();
+      flash($("#sessListMsg"), (s.tpl||TYPES[typeKey(s)].label)+" moved to "+fmtDate(v)+"."+keptNote(r));
+    } catch(e){ go.disabled=false; flash(m,saveErr(e),true); }
+  });
+  row.append(inp,go,no,m); body.append(row);
+}
 function renderSessions(){
   const ul=$("#sessList"); ul.textContent="";
   const list=[...S.sessions].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,60);
@@ -2956,7 +3018,10 @@ function renderSessions(){
     const body=document.createElement("div"); body.className="body";
     const top=document.createElement("div"); top.className="top";
     const ty=document.createElement("span"); ty.className="type"; ty.textContent=s.tpl||t.label;
-    const dt=document.createElement("span"); dt.className="date"; dt.textContent=fmtDate(s.date||"");
+    // the date is a button: tap it to move the session to another day (Steve, 2026-11-11)
+    const dt=document.createElement("button"); dt.type="button"; dt.className="date datebtn"; dt.textContent=fmtDate(s.date||"");
+    dt.setAttribute("aria-label","Change the date, "+fmtDate(s.date||""));
+    dt.addEventListener("click",()=>toggleRedate(body, s));
     const meta=document.createElement("span"); meta.className="meta";
     let mt=fmtMin(s.minutes||0);
     if (s.type==="swim"){ const v=swimOf(s);

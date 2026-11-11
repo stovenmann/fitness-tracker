@@ -74,12 +74,17 @@ Theme and beep preferences are in `localStorage` per device (`dl-theme`, `dl-bee
   one, the week as a ledger, and a stat band (weekly lift load, weight with 30-day change,
   most-sore area over 2 weeks).
 - **Log** (:970): quick log for any activity with mm:ss time, distance presets, live pace,
-  feel and soreness; bodyweight entry; the last 60 sessions with delete.
+  feel and soreness; bodyweight entry; the last 60 sessions with delete. Tapping a session's
+  date moves it to another day (`toggleRedate()`: date and `ts` change, nothing else; added
+  2026-11-11).
 - **Train**: lift templates (Upper/Lower × Push/Pull + Core) and the swim plan's five workouts,
   both editable (swim has a structured block and item editor); a live lift workout with
   steppers, plate math, a rest timer, a beep and a screen wake lock; the pool-side swim runner
   (see "Swim build" below); exercise history; plate calculator; settings (bar, rest, pool,
-  comeback start, sound).
+  comeback start, sound). Both finish screens take the date (today by default) so an earlier
+  day can be logged; the lift's also takes its time (from Start by default). On 2026-11-11
+  Steve found the lift steppers off the side of his iPhone: a number box is 20 digits wide by
+  default, so the grid needs `minmax(0,1fr)`; the number now sits above its − and +.
 - **Trends** (:1788): tiles, minutes per week stacked by activity (8 weeks), bodyweight,
   swim pace per 100 and run pace per mile (6 months). Hand-built SVG.
 - **Coach**: goals text, then "Coach with Claude" (built 2026-11-09, CLOUDFLARE.md step 7; the
@@ -251,12 +256,15 @@ What's built, beyond the findings above:
 - The stand-in's database lives in the test browser's localStorage (`fitness-tracker-mock-api`);
   `window.__mock` peeks at it and switches failures on and off.
 - `/tools/tests.html` runs every check: the Worker's 12 (`tools/worker-tests.js` against
-  `worker/index.js`, with an in-memory database and made-up sign-in tokens), then the app's 24
+  `worker/index.js`, with an in-memory database and made-up sign-in tokens), then the app's 28
   (`tools/app-tests.js`: no signal, signed out, server problem, a kept copy, a copy from another
   database, deletes, the swim in progress, the 135 swim checks, the time boxes' keyboard and its
-  done key, the 16px floor for every box, Coach's export (the whole log in it), preview, apply,
-  undo and refusals, and the Home Screen icon, manifest and status bar). Add `?only=<words>` to
-  run some. All 36 pass.
+  done key, the 16px floor for every box, nothing wider than the phone on any screen, a lift
+  and a swim saved for an earlier day, moving a saved session, Coach's export (the whole log in
+  it), preview, apply, undo and refusals, and the Home Screen icon, manifest and status bar).
+  Add `?only=<words>` to run some. All 40 pass. A screen check must first wait until the screen
+  shows (`seen()`): a tab switches a moment after its address, and a hidden screen measures as
+  nothing, so it passes without checking anything.
 - When the Claude window is hidden (the owner working from his phone), the browser slows every
   timer: a 10 ms timer takes a second, later a minute. The checks wait for what they expect
   (`until()`), not a fixed time, so they still pass, only slowly (a full run took about 7

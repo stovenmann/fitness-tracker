@@ -245,7 +245,7 @@
 
   check("the time boxes open the full keyboard, so mm:ss can be typed on an iPhone", async () => {
     const a = await openApp("clear=1");
-    for (const id of ["sessMin", "sfTime"]) {
+    for (const id of ["sessMin", "sfTime", "lfTime"]) {
       const el = a.$("#" + id);
       // an iPhone's number pad (numeric, decimal, tel) has no ":" key
       truly(id + " doesn't ask for a number pad: " + el.getAttribute("inputmode"), !/numeric|decimal|tel/.test(el.getAttribute("inputmode") || ""));
@@ -263,7 +263,7 @@
   check("the keyboard's done key in a time box keeps what's typed and logs nothing", async () => {
     const a = await openApp("clear=1");
     a.click('#typeChips [data-type="run"]');
-    for (const id of ["sessMin", "sfTime"]) {
+    for (const id of ["sessMin", "sfTime", "lfTime"]) {
       const el = a.$("#" + id);
       el.focus();
       el.value = "9:52";
@@ -296,6 +296,141 @@
     const shrink = rules.filter((r) => /px$/.test(r.style.fontSize) && parseFloat(r.style.fontSize) < 16)
       .map((r) => r.selectorText + " → " + r.style.fontSize);
     same("styles that make a box smaller than 16px", shrink, []);
+  });
+
+  /* ---------- the lift screen on a phone, and dates for Train sessions (2026-11-11) ---------- */
+  const dayStr = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+  const noon = (s) => Date.parse(s + "T12:00:00");
+  const setVal = (a, sel, v) => { const el = a.$(sel); el.value = v; el.dispatchEvent(new a.win.Event("input", { bubbles: true })); el.dispatchEvent(new a.win.Event("change", { bubbles: true })); };
+  // on the screen now: laid out, not just present (a tab switches a moment after its address)
+  const seen = (a, sel) => { const el = a.$(sel); return !!el && el.getClientRects().length > 0; };
+  const startFirstLift = async (a) => {
+    a.win.location.hash = "#train";
+    await until(() => seen(a, "#panel-train"), "the Train tab to show");
+    const go = await until(() => [...a.doc.querySelectorAll("#tplList button")].find((x) => x.textContent.trim() === "Start"), "a lift workout to start");
+    go.click();
+    await until(() => seen(a, "#liftWo .ctrl"), "the lift workout to show");
+  };
+  // what sticks out past the screen's right or left edge, unless a box it's in scrolls or clips it
+  const spill = (a, where) => {
+    const W = a.win.innerWidth, out = [];
+    for (const el of a.doc.body.querySelectorAll("*")) {
+      if (!el.getClientRects().length) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 1 || (r.right <= W + 1 && r.left >= -1)) continue;
+      let q = el.parentElement, clipped = false;
+      while (q && q !== a.doc.body) { if (a.win.getComputedStyle(q).overflowX !== "visible") { clipped = true; break; } q = q.parentElement; }
+      if (!clipped) out.push(where + ": " + (el.id ? "#" + el.id : el.tagName.toLowerCase() + (el.className ? "." + el.className : "")) + " at " + Math.round(r.left) + " to " + Math.round(r.right));
+    }
+    if (a.doc.documentElement.scrollWidth > W + 1) out.push(where + ": the page scrolls sideways, " + a.doc.documentElement.scrollWidth + "px for " + W);
+    return out;
+  };
+
+  check("nothing on a phone's screen is wider than the phone: every tab, a lift and a swim, and their finish screens", async () => {
+    const a = await openApp("clear=1&seed=1");
+    const found = [];
+    for (const tab of ["home", "log", "train", "trends", "coach"]) {
+      a.win.location.hash = "#" + tab;
+      await until(() => seen(a, "#panel-" + tab), "the " + tab + " tab to show");
+      found.push(...spill(a, tab));
+    }
+    await startFirstLift(a);
+    found.push(...spill(a, "lift"));
+    // the weight box holds a weight like 137.5 whole, and every − and + is on the screen to tap
+    a.$("#lwW").value = "137.5";
+    truly("137.5 fits in the weight box", a.$("#lwW").scrollWidth <= a.$("#lwW").clientWidth + 1);
+    for (const btn of a.doc.querySelectorAll("#liftWo .stepb")) {
+      const r = btn.getBoundingClientRect();
+      same("the " + btn.dataset.stp + " " + btn.textContent + " button is what's under a tap on it", a.doc.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2), btn);
+    }
+    a.click("#lwLog");
+    a.click("#lwFinish");
+    await until(() => seen(a, "#lfDate"), "the lift finish screen to show");
+    found.push(...spill(a, "lift finish"));
+    const b = await openApp("clear=1");
+    b.click("#homeStart");
+    await until(() => seen(b, "#rnGo"), "the swim to show");
+    found.push(...spill(b, "swim"));
+    await wait(1300);                            // a tap right after the screen changes is ignored
+    b.click("#rnEnd"); await wait(300); b.click("#rnEnd");
+    await until(() => seen(b, "#sfDate"), "the swim finish screen to show");
+    found.push(...spill(b, "swim finish"));
+    same("things past the screen's edge", found, []);
+  });
+
+  check("a lift can be saved for an earlier day, with how long it took", async () => {
+    const a = await openApp("clear=1&seed=1");
+    const before = a.mock.count("sessions");
+    await startFirstLift(a);
+    const w0 = Number(a.$("#lwW").value);
+    a.$('#liftWo .stepb[data-stp="lwW"][data-d="5"]').click();
+    same("+ adds 5 lb", Number(a.$("#lwW").value), w0 + 5);
+    a.click("#lwLog");
+    a.click("#lwFinish");
+    await until(() => !a.$("#liftFinish").hidden, "the lift finish screen");
+    same("the date starts as today", a.$("#lfDate").value, dayStr(0));
+    truly("the time starts as the time since Start: " + a.$("#lfTime").value, /^\d+:\d\d$/.test(a.$("#lfTime").value));
+    setVal(a, "#lfDate", dayStr(1));
+    setVal(a, "#lfTime", "52:00");
+    a.click("#lfBack");                          // back to the sets and out again: what's set here stays
+    a.click("#lwFinish");
+    same("the date stays as set", a.$("#lfDate").value, dayStr(1));
+    same("the time stays as set", a.$("#lfTime").value, "52:00");
+    setVal(a, "#lfDate", "");
+    a.click("#lfSave");
+    await wait(300);
+    same("with no date, nothing is saved", a.mock.count("sessions"), before);
+    truly("and it says why: " + a.text("#lfMsg"), /Pick the day/.test(a.text("#lfMsg")));
+    setVal(a, "#lfDate", dayStr(1));
+    a.click("#lfSave");
+    await until(() => a.mock.count("sessions") === before + 1, "the lift to be saved");
+    const s = a.mock.ids("sessions").map((id) => a.mock.peek("sessions", id)).find((x) => x.type === "lift" && x.date === dayStr(1));
+    truly("saved for yesterday", s);
+    same("filed under yesterday", s.ts, noon(dayStr(1)));
+    same("52 minutes", s.minutes, 52);
+    same("the set as logged", s.exercises[0].sets[0][0], w0 + 5);
+    truly("the message names the day: " + a.text("#saveMsg"), /saved for /.test(a.text("#saveMsg")));
+  });
+
+  check("a swim can be saved for an earlier day", async () => {
+    const a = await openApp("clear=1");
+    a.click("#homeStart");
+    await until(() => !a.$("#swimRun").hidden, "the swim to open");
+    await wait(1300);
+    a.click("#rnEnd"); await wait(300); a.click("#rnEnd");
+    await until(() => !a.$("#swimFinish").hidden, "the swim finish screen");
+    same("the date starts as the day of the swim", a.$("#sfDate").value, dayStr(0));
+    setVal(a, "#sfDate", dayStr(2));
+    setVal(a, "#sfTime", "40:00");               // ended before the first push-off: no time from the clock
+    a.click("#sfSave");
+    await until(() => a.mock.count("sessions") === 1, "the swim to be saved");
+    const s = a.mock.peek("sessions", a.mock.ids("sessions")[0]);
+    same("saved for two days ago", [s.type, s.date, s.ts, s.minutes], ["swim", dayStr(2), noon(dayStr(2)), 40]);
+    await until(() => /saved for /.test(a.text("#saveMsg")), "the message to name the day");
+  });
+
+  check("a saved session can be moved to another day, with everything else kept", async () => {
+    const a = await openApp("clear=1&seed=1#log");
+    const id = a.mock.ids("sessions").find((k) => (a.mock.peek("sessions", k) || {}).tpl === "Lower Pull");
+    const was = a.mock.peek("sessions", id);
+    const row = () => [...a.doc.querySelectorAll("#sessList li")].find((li) => li.querySelector(".type").textContent === "Lower Pull");
+    row().querySelector(".datebtn").click();
+    truly("tapping the date opens a date box", row().querySelector(".dateedit input[type=date]"));
+    [...row().querySelectorAll(".dateedit button")].find((x) => x.textContent === "cancel").click();
+    truly("cancel closes it", !row().querySelector(".dateedit"));
+    same("and changes nothing", a.mock.peek("sessions", id), was);
+    row().querySelector(".datebtn").click();
+    const box = row().querySelector(".dateedit input");
+    box.value = dayStr(10);
+    box.dispatchEvent(new a.win.Event("input", { bubbles: true }));
+    [...row().querySelectorAll(".dateedit button")].find((x) => x.textContent === "Move").click();
+    await until(() => (a.mock.peek("sessions", id) || {}).date === dayStr(10), "the session to move");
+    const now = a.mock.peek("sessions", id);
+    same("the day and its time stamp change", [now.date, now.ts], [dayStr(10), noon(dayStr(10))]);
+    same("everything else is kept", Object.assign({}, now, { date: was.date, ts: was.ts }), was);
+    same("no session added or lost", a.mock.count("sessions"), 4);
+    await until(() => [...a.doc.querySelectorAll("#sessList li .type")].map((x) => x.textContent).pop() === "Lower Pull", "the list to re-sort");
+    truly("it says so: " + a.text("#sessListMsg"), /Lower Pull moved to /.test(a.text("#sessListMsg")));
   });
 
   /* ---------- Coach: the export, and Claude's plan changes (step 7) ---------- */
