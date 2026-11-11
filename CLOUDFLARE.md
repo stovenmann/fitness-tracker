@@ -19,6 +19,12 @@ Cloudflare with Steve's data, and the artifact is unchanged. Steve finished the 
   check fills the log with made-up data back 300 days and finds all of it in the export; the
   8-week cut or short notes put back each failed it. 36 checks, all passing. Published on
   Steve's say-so: `live` at `2d6a625`, built as version `a303e857`.
+- **After the move: the lift screen and dates (2026-11-11).** Using the lift workout on his
+  iPhone for the first time, Steve found the weight and reps boxes running off the screen
+  (the same in the artifact) and no way to log yesterday's lift. Fixed: the boxes fit, both
+  finish screens take a date (the lift's a time too), and a saved session's date can be
+  changed from Log. 40 checks, all passing. Published on Steve's say-so: `live` at `18274e6`,
+  built as version `7955e837`.
 - **Step 5, Part 1 (2026-11-09):** Steve created the new D1 database `fitness-tracker`, and its
   id is in `wrangler.jsonc` (a different database from disc golf's).
 - **First publish (2026-11-09):** on Steve's say-so, the `live` branch was made at `801c444`,
