@@ -1666,7 +1666,9 @@ $("#notesToggle").addEventListener("click",()=>{
 });
 
 // soreness widget
-const SORE_AREAS=["Shoulders","Neck","Low back","Hips","Knees","Legs","Elbows","Wrists"];
+// Steve's list of 2026-11-16 (Hips, Legs, Elbows and Wrists went). Soreness is saved under the
+// area's name, so a session logged with an old area still shows it, and the Coach export sends it.
+const SORE_AREAS=["Shoulders","Neck","Low back","Knees","Biceps","Chest","Forearms","Quads","Hamstrings","Calves","Glutes"];
 const SORE_DOTS=["","•","••","•••"];
 function makeSoreness(hostId, onChange){
   const host=document.getElementById(hostId);

@@ -433,6 +433,24 @@
     truly("it says so: " + a.text("#sessListMsg"), /Lower Pull moved to /.test(a.text("#sessListMsg")));
   });
 
+  check("the soreness areas are Steve's list, and soreness logged under an old area still shows", async () => {
+    const a0 = await openApp("clear=1");
+    a0.mock.put("sessions", "old-sore", { date: dayStr(3), ts: noon(dayStr(3)), type: "skate", minutes: 60, feel: 4, sore: { Legs: 2 } });
+    const a = await openApp("again=1#log");
+    const want = ["Shoulders", "Neck", "Low back", "Knees", "Biceps", "Chest", "Forearms", "Quads", "Hamstrings", "Calves", "Glutes"];
+    for (const id of ["soreMain", "soreLift", "soreSwim"]) {
+      same(id + " areas", [...a.doc.querySelectorAll("#" + id + " button")].map((x) => x.textContent), want);
+    }
+    await until(() => /Soreness: Legs/.test(a.text("#sessList")), "the old Legs soreness to show in the list");
+    a.click('#typeChips [data-type="run"]');
+    const glutes = [...a.doc.querySelectorAll("#soreMain button")].find((x) => x.textContent === "Glutes");
+    glutes.click(); glutes.click();
+    same("two taps make it sore", glutes.textContent, "Glutes ••");
+    a.logRun();
+    await until(() => storedRuns(a).length === 1, "the run to be saved");
+    same("saved with its soreness", storedRuns(a)[0].sore, { Glutes: 2 });
+  });
+
   /* ---------- Coach: the export, and Claude's plan changes (step 7) ---------- */
   // a reply as Claude might write it: advice, then the block
   const reply = (changes, bare) => {

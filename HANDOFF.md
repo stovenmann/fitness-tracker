@@ -59,7 +59,7 @@ signed-out state: nothing loads or saves, and Coach is hidden.
 
 | Path | Holds |
 |---|---|
-| `log/sessions` (collection) | One doc per session: `date`, `ts` (local noon), `type`, `minutes`, `feel` 1–5, `notes`, optional `yards` / `miles` / `meters` / `kind` / `spm` / `sore` {area: 1–3}, and for template workouts `tpl`, `exercises` [{name, sets:[[lb, reps]]}], `volume`. **Swims (new):** `swimDist` + `swimUnit` (`yd` or `m`, the pool's own unit; `yards` too when it's yards), `pool`, `effort` 1–10, `tpl` + `tplId`, `stage` (the comeback phase on the day: 1, 2 or 3), `mainPace` and `sessionPace` (seconds per 100), and `swim.blocks` [{name, main, status done/cut/skipped, rounds:[{items:[{label, what, stroke, dist, target, done, times:[seconds or null]}]}]}]. Old v3 swims (`yards` + `swimSets`) are read through `swimOf()` and never rewritten. |
+| `log/sessions` (collection) | One doc per session: `date`, `ts` (local noon), `type`, `minutes`, `feel` 1–5, `notes`, optional `yards` / `miles` / `meters` / `kind` / `spm` / `sore` {area: 1–3} (areas by name, from `SORE_AREAS`: Shoulders, Neck, Low back, Knees, Biceps, Chest, Forearms, Quads, Hamstrings, Calves, Glutes since 2026-11-16; older sessions may hold Hips, Legs, Elbows or Wrists, still shown as logged), and for template workouts `tpl`, `exercises` [{name, sets:[[lb, reps]]}], `volume`. **Swims (new):** `swimDist` + `swimUnit` (`yd` or `m`, the pool's own unit; `yards` too when it's yards), `pool`, `effort` 1–10, `tpl` + `tplId`, `stage` (the comeback phase on the day: 1, 2 or 3), `mainPace` and `sessionPace` (seconds per 100), and `swim.blocks` [{name, main, status done/cut/skipped, rounds:[{items:[{label, what, stroke, dist, target, done, times:[seconds or null]}]}]}]. Old v3 swims (`yards` + `swimSets`) are read through `swimOf()` and never rewritten. |
 | `log/weights` (collection) | `date`, `ts`, `lbs` |
 | `goals` (doc) | `text`, `updatedAt` |
 | `lifting` (doc) | `barLbs`, `restSec`, `templates` [{id, name, ex:[{name, s, r}]}] |
@@ -256,15 +256,15 @@ What's built, beyond the findings above:
 - The stand-in's database lives in the test browser's localStorage (`fitness-tracker-mock-api`);
   `window.__mock` peeks at it and switches failures on and off.
 - `/tools/tests.html` runs every check: the Worker's 12 (`tools/worker-tests.js` against
-  `worker/index.js`, with an in-memory database and made-up sign-in tokens), then the app's 28
+  `worker/index.js`, with an in-memory database and made-up sign-in tokens), then the app's 29
   (`tools/app-tests.js`: no signal, signed out, server problem, a kept copy, a copy from another
   database, deletes, the swim in progress, the 135 swim checks, the time boxes' keyboard and its
   done key, the 16px floor for every box, nothing wider than the phone on any screen, a lift
-  and a swim saved for an earlier day, moving a saved session, Coach's export (the whole log in
-  it), preview, apply, undo and refusals, and the Home Screen icon, manifest and status bar).
-  Add `?only=<words>` to run some. All 40 pass. A screen check must first wait until the screen
-  shows (`seen()`): a tab switches a moment after its address, and a hidden screen measures as
-  nothing, so it passes without checking anything.
+  and a swim saved for an earlier day, moving a saved session, the soreness areas, Coach's
+  export (the whole log in it), preview, apply, undo and refusals, and the Home Screen icon,
+  manifest and status bar). Add `?only=<words>` to run some. All 41 pass. A screen check must
+  first wait until the screen shows (`seen()`): a tab switches a moment after its address, and
+  a hidden screen measures as nothing, so it passes without checking anything.
 - When the Claude window is hidden (the owner working from his phone), the browser slows every
   timer: a 10 ms timer takes a second, later a minute. The checks wait for what they expect
   (`until()`), not a fixed time, so they still pass, only slowly (a full run took about 7
