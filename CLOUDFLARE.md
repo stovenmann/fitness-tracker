@@ -25,6 +25,12 @@ Cloudflare with Steve's data, and the artifact is unchanged. Steve finished the 
   finish screens take a date (the lift's a time too), and a saved session's date can be
   changed from Log. 40 checks, all passing. Published on Steve's say-so: `live` at `18274e6`,
   built as version `7955e837`.
+- **After the move: soreness areas (2026-11-17).** Steve's new list of 11 (Chest, Biceps,
+  Forearms, Quads, Hamstrings, Calves and Glutes in; Hips, Legs, Elbows and Wrists out), on the
+  Log form and both finish screens; soreness logged under an old area still shows. He saw the
+  old list on his phone because it was on `main` only. 41 checks; one Coach check timed out in
+  the full run and passed on its own. Published on Steve's say-so: `live` at `7974008`, built
+  as version `3cd70c47`.
 - **Step 5, Part 1 (2026-11-09):** Steve created the new D1 database `fitness-tracker`, and its
   id is in `wrangler.jsonc` (a different database from disc golf's).
 - **First publish (2026-11-09):** on Steve's say-so, the `live` branch was made at `801c444`,
